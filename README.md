@@ -18,7 +18,7 @@ This repository contains a generalized Python script for performing Exploratory 
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/GeneralizedEDA.git
+    git clone https://github.com/Asifdotexe/eda_script.git
     ```
 
 2. Navigate to the project directory:
