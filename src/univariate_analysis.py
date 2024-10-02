@@ -12,7 +12,7 @@ def univariate_analysis(df: pd.DataFrame, output_directory: str) -> str:
     :returns: The path to the file containing the statistical summary of the DataFrame.
     :rtype: str
     """
-    stats = df.describe(include=all)
+    stats = df.describe(include="all")
     stats_file = f"{output_directory}/stats/univariate_analysis.txt"
     stats.to_string(open(stats_file, 'w'))
 
