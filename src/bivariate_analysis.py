@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -11,6 +12,9 @@ def bivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
     :returns: Nothing. Plots and saves the scatterplot in the given directory
     :rtype: None
     """
+    charts_dir = os.path.join(output_directory, 'charts')
+    os.makedirs(charts_dir, exist_ok=True)
+    
     numerical_columns = df.select_dtypes(include=['float64', 'int64']).columns
     for index, column_1 in enumerate(numerical_columns):
         for column_2 in numerical_columns[index + 1:]:

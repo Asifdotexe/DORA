@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,6 +13,14 @@ def univariate_analysis(df: pd.DataFrame, output_directory: str) -> str:
     :returns: The path to the file containing the statistical summary of the DataFrame.
     :rtype: str
     """
+    
+    # Ensure the necessary directories exist
+    stats_dir = os.path.join(output_directory, 'stats')
+    charts_dir = os.path.join(output_directory, 'charts')
+    
+    os.makedirs(stats_dir, exist_ok=True)
+    os.makedirs(charts_dir, exist_ok=True)
+    
     stats = df.describe(include="all")
     stats_file = f"{output_directory}/stats/univariate_analysis.txt"
     stats.to_string(open(stats_file, 'w'))

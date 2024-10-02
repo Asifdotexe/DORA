@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from src.univariate_analysis import univariate_analysis
 
 def test_univariate_analysis():
@@ -8,7 +9,8 @@ def test_univariate_analysis():
     # Setup
     df = pd.DataFrame({
         'A': [1, 2, 3, 4],
-        'B': ['x', 'y', 'x', 'y']
+        'B': ['x', 'y', 'x', 'y'],
+        'C': ['Asif','Sayyed','Dora',np.nan]
     })
     output_dir = 'tests/output_test/'
     if not os.path.exists(output_dir):
