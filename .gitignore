@@ -3,26 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
 
 # Virtual environment
 venv/
@@ -30,6 +10,7 @@ ENV/
 env/
 venv.bak/
 venv/
+dora/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
