@@ -1,44 +1,18 @@
-# EDA Script
+# Data Oriented Report Automator (DORA)
 
-This repository contains a generalized Python script for performing Exploratory Data Analysis (EDA) using Pandas, NumPy, Matplotlib, and Seaborn.
+<!-- ![DORA Logo](path/to/logo.png) Optional: Add a logo or relevant image -->
+
+## Overview
+
+Welcome to **DORA**! This project is designed to automate the Exploratory Data Analysis (EDA) process, allowing you to effortlessly explore your datasets, generate insightful reports, and create visually appealing charts—all at the click of a button. 
+
+With DORA, you'll be able to streamline your EDA workflow, making it easier than ever to discover trends, patterns, and relationships within your data!
 
 ## Features
 
-- Load and preview data
-- Summarize data structure and missing values
-- Display summary statistics
-- Visualize missing values
-- Handle missing values
-- Visualize distributions of numerical columns
-- Visualize correlations
-- Visualize categorical columns
-- Identify and visualize outliers
-
-## Usage
-
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/Asifdotexe/eda_script.git
-    ```
-
-2. Navigate to the project directory:
-    ```sh
-    cd eda_script
-    ```
-
-3. Install required dependencies:
-    ```sh
-    pip install pandas numpy matplotlib seaborn
-    ```
-
-4. Run the script:
-    ```sh
-    python eda_script.py
-    ```
-
-## Example
-
-You can use the script with your own dataset by changing the `file_path` variable in the script:
-```python
-file_path = 'your_dataset.csv'  # Replace with your actual file path
-perform_eda(file_path)
+- **Univariate Analysis**: Generate detailed statistics and visualizations for individual variables.
+- **Bivariate Analysis**: Explore relationships between pairs of variables with insightful charts.
+- **Multivariate Analysis**: Dive deep into the interactions of multiple variables through advanced visualizations.
+- **Automated Reporting**: Save all statistics in text files for easy access and review.
+- **Chart Generation**: Automatically save all generated charts for future reference.
+- **PowerPoint Presentation Compilation**: Compile your findings into a professional PowerPoint presentation with minimal effort.
