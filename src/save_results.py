@@ -14,10 +14,31 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
         slide = prs.slides.add_slide(stats_slide_layout)
         with open(f"{output_directory}/stats/{stats_file}") as file:
             stats_content = file.read()
-        slide.shape.title.text = f"Statistical Analysis - {stats_file}"
+        slide.shapes.title.text = f"Statistical Analysis - {stats_file}"
         slide.shapes.add_textbox(
             Inches(1),
             Inches(1),
             Inches(8),
             Inches(5)
         ).text = stats_content
+        
+    # add slides for charts
+    img_slide_layout = prs.slide_layouts[5]
+    for chart_file  in charts_files:
+        slides = prs.slides.add_slide(img_slide_layout)
+        slide.shapes.title.text = f"Chart - {chart_file}"
+        slide.shapes.add_picture(
+            f"{output_directory}/chart/{chart_file}",
+            Inches(1),
+            Inches(1),
+            Inches(8),
+            Inches(5),
+        )
+    
+    # save the PowerPoint
+    prs.save(presentation_path)
+    
+def save_results(output_directory):
+    presentation_path = f"{output_directory}/eda_presentation.pptx"
+    create_ppt(output_directory, presentation_path)
+    return presentation_path
