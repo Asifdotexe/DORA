@@ -1,6 +1,11 @@
 import os
 import pandas as pd
 import numpy as np
+# MATPLOTLIB BACKEND: To handle the Tkinter exception during testing and testing doesn't require
+# us to use the interface hence running matplotlib with non-GUI backend
+import matplotlib
+matplotlib.use('Agg')  
+
 from src.univariate_analysis import univariate_analysis
 
 def test_univariate_analysis():
