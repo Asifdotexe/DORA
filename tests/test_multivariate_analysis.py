@@ -20,7 +20,7 @@ def test_multivariate_analysis():
     multivariate_analysis(df, output_dir)
     
     # assertions
-    assert os.path.exists(f"{output_dir}/charts/charts/correlation_matrix.png"), "Correlation matrix chart not created"
+    assert os.path.exists(f"{output_dir}/charts/correlation_matrix.png"), "Correlation matrix chart not created"
     
     # teardown
     os.remove(f"{output_dir}/charts/correlation_matrix.png")
