@@ -34,3 +34,4 @@ def test_univariate_analysis():
     os.remove(stats_file)
     os.remove(f"{output_dir}/charts/univariate_A.png")
     os.remove(f"{output_dir}/charts/univariate_B.png")
+    os.remove(f"{output_dir}/charts/univariate_C.png")
