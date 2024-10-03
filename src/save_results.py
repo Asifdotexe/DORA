@@ -38,7 +38,7 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
         slides = prs.slides.add_slide(img_slide_layout)
         slide.shapes.title.text = f"Chart - {chart_file}"
         slide.shapes.add_picture(
-            f"{output_directory}/chart/{chart_file}",
+            f"{output_directory}/charts/{chart_file}",
             Inches(1),
             Inches(1),
             Inches(8),
