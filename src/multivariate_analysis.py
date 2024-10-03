@@ -24,5 +24,5 @@ def multivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
     plt.figure(figsize=(12,8))
     sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
     plt.title('Multivariate Analysis - Correlation Matrix')
-    plt.savefig("f{output_directory}/charts/correlation_matrix.png")
+    plt.savefig(f"{output_directory}/charts/correlation_matrix.png")
     plt.close()
