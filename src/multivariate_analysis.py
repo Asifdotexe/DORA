@@ -16,9 +16,9 @@ def multivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
     os.makedirs(charts_dir, exist_ok=True)
     
     # Filter out non-numeric columns
-    numeric_df = df.select_dtypes(include=['float64', 'int64'])
+    df = df.select_dtypes(include=['float64', 'int64'])
     
-    if numeric_df.empty:
+    if df.empty:
         raise ValueError("No numeric data available for correlation analysis.")
     
     plt.figure(figsize=(12,8))
