@@ -15,6 +15,12 @@ def multivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
     charts_dir = os.path.join(output_directory, 'charts')
     os.makedirs(charts_dir, exist_ok=True)
     
+    # Filter out non-numeric columns
+    numeric_df = df.select_dtypes(include=['float64', 'int64'])
+    
+    if numeric_df.empty:
+        raise ValueError("No numeric data available for correlation analysis.")
+    
     plt.figure(figsize=(12,8))
     sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
     plt.title('Multivariate Analysis - Correlation Matrix')
