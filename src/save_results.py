@@ -38,24 +38,34 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
         with open(f"{output_directory}/stats/{stats_file}") as file:
             stats_content = file.read()
         slide.shapes.title.text = f"Statistical Analysis - {stats_file}"
-        slide.shapes.add_textbox(
+        
+        # Adjust textbox height for better formatting
+        text_box = slide.shapes.add_textbox(
             left=Inches(1),
             top=Inches(1.5),
             width=Inches(11),
-            height=Inches(5),
-        ).text = stats_content
+            height=Inches(4),  # Adjusted height to provide better text alignment
+        )
+        text_frame = text_box.text_frame
+        text_frame.text = stats_content  # Set the content to the text box
+
+        # Optional: Set font size and formatting if desired
+        for paragraph in text_frame.paragraphs:
+            paragraph.font.size = Inches(0.24)  # Set font size (example: 0.24 inches = approx. 18pt)
 
     # Add a slide for each chart file
     for chart_file in charts_files:
         slide_layout = prs.slide_layouts[5]  # Title only layout
         slide = prs.slides.add_slide(slide_layout)
         slide.shapes.title.text = f"Chart - {chart_file}"
+        
+        # Add picture with reduced width
         slide.shapes.add_picture(
             f"{output_directory}/charts/{chart_file}",
             left=Inches(1),
             top=Inches(1.5),
-            width=Inches(11),
-            height=Inches(5),
+            width=Inches(9),  # Reduced width to fit better on the slide
+            height=Inches(0)   # Height set to 0 to maintain the aspect ratio automatically
         )
 
     # Save the PowerPoint presentation
