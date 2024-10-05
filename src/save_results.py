@@ -1,5 +1,6 @@
 from pptx import Presentation
-from pptx.util import Inches
+from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
 import os
 
 def create_ppt(output_directory: str, presentation_path: str) -> None:
@@ -14,6 +15,14 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
     :rtype: None
     """
     prs = Presentation()
+
+    # Add a title slide
+    title_slide_layout = prs.slide_layouts[0]  # Title slide layout
+    title_slide = prs.slides.add_slide(title_slide_layout)
+    title = title_slide.shapes.title
+    subtitle = title_slide.placeholders[1]  # Placeholder for subtitle
+    title.text = "Exploratory Data Analysis"
+    subtitle.text = "Insights from the Dataset"
 
     # Get statistics and charts file lists
     stats_files = os.listdir(f"{output_directory}/stats/")
