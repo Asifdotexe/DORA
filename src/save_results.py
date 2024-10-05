@@ -1,6 +1,5 @@
 from pptx import Presentation
-from pptx.util import Inches, Pt
-from pptx.dml.color import RGBColor
+from pptx.util import Inches
 import os
 
 def create_ppt(output_directory: str, presentation_path: str) -> None:
@@ -15,6 +14,10 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
     :rtype: None
     """
     prs = Presentation()
+
+    # Set slide size to 16:9 aspect ratio (1920x1080 pixels)
+    prs.slide_width = Inches(13.3333)  # 1920 pixels / 144 pixels per inch (PPI)
+    prs.slide_height = Inches(7.5)      # 1080 pixels / 144 pixels per inch (PPI)
 
     # Add a title slide
     title_slide_layout = prs.slide_layouts[0]  # Title slide layout
@@ -36,10 +39,10 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
             stats_content = file.read()
         slide.shapes.title.text = f"Statistical Analysis - {stats_file}"
         slide.shapes.add_textbox(
-            Inches(1),
-            Inches(1.5),
-            Inches(8),
-            Inches(5)
+            left=Inches(1),
+            top=Inches(1.5),
+            width=Inches(11),
+            height=Inches(5),
         ).text = stats_content
 
     # Add a slide for each chart file
@@ -49,10 +52,10 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
         slide.shapes.title.text = f"Chart - {chart_file}"
         slide.shapes.add_picture(
             f"{output_directory}/charts/{chart_file}",
-            Inches(1),
-            Inches(1.5),
-            Inches(8),
-            Inches(5),
+            left=Inches(1),
+            top=Inches(1.5),
+            width=Inches(11),
+            height=Inches(5),
         )
 
     # Save the PowerPoint presentation
