@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.set_style('whitegrid')
 
 def univariate_analysis(df: pd.DataFrame, output_directory: str) -> str:
     """ This function performs a univariate analysis on the given DataFrame.

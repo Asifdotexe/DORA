@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+sns.set_style('whitegrid')
 
 def multivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
     """This function performs a multivariate analysis on the given DataFrame.
