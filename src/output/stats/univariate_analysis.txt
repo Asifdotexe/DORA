@@ -1,0 +1,12 @@
+                age   sex          bmi     children smoker     region       charges
+count   1338.000000  1338  1338.000000  1338.000000   1338       1338   1338.000000
+unique          NaN     2          NaN          NaN      2          4           NaN
+top             NaN  male          NaN          NaN     no  southeast           NaN
+freq            NaN   676          NaN          NaN   1064        364           NaN
+mean      39.207025   NaN    30.663397     1.094918    NaN        NaN  13270.422265
+std       14.049960   NaN     6.098187     1.205493    NaN        NaN  12110.011237
+min       18.000000   NaN    15.960000     0.000000    NaN        NaN   1121.873900
+25%       27.000000   NaN    26.296250     0.000000    NaN        NaN   4740.287150
+50%       39.000000   NaN    30.400000     1.000000    NaN        NaN   9382.033000
+75%       51.000000   NaN    34.693750     2.000000    NaN        NaN  16639.912515
+max       64.000000   NaN    53.130000     5.000000    NaN        NaN  63770.428010
