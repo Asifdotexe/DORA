@@ -53,8 +53,6 @@ def test_univariate_analysis(setup_test_env_module):
 
     # Call the univariate_analysis function
     univariate_analysis(df, output_dir)
-
-    # Check if the univariate analysis output file was created
     assert os.path.exists(f"{output_dir}/stats/univariate_analysis.txt"), "Univariate analysis file not created"
 
 # Test case for multivariate analysis
@@ -70,8 +68,6 @@ def test_multivariate_analysis(setup_test_env_module):
 
     # Call the multivariate_analysis function
     multivariate_analysis(df, output_dir)
-
-    # Check if the correlation matrix plot was created
     assert os.path.exists(f"{output_dir}/charts/correlation_matrix.png"), "Correlation matrix chart not created"
 
 # Test case for bivariate analysis
@@ -86,16 +82,12 @@ def test_bivariate_analysis(setup_test_env_module):
 
     # Call the bivariate_analysis function
     bivariate_analysis(df, output_dir)
-
-    # Check if bivariate analysis output exists (assume some file output)
     assert os.path.exists(f"{output_dir}/charts/bivariate_A_vs_B.png"), "Bivariate chart for A vs B not created"
 
 # Test case for saving results
 def test_save_results(setup_test_env_module):
     _, output_dir = setup_test_env_module
-
-    # Call the save_results function
+    
     save_results(output_dir)
 
-    # Check if the final results were saved (assuming a report or summary is generated)
     assert os.path.exists(f"{output_dir}/eda_presentation.pptx"), "Presentation file not created"
