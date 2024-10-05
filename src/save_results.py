@@ -74,50 +74,70 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
     title_slide = prs.slides.add_slide(title_slide_layout)
     title = title_slide.shapes.title
     subtitle = title_slide.placeholders[1]
-    title.text = "Exploratory Data Analysis"
-    subtitle.text = "Insights from the Dataset"
+    title.text = "EXPLORATORY DATA ANALYSIS"
+    subtitle.text = "MADE BY DORA"
+
+    # Bold the title text
+    for paragraph in title.text_frame.paragraphs:
+        for run in paragraph.runs:
+            run.font.bold = True  # Set the title text to bold
+
+    # Bold the subtitle text
+    for paragraph in subtitle.text_frame.paragraphs:
+        for run in paragraph.runs:
+            run.font.bold = True  # Set the subtitle text to bold
 
     # Get statistics and charts file lists
     stats_files = os.listdir(f"{output_directory}/stats/")
     charts_files = os.listdir(f"{output_directory}/charts/")
 
-    # # Add a slide for each statistical analysis file
+    # Add a slide for each statistical analysis file
     # for stats_file in stats_files:
     #     slide_layout = prs.slide_layouts[1]  # Title and content layout
     #     slide = prs.slides.add_slide(slide_layout)
         
-        # # Read and process the statistical analysis content
-        # with open(f"{output_directory}/stats/{stats_file}") as file:
-        #     stats_content = file.read().splitlines()  # Read lines into a list
+    #     # Read and process the statistical analysis content
+    #     with open(f"{output_directory}/stats/{stats_file}") as file:
+    #         stats_content = file.read().splitlines()  # Read lines into a list
 
-        # # Split lines into a 2D list for table creation
-        # data = [line.split(',') for line in stats_content]  # Assuming CSV format
-        # slide.shapes.title.text = f"Statistical Analysis - {stats_file}"
+    #     # Split lines into a 2D list for table creation
+    #     data = [line.split(',') for line in stats_content]  # Assuming CSV format
+    #     slide.shapes.title.text = f"STATISTICAL ANALYSIS - {stats_file.replace('.txt', '').replace('_', ' ').upper()}"
         
-        # # Add a slide for statistical data as a table
-        # stats_slide_layout = prs.slide_layouts[5]  # Title only layout
-        # stats_slide = prs.slides.add_slide(stats_slide_layout)
-        # create_table(stats_slide, data, "Statistical Summary")
+    #     # Bold the title text
+    #     for paragraph in slide.shapes.title.text_frame.paragraphs:
+    #         for run in paragraph.runs:
+    #             run.font.bold = True  # Set the title text to bold
 
-        # # Adjust textbox height for better formatting
-        # text_box = slide.shapes.add_textbox(
-        #     left=Inches(1),
-        #     top=Inches(1.5),
-        #     width=Inches(11),
-        #     height=Inches(4),
-        # )
-        # text_frame = text_box.text_frame
-        # text_frame.text = "\n".join(stats_content)  # Set the content to the text box
+    #     # Add a slide for statistical data as a table
+    #     stats_slide_layout = prs.slide_layouts[5]  # Title only layout
+    #     stats_slide = prs.slides.add_slide(stats_slide_layout)
+    #     create_table(stats_slide, data, "STATISTICAL SUMMARY")
 
-        # # Optional: Set font size and formatting
-        # for paragraph in text_frame.paragraphs:
-        #     paragraph.font.size = Pt(18)  # Set font size to 18pt
+    #     # Adjust textbox height for better formatting
+    #     text_box = slide.shapes.add_textbox(
+    #         left=Inches(1),
+    #         top=Inches(1.5),
+    #         width=Inches(11),
+    #         height=Inches(4),
+    #     )
+    #     text_frame = text_box.text_frame
+    #     text_frame.text = "\n".join(stats_content)  # Set the content to the text box
+
+    #     # Optional: Set font size and formatting
+    #     for paragraph in text_frame.paragraphs:
+    #         paragraph.font.size = Pt(18)  # Set font size to 18pt
 
     # Add a slide for each chart file
     for chart_file in charts_files:
         slide_layout = prs.slide_layouts[5]  # Title only layout
         slide = prs.slides.add_slide(slide_layout)
-        slide.shapes.title.text = f"Chart - {chart_file}"
+        slide.shapes.title.text = f"CHART: {chart_file.replace('.png', '').replace('_', ' ').upper()}"
+
+        # Bold the title text
+        for paragraph in slide.shapes.title.text_frame.paragraphs:
+            for run in paragraph.runs:
+                run.font.bold = True  # Set the title text to bold
 
         # Add picture with reduced width
         slide.shapes.add_picture(
@@ -130,7 +150,7 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
 
     # Save the PowerPoint presentation
     prs.save(presentation_path)
-
+    
 def save_results(output_directory: str) -> str:
     """Creates a PowerPoint presentation from the given output directory.
 
