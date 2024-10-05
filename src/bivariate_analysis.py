@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.set_style('whitegrid')
 
 def bivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
     """ This function performs a bivariate analysis on the given DataFrame, df, by creating scatter plots for each pair of numerical columns.

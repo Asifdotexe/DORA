@@ -1,7 +1,9 @@
 import os
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+sns.set_style('whitegrid')
 
 def multivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
     """This function performs a multivariate analysis on the given DataFrame.
@@ -22,7 +24,9 @@ def multivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
         raise ValueError("No numeric data available for correlation analysis.")
     
     plt.figure(figsize=(12,8))
-    sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+    mask = np.triu(np.ones_like(df.corr(), dtype=bool))
+    cmap = sns.diverging_palette(230, 20, as_cmap=True)
+    sns.heatmap(df.corr(), annot=True, mask=mask, cmap=cmap)
     plt.title('Multivariate Analysis - Correlation Matrix')
     plt.savefig(f"{output_directory}/charts/correlation_matrix.png")
     plt.close()
