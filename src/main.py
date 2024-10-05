@@ -5,7 +5,7 @@ from src.multivariate_analysis import multivariate_analysis
 from src.save_results import save_results
 import os
 
-def main(input_file, output_dir):
+def main(input_file, output_dir, template_path= None):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         os.makedirs(f"{output_dir}/stats/")
@@ -20,9 +20,12 @@ def main(input_file, output_dir):
     multivariate_analysis(df, output_dir)
 
     # Save results and create presentation
-    save_results(output_dir)
+    save_results(output_dir, template_path)
 
 if __name__ == '__main__':
     input_file = '../data/insurance.csv'  # Change this to your input file
     output_dir = 'output/'
-    main(input_file, output_dir)
+    # template_path = '../presentation/EDA AUTOMATION.pptx'
+    main(input_file, output_dir, 
+        #  template_path
+        )

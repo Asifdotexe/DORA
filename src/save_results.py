@@ -54,7 +54,7 @@ def create_table(slide, data, title):
     # Note: Borders cannot be directly set in the same way as other properties in python-pptx.
     # They are set by default for table cells.
     
-def create_ppt(output_directory: str, presentation_path: str) -> None:
+def create_ppt(output_directory: str, presentation_path: str, template_path: str = None) -> None:
     """Creates a PowerPoint presentation from the given output directory.
 
     This function reads the statistical analysis and chart files from the specified directories,
@@ -62,12 +62,17 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
 
     :param output_directory: The directory containing the statistical analysis and chart files.
     :param presentation_path: The path where the final presentation will be saved.
+    :param template_path: The path to the PowerPoint template file (optional).
 
     :returns: None
     """
-    prs = Presentation()
-    prs.slide_width = Inches(13.3333)  # 16:9 aspect ratio (1920x1080 pixels)
-    prs.slide_height = Inches(7.5)
+    # Load a template if provided; otherwise, create a new presentation
+    prs = Presentation(template_path) if template_path else Presentation()
+
+    # Set slide dimensions for 16:9 aspect ratio (if not using a template)
+    if not template_path:
+        prs.slide_width = Inches(13.3333)
+        prs.slide_height = Inches(7.5)
 
     # Add a title slide
     title_slide_layout = prs.slide_layouts[0]  # Title slide layout
@@ -77,67 +82,29 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
     title.text = "EXPLORATORY DATA ANALYSIS"
     subtitle.text = "MADE BY DORA"
 
-    # Bold the title text
+    # Bold the title and subtitle text
     for paragraph in title.text_frame.paragraphs:
         for run in paragraph.runs:
-            run.font.bold = True  # Set the title text to bold
+            run.font.bold = True
 
-    # Bold the subtitle text
     for paragraph in subtitle.text_frame.paragraphs:
         for run in paragraph.runs:
-            run.font.bold = True  # Set the subtitle text to bold
+            run.font.bold = True
 
     # Get statistics and charts file lists
     stats_files = os.listdir(f"{output_directory}/stats/")
     charts_files = os.listdir(f"{output_directory}/charts/")
 
-    # Add a slide for each statistical analysis file
-    # for stats_file in stats_files:
-    #     slide_layout = prs.slide_layouts[1]  # Title and content layout
-    #     slide = prs.slides.add_slide(slide_layout)
-        
-    #     # Read and process the statistical analysis content
-    #     with open(f"{output_directory}/stats/{stats_file}") as file:
-    #         stats_content = file.read().splitlines()  # Read lines into a list
-
-    #     # Split lines into a 2D list for table creation
-    #     data = [line.split(',') for line in stats_content]  # Assuming CSV format
-    #     slide.shapes.title.text = f"STATISTICAL ANALYSIS - {stats_file.replace('.txt', '').replace('_', ' ').upper()}"
-        
-    #     # Bold the title text
-    #     for paragraph in slide.shapes.title.text_frame.paragraphs:
-    #         for run in paragraph.runs:
-    #             run.font.bold = True  # Set the title text to bold
-
-    #     # Add a slide for statistical data as a table
-    #     stats_slide_layout = prs.slide_layouts[5]  # Title only layout
-    #     stats_slide = prs.slides.add_slide(stats_slide_layout)
-    #     create_table(stats_slide, data, "STATISTICAL SUMMARY")
-
-    #     # Adjust textbox height for better formatting
-    #     text_box = slide.shapes.add_textbox(
-    #         left=Inches(1),
-    #         top=Inches(1.5),
-    #         width=Inches(11),
-    #         height=Inches(4),
-    #     )
-    #     text_frame = text_box.text_frame
-    #     text_frame.text = "\n".join(stats_content)  # Set the content to the text box
-
-    #     # Optional: Set font size and formatting
-    #     for paragraph in text_frame.paragraphs:
-    #         paragraph.font.size = Pt(18)  # Set font size to 18pt
-
-    # Add a slide for each chart file
+    # Add a slide for each chart file using the appropriate layout from the template
     for chart_file in charts_files:
-        slide_layout = prs.slide_layouts[5]  # Title only layout
+        slide_layout = prs.slide_layouts[5]  # Using a title-only layout
         slide = prs.slides.add_slide(slide_layout)
-        slide.shapes.title.text = f"CHART: {chart_file.replace('.png', '').replace('_', ' ').upper()}"
+        slide.shapes.title.text = f"CHART - {chart_file.replace('.png', '').replace('_', ' ').upper()}"
 
         # Bold the title text
         for paragraph in slide.shapes.title.text_frame.paragraphs:
             for run in paragraph.runs:
-                run.font.bold = True  # Set the title text to bold
+                run.font.bold = True
 
         # Add picture with reduced width
         slide.shapes.add_picture(
@@ -151,16 +118,17 @@ def create_ppt(output_directory: str, presentation_path: str) -> None:
     # Save the PowerPoint presentation
     prs.save(presentation_path)
     
-def save_results(output_directory: str) -> str:
+def save_results(output_directory: str, template_path: str = None) -> str:
     """Creates a PowerPoint presentation from the given output directory.
 
     This function reads the statistical analysis and chart files from the specified directories,
     adds them as slides in the presentation, and saves the final presentation at the specified path.
 
     :param output_directory: The directory containing the statistical analysis and chart files.
+    :param template_path: The path to the PowerPoint template file (optional).
 
     :returns: presentation_path: The path of the saved presentation file.
     """
     presentation_path = f"{output_directory}/eda_presentation.pptx"
-    create_ppt(output_directory, presentation_path)
+    create_ppt(output_directory, presentation_path, template_path)
     return presentation_path
