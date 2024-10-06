@@ -1,6 +1,6 @@
 # Data Oriented Report Automator (DORA)
 
-<!-- ![DORA Logo](path/to/logo.png) Optional: Add a logo or relevant image -->
+![DORA Logo](data/dora-updated-concept.png)
 
 ## Overview
 
