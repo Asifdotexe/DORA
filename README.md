@@ -1,6 +1,6 @@
 # Data Oriented Report Automator (DORA)
 
-![DORA Logo](data/logo-black.png) Optional: Add a logo or relevant image
+![DORA Logo](data/logo-teal.png) Optional: Add a logo or relevant image
 
 ## Overview
 
