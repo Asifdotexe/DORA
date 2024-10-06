@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from tqdm import tqdm
+
 sns.set_style('whitegrid')
 
 def univariate_analysis(df: pd.DataFrame, output_directory: str) -> str:
@@ -22,19 +24,24 @@ def univariate_analysis(df: pd.DataFrame, output_directory: str) -> str:
     os.makedirs(stats_dir, exist_ok=True)
     os.makedirs(charts_dir, exist_ok=True)
     
+    # Save statistical summary
     stats = df.describe(include="all")
-    stats_file = f"{output_directory}/stats/univariate_analysis.txt"
+    stats_file = f"{stats_dir}/univariate_analysis.txt"
     stats.to_string(open(stats_file, 'w'))
 
-    for column in df.select_dtypes(include=['float64','int64','object']):
+    # Create charts for each column with a progress bar
+    columns = df.select_dtypes(include=['float64', 'int64', 'object']).columns
+    for column in tqdm(columns, desc="Univariate Analysis", ncols=100, unit="column", colour='#008000'):
         plt.figure(figsize=(10,6))
+        
+        # Create a chart based on data type
         if df[column].dtype == 'object':
             sns.countplot(data=df, y=column)
         else:
             sns.histplot(data=df, x=column, kde=True)
 
         plt.title(f'Univariate Analysis of {column}')
-        plt.savefig(f"{output_directory}/charts/univariate_{column}.png")
+        plt.savefig(f"{charts_dir}/univariate_{column}.png")
         plt.close()
 
     return stats_file
