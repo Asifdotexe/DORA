@@ -2,17 +2,11 @@ from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
+from tqdm import tqdm
 import os
 
 def create_table(slide, data, title):
-    """Creates a table on the given slide with the provided data and title.
-
-    :param slide: The slide object where the table will be created.
-    :param data: A 2D list containing the table data.
-    :param title: The title of the table to be displayed above the table.
-
-    :returns: None
-    """
+    """Creates a table on the given slide with the provided data and title."""
     rows, cols = len(data), len(data[0])
     left = Inches(1)
     top = Inches(1.5)
@@ -51,21 +45,8 @@ def create_table(slide, data, title):
                 cell.fill.solid()
                 cell.fill.fore_color.rgb = RGBColor(220, 230, 241)  # Light gray for odd rows
 
-    # Note: Borders cannot be directly set in the same way as other properties in python-pptx.
-    # They are set by default for table cells.
-    
 def create_ppt(output_directory: str, presentation_path: str, template_path: str = None) -> None:
-    """Creates a PowerPoint presentation from the given output directory.
-
-    This function reads the statistical analysis and chart files from the specified directories,
-    adds them as slides in the presentation, and saves the final presentation at the specified path.
-
-    :param output_directory: The directory containing the statistical analysis and chart files.
-    :param presentation_path: The path where the final presentation will be saved.
-    :param template_path: The path to the PowerPoint template file (optional).
-
-    :returns: None
-    """
+    """Creates a PowerPoint presentation with tqdm support."""
     # Load a template if provided; otherwise, create a new presentation
     prs = Presentation(template_path) if template_path else Presentation()
 
@@ -91,12 +72,14 @@ def create_ppt(output_directory: str, presentation_path: str, template_path: str
         for run in paragraph.runs:
             run.font.bold = True
 
-    # Get statistics and charts file lists
+    # Get statistics and charts file lists with progress bar
     stats_files = os.listdir(f"{output_directory}/stats/")
     charts_files = os.listdir(f"{output_directory}/charts/")
+    
+    tqdm.write("\033[92mCreating slides for charts...\033[0m")  # Green-colored task start
 
-    # Add a slide for each chart file using the appropriate layout from the template
-    for chart_file in charts_files:
+    # Add slides for each chart
+    for chart_file in tqdm(charts_files, desc="\033[94mProcessing Charts\033[0m", ncols=100, unit="chart", colour="#008000"):
         slide_layout = prs.slide_layouts[5]  # Using a title-only layout
         slide = prs.slides.add_slide(slide_layout)
         slide.shapes.title.text = f"CHART - {chart_file.replace('.png', '').replace('_', ' ').upper()}"
@@ -117,18 +100,9 @@ def create_ppt(output_directory: str, presentation_path: str, template_path: str
 
     # Save the PowerPoint presentation
     prs.save(presentation_path)
-    
+
 def save_results(output_directory: str, template_path: str = None) -> str:
-    """Creates a PowerPoint presentation from the given output directory.
-
-    This function reads the statistical analysis and chart files from the specified directories,
-    adds them as slides in the presentation, and saves the final presentation at the specified path.
-
-    :param output_directory: The directory containing the statistical analysis and chart files.
-    :param template_path: The path to the PowerPoint template file (optional).
-
-    :returns: presentation_path: The path of the saved presentation file.
-    """
+    """Creates a PowerPoint presentation from the given output directory."""
     presentation_path = f"{output_directory}/eda_presentation.pptx"
     create_ppt(output_directory, presentation_path, template_path)
     return presentation_path
