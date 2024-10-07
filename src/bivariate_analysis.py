@@ -22,7 +22,12 @@ def bivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
     num_columns = df.select_dtypes(include=['float64', 'int64']).columns
 
     logging.info("Starting bivariate analysis...")
+    # Loop through numeric columns
+    # This loop iterates over all numeric columns in the DataFrame. For each column,
+    # it creates scatter plots comparing the current column with every other column that comes after it.
+    # This ensures we only plot unique pairs, avoiding redundancy.
     for i, column in tqdm(enumerate(num_columns), desc="Bivariate Analysis", ncols=100, unit="column"):
+        # Compare current column with all subsequent numeric columns
         for col2 in num_columns[i + 1:]:
             plt.figure(figsize=(10, 6))
             sns.scatterplot(data=df, x=column, y=col2)
