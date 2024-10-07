@@ -9,14 +9,13 @@ from dataclasses import dataclass
 import os
 
 @dataclass
-class EDAProcessor:
+class DORA:
     """
     A class to perform Exploratory Data Analysis (EDA) and save results to an output directory.
 
-    Attributes:
-        input_file (str): Path to the input CSV file.
-        output_dir (str): Directory where stats and charts will be saved.
-        template_path (str, optional): Path to the PowerPoint template. Defaults to None.
+    :param input_file: Path to the input CSV file.
+    :param output_dir: Directory where stats and charts will be saved.
+    :param template_path: Path to the PowerPoint template. Defaults to None.
     """
     input_file: str
     output_dir: str
@@ -93,7 +92,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Instantiate the EDAProcessor class and run the process method
-    eda_processor = EDAProcessor(
+    eda_processor = DORA(
         input_file=args.input_file,
         output_dir=args.output_dir,
         template_path=args.template_path
