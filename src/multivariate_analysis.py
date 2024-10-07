@@ -27,13 +27,21 @@ def multivariate_analysis(df: pd.DataFrame, output_directory: str) -> None:
         raise ValueError("No numeric data available for correlation analysis.")
 
     logging.info("Starting multivariate analysis...")
+    
+    # Plot correlation matrix
+    # This section creates a heatmap for the correlation matrix of numeric columns.
+    # A mask is used to hide the upper triangle of the matrix since the correlation 
+    # values are symmetrical and we only need the lower half for visualization.
     with tqdm(total=2, desc="Multivariate Analysis", ncols=100, unit="step") as pbar:
         plt.figure(figsize=(12, 8))
-        mask = np.triu(np.ones_like(df_numeric.corr(), dtype=bool))
-        cmap = sns.diverging_palette(230, 20, as_cmap=True)
+        mask = np.triu(np.ones_like(df_numeric.corr(), dtype=bool))  # Mask for upper triangle
+        cmap = sns.diverging_palette(230, 20, as_cmap=True)  # Color map for heatmap
+        
+        # Generate heatmap
         sns.heatmap(df_numeric.corr(), annot=True, mask=mask, cmap=cmap)
         plt.title('Multivariate Analysis - Correlation Matrix')
         plt.savefig(f"{charts_dir}/correlation_matrix.png")
         plt.close()
-        pbar.update(1)
+        
+        pbar.update(1)  # Update progress bar after generating heatmap
     logging.info("Completed multivariate analysis.")
