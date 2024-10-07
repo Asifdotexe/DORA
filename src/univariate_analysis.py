@@ -35,7 +35,7 @@ def univariate_analysis(df: pd.DataFrame, output_directory: str) -> str:
     
     # Write the statistical summary to a text file
     stats.to_string(open(stats_file, 'w'))
-    logging.info("Statistical summary saved to %s", stats_file)
+    # logging.info("Statistical summary saved to %s", stats_file)
 
     # Create charts for each column with a progress bar
     columns = df.select_dtypes(include=['float64', 'int64', 'object']).columns
@@ -44,7 +44,7 @@ def univariate_analysis(df: pd.DataFrame, output_directory: str) -> str:
     # This loop iterates over all relevant columns in the DataFrame.
     # Depending on the data type, it generates either a count plot (for categorical data)
     # or a histogram with a kernel density estimate (for numerical data).
-    for column in tqdm(columns, desc="Univariate Analysis", ncols=100, unit="column", colour='#008000'):
+    for column in tqdm(columns, desc="\033[94mUnivariate Analysis\033[0m", ncols=100, unit="column", colour='#008000'):
         plt.figure(figsize=(10, 6))
 
         # Check the data type of the column to determine the appropriate plot
@@ -58,7 +58,7 @@ def univariate_analysis(df: pd.DataFrame, output_directory: str) -> str:
         plt.title(f'Univariate Analysis of {column}')
         plt.savefig(f"{charts_dir}/univariate_{column}.png")
         plt.close()
-        logging.info("Generated plot for %s", column)
+        # logging.info("Generated plot for %s", column)
 
-    logging.info("Univariate analysis completed successfully.")
+    # logging.info("Univariate analysis completed successfully.")
     return stats_file

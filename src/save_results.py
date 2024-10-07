@@ -59,7 +59,7 @@ def create_ppt(output_directory: str, presentation_path: str, template_path: str
 
     # Loop through each chart file to add it to the presentation
     # For each chart, a new slide is added, and the chart is inserted as an image.
-    for chart_file in tqdm(chart_files, desc="Adding charts to presentation", ncols=100, unit="chart"):
+    for chart_file in tqdm(chart_files, desc="\033[94mProcessing Charts\033[0m", ncols=100, unit="chart", colour="#008000"):
         slide = prs.slides.add_slide(prs.slide_layouts[5])
         slide.shapes.add_picture(f"{charts_dir}/{chart_file}", Inches(0.5), Inches(0.5), height=Inches(5))
         slide.shapes.title.text = f"Chart: {chart_file}"
@@ -71,7 +71,7 @@ def create_ppt(output_directory: str, presentation_path: str, template_path: str
 
     create_table(prs.slides.add_slide(prs.slide_layouts[5]), stats_data, "Statistical Summary")
     prs.save(presentation_path)
-    logging.info("Saved PowerPoint presentation successfully.")
+    # logging.info("Saved PowerPoint presentation successfully.")
 
 def save_results(output_directory: str, template_path: str = None) -> None:
     """Save results of the analysis into a PowerPoint presentation.
@@ -79,5 +79,5 @@ def save_results(output_directory: str, template_path: str = None) -> None:
     :param output_directory: The directory where analysis results are stored.
     :param template_path: Optional path to a PowerPoint template.
     """
-    presentation_path = os.path.join(output_directory, 'EDA_Results.pptx')
+    presentation_path = os.path.join(output_directory, 'eda_presentation.pptx')
     create_ppt(output_directory, presentation_path, template_path)
