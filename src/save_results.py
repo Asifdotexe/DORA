@@ -24,6 +24,7 @@ def create_table(slide, data, title):
 
     table = slide.shapes.add_table(rows, cols, left, top, width, height).table
 
+    # Populate table header
     for col_idx in range(cols):
         cell = table.cell(0, col_idx)
         cell.text = data[0][col_idx]
@@ -32,6 +33,9 @@ def create_table(slide, data, title):
         cell.text_frame.paragraphs[0].font.bold = True
         cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
 
+    # Populate table body
+    # This loop fills in the table with data from the provided data list.
+    # Each cell is filled with the corresponding value from the data.
     for row_idx in range(1, rows):
         for col_idx in range(cols):
             cell = table.cell(row_idx, col_idx)
@@ -41,37 +45,31 @@ def create_table(slide, data, title):
             cell.fill.fore_color.rgb = RGBColor(255, 255, 255) if row_idx % 2 == 0 else RGBColor(220, 230, 241)
 
 def create_ppt(output_directory: str, presentation_path: str, template_path: str = None) -> None:
-    """Create a PowerPoint presentation from analysis results.
+    """Create a PowerPoint presentation with analysis results.
 
-    :param output_directory: The directory containing the analysis results.
-    :param presentation_path: The path where the presentation will be saved.
+    :param output_directory: The directory where analysis results are stored.
+    :param presentation_path: The path to save the PowerPoint presentation.
     :param template_path: Optional path to a PowerPoint template.
     """
     prs = Presentation(template_path) if template_path else Presentation()
-    if not template_path:
-        prs.slide_width, prs.slide_height = Inches(13.3333), Inches(7.5)
 
-    title_slide = prs.slides.add_slide(prs.slide_layouts[0])
-    title_slide.shapes.title.text, title_slide.placeholders[1].text = "EXPLORATORY DATA ANALYSIS", "MADE BY DORA"
+    # Add scatter plots to the PowerPoint presentation
+    charts_dir = os.path.join(output_directory, 'charts')
+    chart_files = os.listdir(charts_dir)
 
-    for paragraph in title_slide.shapes.title.text_frame.paragraphs:
-        for run in paragraph.runs:
-            run.font.bold = True
-
-    charts_files = os.listdir(f"{output_directory}/charts/")
-    
-    logging.info("Creating slides for charts...")
-    for chart_file in tqdm(charts_files, desc="Processing Charts", ncols=100, unit="chart"):
+    # Loop through each chart file to add it to the presentation
+    # For each chart, a new slide is added, and the chart is inserted as an image.
+    for chart_file in tqdm(chart_files, desc="Adding charts to presentation", ncols=100, unit="chart"):
         slide = prs.slides.add_slide(prs.slide_layouts[5])
-        slide.shapes.add_picture(f"{output_directory}/charts/{chart_file}", Inches(0.5), Inches(0.5), height=Inches(5))
+        slide.shapes.add_picture(f"{charts_dir}/{chart_file}", Inches(0.5), Inches(0.5), height=Inches(5))
         slide.shapes.title.text = f"Chart: {chart_file}"
 
+    # Add statistical summary table to the presentation
     stats_file = os.path.join(output_directory, 'stats', 'univariate_analysis.txt')
     with open(stats_file, 'r') as f:
         stats_data = [line.split() for line in f.readlines()]
 
     create_table(prs.slides.add_slide(prs.slide_layouts[5]), stats_data, "Statistical Summary")
-
     prs.save(presentation_path)
     logging.info("Saved PowerPoint presentation successfully.")
 
