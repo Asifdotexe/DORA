@@ -47,6 +47,9 @@ class DORA:
         self.print_separator()
         logging.info("Starting Exploratory Data Analysis (EDA)...")
 
+        # Iterate over analysis tasks
+        # The tasks list contains tuples of task names and their corresponding analysis functions.
+        # We use tqdm to show a progress bar for better user experience.
         for task_name, analysis_func in tqdm(tasks, desc="Performing EDA", ncols=100, unit="task"):
             self.print_separator()
             logging.info(f"Starting {task_name}...")
