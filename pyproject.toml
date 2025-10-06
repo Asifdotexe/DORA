@@ -1,0 +1,40 @@
+[project]
+name = "dora"
+version = "2.0.0"
+description = "Exploratory data analysis and presentation tool"
+authors = [
+    {name = "Asif Sayyed",email = "asifdotexe@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pandas (>=2.3.3,<3.0.0)",
+    "seaborn (>=0.13.2,<0.14.0)",
+    "numpy (>=2.3.3,<3.0.0)",
+    "matplotlib (>=3.10.6,<4.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)"
+]
+
+[tool.poetry]
+package-mode = true
+packages = [{ include = "dora", from = "src" }]
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^3.3.9"
+black = "^25.9.0"
+isort = "^6.1.0"
+pre-commit = "^4.3.0"
+ipykernel = "^6.30.1"
+pytest = "^8.4.2"
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.messages_control]
+disable = ["redefined-outer-name", "invalid-name", "assignment-from-no-return",
+           "unused-argument", "unnecessary-pass", "fixme"]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
