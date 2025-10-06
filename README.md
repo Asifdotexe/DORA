@@ -4,7 +4,7 @@
 
 ## Overview
 
-Welcome to **DORA**! This project is designed to automate the Exploratory Data Analysis (EDA) process, allowing you to effortlessly explore your datasets, generate insightful reports, and create visually appealing charts—all at the click of a button. 
+Welcome to **DORA**! This project is designed to automate the Exploratory Data Analysis (EDA) process, allowing you to effortlessly explore your datasets, generate insightful reports, and create visually appealing charts—all at the click of a button.
 
 With DORA, you'll be able to streamline your EDA workflow, making it easier than ever to discover trends, patterns, and relationships within your data!
 
