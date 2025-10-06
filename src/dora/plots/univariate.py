@@ -25,7 +25,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
 
     # Generates the histogram and boxplots using the numerical data  specified by the user in the config.yaml file
     for column in numerical_columns:
-        for plot_type in config_params.get("plot_type", {}).get("numerical", []):
+        for plot_type in config_params.get("plot_types", {}).get("numerical", []):
             plt.figure(figsize=(10, 6))
             if plot_type == "histogram":
                 sns.histplot(df[column], kde=True)

@@ -17,7 +17,7 @@ def load_config(config_path: Path) -> dict:
     """
     logging.info("Reading the configuration file from %s", config_path)
     with open(config_path, "r", encoding="utf-8") as file:
-        config = yaml.safe_load(file)
+        config = yaml.safe_load(file) or {}
 
     # validation
     if "input_file" not in config or "output_dir" not in config:

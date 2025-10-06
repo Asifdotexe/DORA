@@ -1,5 +1,5 @@
 """
-This module is responsible for generating visualisations for univariate analysis
+This module is responsible for generating visualisations for bivariate analysis
 """
 
 import logging

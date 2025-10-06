@@ -1,5 +1,5 @@
 """
-This module will orcastrate the analysis
+This module will orchestrate the analysis
 """
 
 # TODO: Make a process to run the pipeline
