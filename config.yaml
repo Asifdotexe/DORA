@@ -1,0 +1,38 @@
+# --- Input/Output Settings ---
+input_file: 'data/insurance.csv'
+output_dir: 'output/insurance_report'
+report_title: 'Exploratory Data Analysis of Insurance Premiums'
+
+# --- Dataset Settings ---
+target_variable: 'charges'
+
+# --- Analysis Pipeline ---
+# Define the steps to run. The tool will execute them in this order.
+analysis_pipeline:
+  - profile:
+      # Generate detailed data profile (missing values, cardinality, stats).
+      # No extra parameters needed.
+      enabled: true
+
+  - univariate:
+      # Generate plots for individual columns.
+      enabled: true
+      plot_types:
+        # Can be 'histogram', 'boxplot'
+        numerical: ['histogram', 'boxplot']
+        # Can be 'barplot'
+        categorical: ['barplot']
+
+  - bivariate:
+      # Analyze relationships between two variables.
+      enabled: true
+      # If true, focuses on plotting features against the target_variable.
+      # If false, would require more specific pairs to be defined (more advanced).
+      target_centric: true
+
+  - multivariate:
+      # Analyze relationships among three or more variables.
+      enabled: true
+      # Specify columns for the correlation heatmap.
+      # If empty or not provided, uses all numerical columns.
+      correlation_cols: ['age', 'bmi', 'children', 'charges']
