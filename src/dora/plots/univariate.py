@@ -10,18 +10,20 @@ import pandas as pd
 import seaborn as sns
 
 
-def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> list:
+def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> list[str]:
     """
     Generates and save univariate plots.
 
     :param df: Pandas dataframe containing the data to plot.
     :param charts_dir: Path to the directory you want to save the chart.
     :param config_params: Parameters defined by the user in the configuration file
+    :returns: A list of paths pointing towards the plots
     """
     plot_paths = []
     numerical_columns = df.select_dtypes(include=["number"]).columns
     categorical_columns = df.select_dtypes(include=["object", "category"]).columns
 
+    # Generates the histogram and boxplots using the numerical data  specified by the user in the config.yaml file
     for column in numerical_columns:
         for plot_type in config_params.get("plot_type", {}).get("numerical", []):
             plt.figure(figsize=(10, 6))
@@ -38,6 +40,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
             plot_paths.append(os.path.relpath(path, charts_dir))
             logging.info("Generated %s for %s", plot_type, column)
 
+    # Generates barplot using the categorical data specified by the user in the config.yaml file
     for column in categorical_columns:
         if "barplot" in config_params.get("plot_types", {}).get("categorical", []):
             plt.figure(figsize=(10, 6))
