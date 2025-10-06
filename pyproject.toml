@@ -19,7 +19,7 @@ dependencies = [
 
 [tool.poetry]
 package-mode = true
-packages = [{ include = "dora" }]
+packages = [{ include = "dora", from = "src" }]
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^3.3.9"
