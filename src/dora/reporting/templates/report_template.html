@@ -27,7 +27,8 @@
 <body>
     <div class="container">
         <h1 class="display-4">{{ title }}</h1>
-        <p class="lead">Generated on {{ now() |strftime('%Y-%m-%d %H:%M:%S') }} by DORA.</p>
+        <!-- CORRECTED: Display the pre-formatted time variable -->
+        <p class="lead">Generated on {{ generation_time }} by DORA.</p>
 
         {% if profile %}
         <section id="profiling">
