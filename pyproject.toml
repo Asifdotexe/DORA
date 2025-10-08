@@ -35,7 +35,7 @@ pytest = "^8.4.2"
 max-line-length = 120
 
 [tool.pylint.messages_control]
-disable = ["redefined-outer-name", "invalid-name", "assignment-from-no-return",
+disable = ["redefined-outer-name", "invalid-name", "assignment-from-no-return", "too-many-branches",
            "unused-argument", "unnecessary-pass", "fixme", "too-few-public-methods"]
 
 [build-system]
