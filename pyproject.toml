@@ -13,7 +13,10 @@ dependencies = [
     "seaborn (>=0.13.2,<0.14.0)",
     "numpy (>=2.3.3,<3.0.0)",
     "matplotlib (>=3.10.6,<4.0.0)",
-    "tqdm (>=4.67.1,<5.0.0)"
+    "tqdm (>=4.67.1,<5.0.0)",
+    "typer[rich] (>=0.19.2,<0.20.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "jinja2 (>=3.1.6,<4.0.0)"
 ]
 
 [tool.poetry]
@@ -32,8 +35,8 @@ pytest = "^8.4.2"
 max-line-length = 120
 
 [tool.pylint.messages_control]
-disable = ["redefined-outer-name", "invalid-name", "assignment-from-no-return",
-           "unused-argument", "unnecessary-pass", "fixme"]
+disable = ["redefined-outer-name", "invalid-name", "assignment-from-no-return", "too-many-branches",
+           "unused-argument", "unnecessary-pass", "fixme", "too-few-public-methods"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
