@@ -94,6 +94,6 @@ class Analyzer:
         self.report_data["multivariate_plots"] = multivariate_plots
 
     def _generate_report(self):
-        # We take all the charts and insights we've gathered and collate them into a single the HTML report.
+        # We take all the charts and insights we've gathered and collate them into a single HTML report.
         logging.info("--- Generating HTML Report ---")
         create_report(self.report_data, self.output_dir)

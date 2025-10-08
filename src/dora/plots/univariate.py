@@ -23,7 +23,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
     numerical_columns = df.select_dtypes(include=["number"]).columns
     categorical_columns = df.select_dtypes(include=["object", "category"]).columns
 
-    # Generates the histogram and boxplots using the numerical data  specified by the user in the config.yaml file
+    # Generates the histogram and boxplots using the numerical data specified by the user in the config.yaml file
     for column in numerical_columns:
         for plot_type in config_params.get("plot_types", {}).get("numerical", []):
             plt.figure(figsize=(10, 6))
@@ -35,6 +35,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
                 plt.title(f"Box Plot of {column}")
 
             path = os.path.join(charts_dir, f"univariate_{column}_{plot_type}.png")
+            plt.tight_layout()
             plt.savefig(path)
             plt.close()
             plot_paths.append(os.path.relpath(path, charts_dir))

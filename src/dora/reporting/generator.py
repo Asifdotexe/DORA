@@ -22,7 +22,9 @@ def create_report(report_data: dict, output_dir: str) -> None:
 
     # Creating a Jinja object here to hold all the configurations and process the template file
     # essentially a template manager and the loader param helps the manager look at the template it needs to manage
-    env = Environment(loader=FileSystemLoader(template_dir))
+    # While the current data flow appears to use only internally generated content, setting autoescape=True
+    # provides defense-in-depth protection against potential future changes that might introduce untrusted data.
+    env = Environment(loader=FileSystemLoader(template_dir), autoescape=True)
     template = env.get_template("report_template.html")
 
     # FIXME: This logic could be faulty, verify when report is generated
@@ -39,11 +41,14 @@ def create_report(report_data: dict, output_dir: str) -> None:
                 classes="table table-striped"
             )
 
-        # FIXME: This logic could be faulty, verify when report is generated
-        if "descriptive_stats" in report_data["profile"]:
-            desc_stats_df = pd.DataFrame(report_data["profile"]["descriptive_stats"])
-            report_data["profile"]["descriptive_stats_html"] = desc_stats_df.to_html(
-                classes="table table-striped", float_format="%.2f"
+        if "descriptive_statistics" in report_data["profile"]:
+            desc_stats_df = pd.DataFrame(
+                report_data["profile"]["descriptive_statistics"]
+            )
+            report_data["profile"]["descriptive_statistics_html"] = (
+                desc_stats_df.to_html(
+                    classes="table table-striped", float_format="%.2f"
+                )
             )
 
     # Generates timestamp for the time of report generation

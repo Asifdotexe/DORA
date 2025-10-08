@@ -42,7 +42,7 @@ Welcome to DORA! This isn't just a script; it's an intelligent EDA assistant. DO
 
 ## User Guide
 
-Get started with DORA in just two commands. Ensure you have [Poetry](https://www.google.com/search?q=https://python-poetry.org/docs/%23installation) installed first.
+Get started with DORA in just two commands. Ensure you have [Poetry](https://python-poetry.org/docs/#installation) installed first.
 
 ### Step 1
 ```bash
@@ -135,11 +135,6 @@ poetry run python run_dora.py --config config.yaml
 After the analysis is complete, you will find a new folder at your specified output path containing:
 - eda_report.html: Your final, shareable report. Open it in any browser.
 - charts/: A sub-folder with all the generated plots saved as individual image files.
-
-Install the required dependencies using pip:
-```bash
-pip install -r requirements.txt
-```
 
 ## Developer Onboarding
 Interested in contributing to DORA? Awesome! Here’s how to get set up.

@@ -10,7 +10,7 @@ import pandas as pd
 import seaborn as sns
 
 
-def generate_plots(df: pd.DataFrame, charts_dir: str, params: dict) -> list[str]:
+def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> list[str]:
     """
     Generates and saves a correlation heatmap.
 
@@ -20,7 +20,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, params: dict) -> list[str]
     :returns: A list of paths pointing towards the plots
     """
     plot_paths = []
-    cols = params.get("correlation_cols")
+    cols = config_params.get("correlation_cols")
 
     if not cols:
         # If no columns specified, use all numeric

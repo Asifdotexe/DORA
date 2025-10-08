@@ -27,6 +27,7 @@ def generate_plots(
         logging.info(
             "Skipping the bivariate analysis as `target centric` is not enables"
         )
+        return []
 
     plot_paths = []
     features = [column for column in df.columns if column != target_column]
