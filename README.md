@@ -8,7 +8,7 @@
 An interactive command-line tool to automate Exploratory Data Analysis (EDA) and generate beautiful, insightful reports in seconds.
 </em>
 
-<p align="center">
+<!-- <p align="center">
     <a href="https://github.com/Asifdotexe/DORA/blob/main/pyproject.toml">
         <img src="https://www.google.com/search?q=https://img.shields.io/badge/python-3.13%252B-blue.svg" alt="Python Version">
     </a>
@@ -24,7 +24,7 @@ An interactive command-line tool to automate Exploratory Data Analysis (EDA) and
     <a href="https://github.com/Asifdotexe/DORA/actions">
         <img src="https://www.google.com/search?q=https://img.shields.io/github/actions/workflow/status/Asifdotexe/DORA/main.yml%3Fbranch%3Dmain" alt="Build Status">
     </a>
-</p>
+</p> -->
 
 
 ## Overview
