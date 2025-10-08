@@ -9,11 +9,21 @@ An interactive command-line tool to automate Exploratory Data Analysis (EDA) and
 </em>
 
 <p align="center">
-<a href="#"><img src="https://www.google.com/search?q=https://img.shields.io/badge/python-3.13%252B-blue.svg" alt="Python Version"></a>
-<a href="#"><img src="https://www.google.com/search?q=https://img.shields.io/badge/license-MIT-green.svg" alt="License"></a>
-<a href="#"><img src="https://www.google.com/search?q=https://img.shields.io/badge/code%2520style-black-000000.svg" alt="Code Style: Black"></a>
-<a href="#"><img src="https://www.google.com/search?q=https://img.shields.io/badge/built%2520with-Poetry-orange.svg" alt="Built with Poetry"></a>
-<a href="#"><img src="https://www.google.com/search?q=https://img.shields.io/github/actions/workflow/status/Asifdotexe/DORA/main.yml%3Fbranch%3Dmain" alt="Build Status"></a>
+    <a href="https://github.com/Asifdotexe/DORA/blob/main/pyproject.toml">
+        <img src="https://www.google.com/search?q=https://img.shields.io/badge/python-3.13%252B-blue.svg" alt="Python Version">
+    </a>
+    <a href="https://github.com/Asifdotexe/DORA/blob/main/LICENSE">
+        <img src="https://www.google.com/search?q=https://img.shields.io/badge/license-MIT-green.svg" alt="License">
+    </a>
+    <a href="https://github.com/psf/black">
+        <img src="https://www.google.com/search?q=https://img.shields.io/badge/code%2520style-black-000000.svg" alt="Code Style: Black">
+    </a>
+    <a href="https://python-poetry.org/">
+        <img src="https://www.google.com/search?q=https://img.shields.io/badge/built%2520with-Poetry-orange.svg" alt="Built with Poetry">
+    </a>
+    <a href="https://github.com/Asifdotexe/DORA/actions">
+        <img src="https://www.google.com/search?q=https://img.shields.io/github/actions/workflow/status/Asifdotexe/DORA/main.yml%3Fbranch%3Dmain" alt="Build Status">
+    </a>
 </p>
 
 
