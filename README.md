@@ -4,7 +4,7 @@
     <img src="data/assets/dora-updated-concept.png" alt="DORA Logo" width="200"/>
 </p>
 
-<em>
+<em align="center">
 An interactive command-line tool to automate Exploratory Data Analysis (EDA) and generate beautiful, insightful reports in seconds.
 </em>
 
