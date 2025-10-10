@@ -6,7 +6,6 @@ import datetime
 import logging
 import os
 
-import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -30,22 +29,14 @@ def create_report(report_data: dict, output_dir: str) -> None:
 
     # FIXME: This logic could be faulty, verify when report is generated
     if "profile" in report_data and report_data.get("profile"):
-        # Check for and process missing values data
-        if "missing_values" in report_data["profile"]:
-            missing_df = pd.DataFrame.from_dict(
-                report_data["profile"]["missing_values"],
-                orient="index",
-                columns=["missing_count"],
-            )
-            missing_df = missing_df[missing_df["missing_count"] > 0]
+        if "missing_values_df" in report_data["profile"]:
+            missing_df = report_data["profile"]["missing_values_df"]
             report_data["profile"]["missing_values_html"] = missing_df.to_html(
                 classes="table table-striped"
             )
 
-        if "descriptive_statistics" in report_data["profile"]:
-            desc_stats_df = pd.DataFrame(
-                report_data["profile"]["descriptive_statistics"]
-            )
+        if "descriptive_stats_df" in report_data["profile"]:
+            desc_stats_df = report_data["profile"]["descriptive_stats_df"]
             report_data["profile"]["descriptive_statistics_html"] = (
                 desc_stats_df.to_html(
                     classes="table table-striped", float_format="%.2f"
