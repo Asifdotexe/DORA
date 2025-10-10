@@ -43,6 +43,17 @@ max-line-length = 120
 disable = ["redefined-outer-name", "invalid-name", "assignment-from-no-return", "too-many-branches",
            "unused-argument", "unnecessary-pass", "fixme", "too-few-public-methods"]
 
+[tool.mypy]
+mypy_path = "src"
+# This tells mypy to ignore errors about libraries that don't have type stubs.
+# It's a pragmatic way to handle packages without full type support.
+[[tool.mypy.overrides]]
+module = [
+    "matplotlib.*",
+    "jinja2",
+]
+ignore_missing_imports = true
+
 # We are telling Poetry to use setuptools as the build system and to run our 'build.py' script.
 [tool.poetry.build]
 script = "build.py"
