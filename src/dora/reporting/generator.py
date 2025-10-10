@@ -3,6 +3,7 @@ This module would be responsible to put together a HTML report
 """
 
 import datetime
+import logging
 import os
 
 import pandas as pd
@@ -59,5 +60,11 @@ def create_report(report_data: dict, output_dir: str) -> None:
     html_content = template.render(report_data)
 
     report_path = os.path.join(output_dir, "eda_report.html")
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
+
+    try:
+        with open(report_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+    # Handling potential IOErrors (permission, disk full etc.) to provide the user with more specific errors
+    except IOError as e:
+        logging.error("Failed to write report to %s: %s", report_path, e)
+        raise
