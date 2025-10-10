@@ -27,7 +27,6 @@ def create_report(report_data: dict, output_dir: str) -> None:
     env = Environment(loader=FileSystemLoader(template_dir), autoescape=True)
     template = env.get_template("report_template.html")
 
-    # FIXME: This logic could be faulty, verify when report is generated
     if "profile" in report_data and report_data.get("profile"):
         if "missing_values_df" in report_data["profile"]:
             missing_df = report_data["profile"]["missing_values_df"]
