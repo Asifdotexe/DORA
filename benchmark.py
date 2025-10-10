@@ -44,6 +44,7 @@ def run_benchmark():
 
     # This loop is the core of the benchmark. It runs the analysis the specified
     # number of times to get a reliable measure of performance.
+    logging.getLogger("src.dora").setLevel(logging.WARNING)
     for i in range(NUM_RUNS):
         logging.info("--- Starting Run %d/%d ---", i + 1, NUM_RUNS)
         analyzer = Analyzer(df, config)
