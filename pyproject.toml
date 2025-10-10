@@ -5,7 +5,7 @@ description = "Exploratory data analysis and presentation tool"
 authors = [
     {name = "Asif Sayyed",email = "asifdotexe@gmail.com"}
 ]
-license = {text = "MIT"}
+license = "MIT"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -41,7 +41,7 @@ max-line-length = 120
 
 [tool.pylint.messages_control]
 disable = ["redefined-outer-name", "invalid-name", "assignment-from-no-return", "too-many-branches",
-           "unused-argument", "unnecessary-pass", "fixme", "too-few-public-methods"]
+           "unused-argument", "unnecessary-pass", "fixme", "too-few-public-methods", "no-name-in-module"]
 
 [tool.mypy]
 mypy_path = "src"
@@ -54,12 +54,14 @@ module = [
 ]
 ignore_missing_imports = true
 
-# We are telling Poetry to use setuptools as the build system and to run our 'build.py' script.
-[tool.poetry.build]
-script = "build.py"
-# We are providing our own setup logic in build.py
-generate-setup-file = false
-
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0", "setuptools", "wheel", "mypy"]
-build-backend = "poetry.core.masonry.api"
+requires = [
+    "poetry-core>=2.0.0,<3.0.0",
+    "setuptools",
+    "wheel",
+    "mypy",
+    "pandas-stubs",
+    "types-seaborn",
+]
+
+build-backend = "setuptools.build_meta"

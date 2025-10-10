@@ -1,8 +1,12 @@
+dist/
+.mypy_cache/
+build/
+dora.egg-info/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
 
 # Virtual environment
 venv/
