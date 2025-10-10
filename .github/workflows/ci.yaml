@@ -1,4 +1,5 @@
-name: Continuous Integration & Performance Audit
+
+name: Python CI
 
 on:
   push:
@@ -7,68 +8,29 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test-and-audit:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.13"]
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
 
-      - name: Install dependencies
-        run: poetry install --with dev
+    - name: Install dependencies
+      run: poetry install --with dev
 
-      - name: Run tests and performance audit
-        run: poetry run pytest --benchmark-json=benchmark_results.json
-
-      - name: Parse Benchmark Results
-        id: parser
-        run: |
-          cat > parse_results.py << 'EOF'
-          import json
-          import os
-
-          with open('benchmark_results.json') as f:
-              data = json.load(f)
-
-          # Extract the relevant stats from the first benchmark test
-          stats = data['benchmarks'][0]['stats']
-          mean = stats['mean']
-          min_val = stats['min']
-          max_val = stats['max']
-          rounds = stats['rounds']
-
-          # Create a markdown table using an f-string
-          markdown_comment = f'''### 📊 Performance Audit Results
-
-          | Metric        | Result        |
-          |---------------|---------------|
-          | **Mean Time** | `{mean:.4f} s` |
-          | **Min Time** | `{min_val:.4f} s`  |
-          | **Max Time** | `{max_val:.4f} s`  |
-          | **Rounds** | `{rounds}`        |
-
-          *Results from running the full EDA pipeline.*
-          '''
-
-          # This is the standard way to set a multiline output in GitHub Actions.
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write(f'markdown_comment<<EOF\n{markdown_comment}\nEOF\n')
-          EOF
-
-          python parse_results.py
-        shell: bash
-
-      - name: Post Benchmark Comment
-        if: github.event_name == 'pull_request'
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.parser.outputs.markdown_comment }}
+    - name: Test with Pytest
+      run: |
+        poetry run pytest
