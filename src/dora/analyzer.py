@@ -76,16 +76,18 @@ class Analyzer:
 
         # It's important to check if a target was actually provided.
         # Running this analysis without one wouldn't make sense, so we'll skip it.
-        if params.get("target_centric") and not target:
-            logging.warning(
-                "Bivariate 'target_centric' is true, but no 'target_variable' is defined. Skipping."
-            )
-            return
-
-        bivariate_plots = bivariate.generate_plots(
-            self.df, target, self.charts_dir, params
-        )
-        self.report_data["bivariate_plots"] = bivariate_plots
+        if params.get("target_centric"):
+            if target:
+                # By putting the function call inside this 'if target:' block,
+                # mypy can now correctly infer that 'target' must be a string.
+                bivariate_plots = bivariate.generate_plots(
+                    self.df, target, self.charts_dir, params
+                )
+                self.report_data["bivariate_plots"] = bivariate_plots
+            else:
+                logging.warning(
+                    "Bivariate 'target_centric' is true, but no 'target_variable' is defined. Skipping."
+                )
 
     def _run_multivariate(self, params: dict):
         # This is where we see how numerical features interact with each other.
