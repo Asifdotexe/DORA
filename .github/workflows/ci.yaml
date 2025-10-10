@@ -31,7 +31,9 @@ jobs:
       - name: Parse Benchmark Results
         id: parser
         run: |
+          python -c
           import json
+          import os
           with open('benchmark_results.json') as f:
               data = json.load(f)
           # Extract the relevant stats from the first benchmark test
