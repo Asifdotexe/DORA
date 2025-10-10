@@ -50,6 +50,8 @@
             <div class="chart-container">
                 {% for plot in univariate_plots %}
                 <div class="chart">
+                    <!-- Screen readers will announce the raw filename (e.g., sales_vs_target.png),
+                     which is not descriptive. Reuse the human-readable caption so alt text matches what sighted users see. -->
                     <h5>{{ plot.replace('_', ' ').replace('.png', '') | title }}</h5>
                     <img src="charts/{{ plot }}" alt="{{ plot }}">
                 </div>
@@ -64,8 +66,9 @@
             <div class="chart-container">
                 {% for plot in bivariate_plots %}
                 <div class="chart">
-                    <h5>{{ plot.replace('_', ' ').replace('.png', '') | title }}</h5>
-                    <img src="charts/{{ plot }}" alt="{{ plot }}">
+                    {% set caption = plot.replace('_', ' ').replace('.png', '') | title %}
+                    <h5>{{ caption }}</h5>
+                    <img src="charts/{{ plot }}" alt="{{ caption }}">
                 </div>
                 {% endfor %}
             </div>
@@ -78,8 +81,11 @@
             <div class="chart-container">
                 {% for plot in multivariate_plots %}
                 <div class="chart">
-                    <h5>{{ plot.replace('_', ' ').replace('.png', '') | title }}</h5>
-                    <img src="charts/{{ plot }}" alt="{{ plot }}">
+                    <!-- Screen readers will announce the raw filename (e.g., sales_vs_target.png),
+                     which is not descriptive. Reuse the human-readable caption so alt text matches what sighted users see. -->
+                    {% set caption = plot.replace('_', ' ').replace('.png', '') | title %}
+                    <h5>{{ caption }}</h5>
+                    <img src="charts/{{ plot }}" alt="{{ caption }}">
                 </div>
                 {% endfor %}
             </div>

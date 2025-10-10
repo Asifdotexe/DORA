@@ -56,7 +56,7 @@ curl -sSL https://install.python-poetry.org | python3 -
 ### Step 2
 ```bash
 # Clone the repository
-git clone [https://github.com/Asifdotexe/DORA.git](https://github.com/Asifdotexe/DORA.git)
+git clone https://github.com/Asifdotexe/DORA.git
 cd DORA
 
 # Install all dependencies using Poetry
