@@ -31,20 +31,22 @@ jobs:
       - name: Parse Benchmark Results
         id: parser
         run: |
-          python -c
+          cat > parse_results.py << 'EOF'
           import json
           import os
+
           with open('benchmark_results.json') as f:
               data = json.load(f)
+
           # Extract the relevant stats from the first benchmark test
           stats = data['benchmarks'][0]['stats']
           mean = stats['mean']
           min_val = stats['min']
           max_val = stats['max']
           rounds = stats['rounds']
-          # Create a markdown table
-          markdown_comment = f"""
-          ### 📊 Performance Audit Results
+
+          # Create a markdown table using an f-string
+          markdown_comment = f'''### 📊 Performance Audit Results
 
           | Metric        | Result        |
           |---------------|---------------|
@@ -54,10 +56,14 @@ jobs:
           | **Rounds** | `{rounds}`        |
 
           *Results from running the full EDA pipeline.*
-          """
-          # This is a special syntax to set an output for later steps in the workflow.
-          # We escape newlines to ensure the multiline string is passed correctly.
-          print(f"markdown_comment<<EOF\n{markdown_comment}\nEOF") >> $GITHUB_OUTPUT
+          '''
+
+          # This is the standard way to set a multiline output in GitHub Actions.
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'markdown_comment<<EOF\n{markdown_comment}\nEOF\n')
+          EOF
+
+          python parse_results.py
         shell: bash
 
       - name: Post Benchmark Comment
