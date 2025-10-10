@@ -10,7 +10,6 @@ import pandas as pd
 from .plots import bivariate, multivariate, univariate
 from .profiling import generate_profile
 from .reporting.generator import create_report
-from .utils import timer
 
 
 class Analyzer:
@@ -29,7 +28,6 @@ class Analyzer:
         # This prevents clutter and makes the final report easy to find.
         os.makedirs(self.charts_dir, exist_ok=True)
 
-    @timer
     def run(self):
         """
         Executes the analysis pipeline defined in the config.

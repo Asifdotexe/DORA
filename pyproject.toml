@@ -30,6 +30,7 @@ isort = "^6.1.0"
 pre-commit = "^4.3.0"
 ipykernel = "^6.30.1"
 pytest = "^8.4.2"
+pytest-benchmark = "^5.1.0"
 
 [tool.pylint.format]
 max-line-length = 120
