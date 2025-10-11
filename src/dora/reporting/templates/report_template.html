@@ -4,30 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
-    <!-- We use Google Fonts for a cleaner, more modern typography. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
-        /* --- DORA Brand Colors --- */
         :root {
             --primary-blue: #1a535c;
             --accent-aqua: #4ecdc4;
             --background-color: #f8f9fa;
             --text-color: #212529;
+            --muted-text-color: #6c757d;
             --border-color: #dee2e6;
-            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
         }
-
         body {
             font-family: 'Lato', sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
             margin: 0;
             padding: 0;
+            line-height: 1.6;
         }
-
-        /* --- Header & Branding --- */
         .header {
             background-color: white;
             padding: 1.5rem 2rem;
@@ -35,127 +33,60 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--card-shadow);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .logo-container img {
-            width: 120px; /* Control logo size */
-        }
-        .header-text h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        .header-text p {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin: 0;
-        }
+        .logo-container img { width: 110px; }
+        .header-text h1 { font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--primary-blue); }
+        .header-text p { font-size: 0.9rem; color: var(--muted-text-color); margin: 0; }
+        main { padding: 2.5rem; max-width: 1800px; margin: 0 auto; }
+        section { margin-bottom: 3.5rem; }
+        h2.section-title { font-size: 1.75rem; font-weight: 700; color: var(--primary-blue); border-bottom: 3px solid var(--accent-aqua); padding-bottom: 0.75rem; margin-bottom: 2rem; }
+        .card { background-color: white; border: 1px solid var(--border-color); border-radius: var(--border-radius); box-shadow: var(--card-shadow); margin-bottom: 1.5rem; overflow: hidden; }
+        .card-header { padding: 1rem 1.5rem; background-color: #f8f9fa; border-bottom: 1px solid var(--border-color); font-weight: 700; color: var(--primary-blue); }
+        .card-body { padding: 1.5rem; }
+        .chart-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem; }
+        .chart-card img { width: 100%; height: auto; border-top: 1px solid var(--border-color); }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        thead th { background-color: var(--primary-blue); color: white; font-weight: 700; }
+        tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        tbody tr:hover { background-color: #e9ecef; }
 
-        /* --- Main Content & Layout --- */
-        main {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        /* --- New Stat Card Styles --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+        .stat-card { background: white; border-radius: var(--border-radius); box-shadow: var(--card-shadow); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        .stat-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .stat-card-header h3 { font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--primary-blue); }
+        .stat-card-header .badge { font-family: 'Roboto Mono', monospace; font-size: 0.75rem; background-color: #e9ecef; color: var(--muted-text-color); padding: 0.25rem 0.5rem; border-radius: 6px; }
+        .stat-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem; }
+        .stat-list li { display: flex; justify-content: space-between; flex-basis: 48%; }
+        .stat-list li span:first-child { color: var(--muted-text-color); }
+        .stat-list li span:last-child { font-weight: 700; }
+        .sparkline { width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; }
+        .sparkline img { max-width: 100%; max-height: 100%; }
 
-        section {
-            margin-bottom: 3rem;
-        }
+        /* Mini bar chart for categorical stats */
+        .mini-bar-chart { list-style: none; padding: 0; margin-top: 1rem; }
+        .mini-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-size: 0.85rem; }
+        .mini-bar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; width: 120px; color: var(--muted-text-color); }
+        .mini-bar-bg { flex-grow: 1; background-color: #e9ecef; border-radius: 4px; height: 20px; }
+        .mini-bar-fill { height: 100%; background-color: var(--accent-aqua); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; color: white; font-size: 0.75rem; }
 
-        h2.section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            border-bottom: 2px solid var(--primary-blue);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        /* --- Card Design for Content --- */
-        .card {
-            background-color: white;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 1.5rem;
-            overflow: hidden; /* Ensures content stays within rounded corners */
-        }
-        .card-header {
-            padding: 1rem 1.5rem;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 700;
-        }
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* --- Responsive Chart Container --- */
-        .chart-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-        .chart-card {
-            /* This flex rule is key to responsiveness. Items will wrap naturally. */
-            flex: 1 1 450px;
-            display: flex;
-            flex-direction: column;
-        }
-        .chart-card img {
-            width: 100%;
-            height: auto;
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* --- Table Styling --- */
-        .table-container {
-            overflow-x: auto; /* Makes tables scrollable on small screens */
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-        thead th {
-            background-color: var(--primary-blue);
-            color: white;
-            font-weight: 700;
-        }
-        tbody tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        /* --- Mobile Responsiveness --- */
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            main {
-                padding: 1rem;
-            }
-            .chart-card {
-                /* On small screens, charts take up the full width */
-                flex-basis: 100%;
-            }
+            .header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            main { padding: 1.5rem; }
+            .chart-container, .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="logo-container">
-             <img src="https://raw.githubusercontent.com/Asifdotexe/DORA/main/data/assets/dora-updated-concept.png" alt="DORA Logo">
+            <img src="https://raw.githubusercontent.com/Asifdotexe/DORA/main/data/assets/dora-updated-concept.png">
         </div>
         <div class="header-text">
             <h1>{{ title }}</h1>
@@ -166,17 +97,55 @@
     <main>
         {% if profile %}
         <section id="profiling">
-            <h2 class="section-title">Data Profile</h2>
-            <div class="card">
-                <div class="card-header">
-                    Dataset Overview
+            <h2 class="section-title">Analysis Overview</h2>
+
+            <!-- Stat Card Grid -->
+            <div class="stats-grid">
+                {% for col in profile.column_profiles %}
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <h3>{{ col.name }}</h3>
+                        <span class="badge">{{ col.type }}</span>
+                    </div>
+
+                    {% if col.type == 'Numerical' %}
+                    <ul class="stat-list">
+                        <li><span>Mean</span> <span>{{ col.stats.mean | round(2) }}</span></li>
+                        <li><span>Median</span> <span>{{ col.stats.median | round(2) }}</span></li>
+                        <li><span>Std Dev</span> <span>{{ col.stats.std | round(2) }}</span></li>
+                        <li><span>Min</span> <span>{{ col.stats.min | round(2) }}</span></li>
+                        <li><span>Max</span> <span>{{ col.stats.max | round(2) }}</span></li>
+                    </ul>
+                    <div class="sparkline">
+                        <img src="data:image/png;base64,{{ col.sparkline_base64 }}" alt="Distribution of {{ col.name }}">
+                    </div>
+
+                    {% elif col.type == 'Categorical' %}
+                    <ul class="stat-list">
+                        <li><span>Unique Values</span> <span>{{ col.stats.unique_values }}</span></li>
+                        <li style="flex-basis: 100%;"><span>Most Frequent</span> <span>{{ col.stats.top_value }}</span></li>
+                    </ul>
+                    <ul class="mini-bar-chart">
+                        {% for category, count in col.stats.top_5_counts.items() %}
+                        <li class="mini-bar">
+                            <span class="mini-bar-label" title="{{ category }}">{{ category }}</span>
+                            <div class="mini-bar-bg">
+                                <div class="mini-bar-fill" style="width: {{ (count / col.stats.top_5_max_count * 100) | round }}%;">
+                                    {{ count }}
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
                 </div>
-                <div class="card-body">
-                    <p><strong>Shape:</strong> {{ profile.dataset_shape[0] }} rows, {{ profile.dataset_shape[1] }} columns</p>
-                </div>
+                {% endfor %}
             </div>
+
+            <!-- Missing Values Table (if any) -->
+            <!-- CORRECTED: Check for the existence of the HTML string directly. -->
             {% if profile.missing_values_html %}
-            <div class="card">
+            <div class="card" style="margin-top: 2rem;">
                 <div class="card-header">
                     Missing Values
                 </div>
@@ -185,16 +154,7 @@
                 </div>
             </div>
             {% endif %}
-            {% if profile.descriptive_statistics_html %}
-            <div class="card">
-                <div class="card-header">
-                    Descriptive Statistics
-                </div>
-                <div class="card-body table-container">
-                    {{ profile.descriptive_statistics_html | safe }}
-                </div>
-            </div>
-            {% endif %}
+
         </section>
         {% endif %}
 
