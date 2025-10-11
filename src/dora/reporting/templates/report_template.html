@@ -4,56 +4,170 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
-    <!-- Loading external CSS without SRI verification poses a supply-chain security risk. If the CDN is compromised, malicious code could be injected into the report. -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
-        body { padding: 2rem; }
-        .chart-container {
+        :root {
+            --primary-blue: #1a535c;
+            --accent-aqua: #4ecdc4;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+            --muted-text-color: #6c757d;
+            --border-color: #dee2e6;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+        }
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .header {
+            background-color: white;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        .chart {
-            flex-basis: 48%;
-            border: 1px solid #ddd;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .logo-container img { width: 110px; }
+        .header-text h1 { font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--primary-blue); }
+        .header-text p { font-size: 0.9rem; color: var(--muted-text-color); margin: 0; }
+        main { padding: 2.5rem; max-width: 1800px; margin: 0 auto; }
+        section { margin-bottom: 3.5rem; }
+        h2.section-title { font-size: 1.75rem; font-weight: 700; color: var(--primary-blue); border-bottom: 3px solid var(--accent-aqua); padding-bottom: 0.75rem; margin-bottom: 2rem; }
+        .card { background-color: white; border: 1px solid var(--border-color); border-radius: var(--border-radius); box-shadow: var(--card-shadow); margin-bottom: 1.5rem; overflow: hidden; }
+        .card-header { padding: 1rem 1.5rem; background-color: #f8f9fa; border-bottom: 1px solid var(--border-color); font-weight: 700; color: var(--primary-blue); }
+        .card-body { padding: 1.5rem; }
+        .chart-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem; }
+        .chart-card img { width: 100%; height: auto; border-top: 1px solid var(--border-color); }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        thead th { background-color: var(--primary-blue); color: white; font-weight: 700; }
+        tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        tbody tr:hover { background-color: #e9ecef; }
+
+        /* --- New Stat Card Styles --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+        .stat-card { background: white; border-radius: var(--border-radius); box-shadow: var(--card-shadow); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        .stat-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .stat-card-header h3 { font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--primary-blue); }
+        .stat-card-header .badge { font-family: 'Roboto Mono', monospace; font-size: 0.75rem; background-color: #e9ecef; color: var(--muted-text-color); padding: 0.25rem 0.5rem; border-radius: 6px; }
+        .stat-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem; }
+        .stat-list li { display: flex; justify-content: space-between; flex-basis: 48%; }
+        .stat-list li span:first-child { color: var(--muted-text-color); }
+        .stat-list li span:last-child { font-weight: 700; }
+        .sparkline { width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; }
+        .sparkline img { max-width: 100%; max-height: 100%; }
+
+        /* Mini bar chart for categorical stats */
+        .mini-bar-chart { list-style: none; padding: 0; margin-top: 1rem; }
+        .mini-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-size: 0.85rem; }
+        .mini-bar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; width: 120px; color: var(--muted-text-color); }
+        .mini-bar-bg { flex-grow: 1; background-color: #e9ecef; border-radius: 4px; height: 20px; }
+        .mini-bar-fill { height: 100%; background-color: var(--accent-aqua); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; color: white; font-size: 0.75rem; }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            main { padding: 1.5rem; }
+            .chart-container, .stats-grid { grid-template-columns: 1fr; }
         }
-        .chart img { max-width: 100%; }
-        h2 { border-bottom: 2px solid #0d6efd; padding-bottom: 0.5rem; margin-top: 2rem; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="display-4">{{ title }}</h1>
-        <!-- CORRECTED: Display the pre-formatted time variable -->
-        <p class="lead">Generated on {{ generation_time }} by DORA.</p>
+    <header class="header">
+        <div class="logo-container">
+            <img src="https://raw.githubusercontent.com/Asifdotexe/DORA/main/data/assets/dora-updated-concept.png">
+        </div>
+        <div class="header-text">
+            <h1>{{ title }}</h1>
+            <p>Generated on {{ generation_time }}</p>
+        </div>
+    </header>
 
+    <main>
         {% if profile %}
         <section id="profiling">
-            <h2>Data Profile</h2>
-            <p><strong>Dataset Shape:</strong> {{ profile.dataset_shape[0] }} rows, {{ profile.dataset_shape[1] }} columns</p>
+            <h2 class="section-title">Analysis Overview</h2>
 
-            <h3>Missing Values</h3>
-            {{ profile.missing_values_html | safe }}
+            <!-- Stat Card Grid -->
+            <div class="stats-grid">
+                {% for col in profile.column_profiles %}
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <h3>{{ col.name }}</h3>
+                        <span class="badge">{{ col.type }}</span>
+                    </div>
 
-            <h3>Descriptive Statistics</h3>
-            {{ profile.descriptive_statistics_html | safe }}
+                    {% if col.type == 'Numerical' %}
+                    <ul class="stat-list">
+                        <li><span>Mean</span> <span>{{ col.stats.mean | round(2) }}</span></li>
+                        <li><span>Median</span> <span>{{ col.stats.median | round(2) }}</span></li>
+                        <li><span>Std Dev</span> <span>{{ col.stats.std | round(2) }}</span></li>
+                        <li><span>Min</span> <span>{{ col.stats.min | round(2) }}</span></li>
+                        <li><span>Max</span> <span>{{ col.stats.max | round(2) }}</span></li>
+                    </ul>
+                    <div class="sparkline">
+                        <img src="data:image/png;base64,{{ col.sparkline_base64 }}" alt="Distribution of {{ col.name }}">
+                    </div>
+
+                    {% elif col.type == 'Categorical' %}
+                    <ul class="stat-list">
+                        <li><span>Unique Values</span> <span>{{ col.stats.unique_values }}</span></li>
+                        <li style="flex-basis: 100%;"><span>Most Frequent</span> <span>{{ col.stats.top_value }}</span></li>
+                    </ul>
+                    <ul class="mini-bar-chart">
+                        {% for category, count in col.stats.top_5_counts.items() %}
+                        <li class="mini-bar">
+                            <span class="mini-bar-label" title="{{ category }}">{{ category }}</span>
+                            <div class="mini-bar-bg">
+                                <div class="mini-bar-fill" style="width: {{ (count / col.stats.top_5_max_count * 100) | round }}%;">
+                                    {{ count }}
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Missing Values Table (if any) -->
+            <!-- CORRECTED: Check for the existence of the HTML string directly. -->
+            {% if profile.missing_values_html %}
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    Missing Values
+                </div>
+                <div class="card-body table-container">
+                    {{ profile.missing_values_html | safe }}
+                </div>
+            </div>
+            {% endif %}
+
         </section>
         {% endif %}
 
         {% if univariate_plots %}
         <section id="univariate">
-            <h2>Univariate Analysis</h2>
+            <h2 class="section-title">Univariate Analysis</h2>
             <div class="chart-container">
                 {% for plot in univariate_plots %}
-                <div class="chart">
-                    <!-- Screen readers will announce the raw filename (e.g., sales_vs_target.png),
-                     which is not descriptive. Reuse the human-readable caption so alt text matches what sighted users see. -->
-                    <h5>{{ plot.replace('_', ' ').replace('.png', '') | title }}</h5>
-                    <img src="charts/{{ plot }}" alt="{{ plot }}">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        {{ plot.replace('_', ' ').replace('.png', '') | title }}
+                    </div>
+                    <img src="charts/{{ plot }}" alt="{{ plot.replace('_', ' ').replace('.png', '') | title }}">
                 </div>
                 {% endfor %}
             </div>
@@ -62,12 +176,12 @@
 
         {% if bivariate_plots %}
         <section id="bivariate">
-            <h2>Bivariate Analysis</h2>
+            <h2 class="section-title">Bivariate Analysis</h2>
             <div class="chart-container">
                 {% for plot in bivariate_plots %}
-                <div class="chart">
+                <div class="card chart-card">
                     {% set caption = plot.replace('_', ' ').replace('.png', '') | title %}
-                    <h5>{{ caption }}</h5>
+                    <div class="card-header">{{ caption }}</div>
                     <img src="charts/{{ plot }}" alt="{{ caption }}">
                 </div>
                 {% endfor %}
@@ -77,21 +191,18 @@
 
         {% if multivariate_plots %}
         <section id="multivariate">
-            <h2>Multivariate Analysis</h2>
+            <h2 class="section-title">Multivariate Analysis</h2>
             <div class="chart-container">
                 {% for plot in multivariate_plots %}
-                <div class="chart">
-                    <!-- Screen readers will announce the raw filename (e.g., sales_vs_target.png),
-                     which is not descriptive. Reuse the human-readable caption so alt text matches what sighted users see. -->
+                <div class="card chart-card">
                     {% set caption = plot.replace('_', ' ').replace('.png', '') | title %}
-                    <h5>{{ caption }}</h5>
+                    <div class="card-header">{{ caption }}</div>
                     <img src="charts/{{ plot }}" alt="{{ caption }}">
                 </div>
                 {% endfor %}
             </div>
         </section>
         {% endif %}
-
-    </div>
+    </main>
 </body>
 </html>
