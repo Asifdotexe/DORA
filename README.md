@@ -36,6 +36,8 @@ Welcome to DORA! This isn't just a script; it's an intelligent EDA assistant. DO
 - Dual-Mode Operation:
     - Interactive mode: A step-by-step wizard to configure your analysis (no coding involved)
     - Configuration driven: For reproducible workflows, define your analysis in a `config.yaml` file
+- Flexible Data Input: Supports CSV, Excel, JSON, and Parquet files.
+    - Note: For Excel files, DORA will only read and analyze the first sheet.
 - Data Profiling: Get an overview of your dataset's health, including missing values, descriptive statistics and data types
 - Target-centric analysis: Generates plots that explore the relationship between your features and a specified target variable
 - HTML Reports: Generates a HTML report that's easy to share and view in any browser.

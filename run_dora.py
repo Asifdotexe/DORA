@@ -27,6 +27,31 @@ logging.basicConfig(
 app = typer.Typer(help="DORA: The Data-Oriented Report Automator")
 
 
+def read_data_file(file_path: Path) -> pd.DataFrame:
+    """
+    Reads a data file into a pandas DataFrame, supporting multiple formats.
+
+    This function keeps our file-reading logic in one place, making it easy to
+    manage and extend in the future.
+    """
+    # We use the file's suffix to determine which pandas function to use.
+    # This allows DORA to be flexible with its input.
+    suffix = file_path.suffix.lower()
+    if suffix == ".csv":
+        return pd.read_csv(file_path)
+    if suffix == ".xlsx":
+        return pd.read_excel(file_path)
+    if suffix == ".json":
+        return pd.read_json(file_path)
+    if suffix == ".parquet":
+        return pd.read_parquet(file_path)
+
+    # If the file type is not supported, we raise an error with clear instructions for the user.
+    raise ValueError(
+        f"Unsupported file type: {suffix}. Please use CSV, Excel, JSON, or Parquet."
+    )
+
+
 def create_config_interactively() -> tuple[pd.DataFrame, dict]:
     """
     Guides the user through an interactive CLI session to build the config.
@@ -46,7 +71,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
         input_file = Path(input_file_str)
         if input_file.exists() and input_file.is_file():
             try:
-                df = pd.read_csv(input_file)
+                df = read_data_file(input_file)
                 # If the file is read successfully, we can exit the loop.
                 break
             except pd.errors.EmptyDataError:
