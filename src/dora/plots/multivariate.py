@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from .styling import apply_custom_styling
+
 
 def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> list[str]:
     """
@@ -19,6 +21,8 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
     :param config_params: Parameters defined by the user in the configuration file
     :returns: A list of paths pointing towards the plots
     """
+    apply_custom_styling()
+
     plot_paths = []
     cols = config_params.get("correlation_cols")
 
@@ -36,8 +40,14 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
 
     plt.figure(figsize=(12, 10))
     corr = df_numeric.corr()
-    sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm")
-    plt.title("Correlation Matrix")
+    cmap = sns.diverging_palette(230, 20, as_cmap=True)
+    sns.heatmap(corr, annot=True, fmt=".2f", cmap=cmap, linewidths=0.5)
+    plt.title(
+        "Correlation Matrix of Numerical Features",
+        loc="left",
+        fontsize=16,
+        fontweight="bold",
+    )
     plt.tight_layout()
 
     path = os.path.join(charts_dir, "multivariate_correlation_matrix.png")

@@ -41,6 +41,8 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
                 )
                 plt.xlabel(column.replace("_", " ").title())
                 plt.ylabel("Frequency")
+                plt.grid()
+
             elif plot_type == "boxplot":
                 sns.boxplot(x=df[column], color=PRIMARY_COLOR)
                 plt.title(

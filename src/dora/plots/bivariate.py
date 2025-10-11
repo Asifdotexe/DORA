@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from .styling import PRIMARY_COLOR, apply_custom_styling
+
 
 def generate_plots(
     df: pd.DataFrame, target_column: str, charts_dir: str, config_params: dict
@@ -21,6 +23,7 @@ def generate_plots(
     :param config_params: Parameters defined by the user in the configuration file
     :returns: A list of paths pointing towards the plots
     """
+    apply_custom_styling()
     # FIXME: Maybe this can be outside the function?
     # Check to determine if target centric analysis is needed
     if not config_params.get("target_centric"):
@@ -40,14 +43,28 @@ def generate_plots(
         plot_generated = False
         # Numeric feature vs Numeric feature
         if feature_is_numeric and target_is_numeric:
-            sns.scatterplot(data=df, x=feature, y=target_column)
-            plt.title(f"{feature} vs. {target_column}")
+            sns.scatterplot(data=df, x=feature, y=target_column, alpha=0.7)
+            plt.title(
+                f"{target_column.replace('_', ' ').title()} vs. {feature.replace('_', ' ').title()}",
+                loc="left",
+                fontsize=16,
+                fontweight="bold",
+            )
+            plt.xlabel(feature.replace("_", " ").title())
+            plt.ylabel(target_column.replace("_", " ").title())
             plot_generated = True
 
         # Categorical Feature vs. Numeric Target
         elif not feature_is_numeric and target_is_numeric:
-            sns.boxplot(data=df, x=target_column, y=feature)
-            plt.title(f"{target_column} by {feature}")
+            sns.boxplot(data=df, x=target_column, y=feature, color=PRIMARY_COLOR)
+            plt.title(
+                f"Distribution of {target_column.replace('_', ' ').title()} by {feature.replace('_', ' ').title()}",
+                loc="left",
+                fontsize=16,
+                fontweight="bold",
+            )
+            plt.xlabel(target_column.replace("_", " ").title())
+            plt.ylabel(feature.replace("_", " ").title())
             plot_generated = True
 
         if plot_generated:

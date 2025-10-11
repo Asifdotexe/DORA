@@ -12,7 +12,7 @@ import seaborn as sns
 # We use a strong primary color to draw attention and shades of gray for context.
 PRIMARY_COLOR = "#0077b6"  # A clear, professional blue
 GRAY_COLOR = "#808080"
-BACKGROUND_COLOR = "#f5f5f5"
+BACKGROUND_COLOR = "#ffffff"
 TEXT_COLOR = "#333333"
 
 
@@ -27,7 +27,7 @@ def apply_custom_styling():
         {
             "axes.facecolor": BACKGROUND_COLOR,
             "figure.facecolor": BACKGROUND_COLOR,
-            "grid.color": "#dcdcdc",
+            "grid.color": "#ffffff",
             "text.color": TEXT_COLOR,
             "axes.labelcolor": TEXT_COLOR,
             "xtick.color": TEXT_COLOR,
