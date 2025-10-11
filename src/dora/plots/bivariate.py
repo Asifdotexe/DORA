@@ -3,15 +3,21 @@ This module is responsible for generating visualisations for bivariate analysis
 """
 
 import logging
-import os
+from pathlib import Path
+from typing import Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from .styling import PRIMARY_COLOR, apply_custom_styling
+
 
 def generate_plots(
-    df: pd.DataFrame, target_column: str, charts_dir: str, config_params: dict
+    df: pd.DataFrame,
+    target_column: str,
+    charts_dir: Union[str, Path],
+    config_params: dict,
 ) -> list[str]:
     """
     Generates and save the plot for target-centric bi-variate plot
@@ -21,7 +27,8 @@ def generate_plots(
     :param config_params: Parameters defined by the user in the configuration file
     :returns: A list of paths pointing towards the plots
     """
-    # FIXME: Maybe this can be outside the function?
+    apply_custom_styling()
+
     # Check to determine if target centric analysis is needed
     if not config_params.get("target_centric"):
         logging.info(
@@ -29,6 +36,7 @@ def generate_plots(
         )
         return []
 
+    charts_dir_path = Path(charts_dir)
     plot_paths = []
     features = [column for column in df.columns if column != target_column]
     target_is_numeric = pd.api.types.is_numeric_dtype(df[target_column])
@@ -40,24 +48,36 @@ def generate_plots(
         plot_generated = False
         # Numeric feature vs Numeric feature
         if feature_is_numeric and target_is_numeric:
-            sns.scatterplot(data=df, x=feature, y=target_column)
-            plt.title(f"{feature} vs. {target_column}")
+            sns.scatterplot(data=df, x=feature, y=target_column, alpha=0.7)
+            plt.title(
+                f"{target_column.replace('_', ' ').title()} vs. {feature.replace('_', ' ').title()}",
+                loc="left",
+                fontsize=16,
+                fontweight="bold",
+            )
+            plt.xlabel(feature.replace("_", " ").title())
+            plt.ylabel(target_column.replace("_", " ").title())
             plot_generated = True
 
         # Categorical Feature vs. Numeric Target
         elif not feature_is_numeric and target_is_numeric:
-            sns.boxplot(data=df, x=target_column, y=feature)
-            plt.title(f"{target_column} by {feature}")
+            sns.boxplot(data=df, x=target_column, y=feature, color=PRIMARY_COLOR)
+            plt.title(
+                f"Distribution of {target_column.replace('_', ' ').title()} by {feature.replace('_', ' ').title()}",
+                loc="left",
+                fontsize=16,
+                fontweight="bold",
+            )
+            plt.xlabel(target_column.replace("_", " ").title())
+            plt.ylabel(feature.replace("_", " ").title())
             plot_generated = True
 
         if plot_generated:
-            path = os.path.join(
-                charts_dir, f"bivariate_{feature}_vs_{target_column}.png"
-            )
+            path = charts_dir_path / f"bivariate_{feature}_vs_{target_column}.png"
             plt.tight_layout()
             plt.savefig(path)
             plt.close()
-            plot_paths.append(os.path.relpath(path, charts_dir))
+            plot_paths.append(str(path.relative_to(charts_dir_path)))
             logging.info(
                 "Generated bivariate plot for %s vs %s", feature, target_column
             )
