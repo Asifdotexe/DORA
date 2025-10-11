@@ -10,10 +10,12 @@ import seaborn as sns
 
 # To ensure our charts are clean and professional, we define a specific color palette.
 # We use a strong primary color to draw attention and shades of gray for context.
-PRIMARY_COLOR = "#0077b6"  # A clear, professional blue
-GRAY_COLOR = "#808080"
-BACKGROUND_COLOR = "#ffffff"
-TEXT_COLOR = "#333333"
+PRIMARY_BLUE = "#1a535c"  # The deep teal from the 'DORA' text
+ACCENT_AQUA = "#4ecdc4"  # The light aqua from the 'O' pie chart
+ACCENT_NAVY = "#003f5c"  # A darker blue for contrast
+BACKGROUND_COLOR = "#f8f9fa"  # A very light gray for a soft, clean look
+TEXT_COLOR = "#343a40"  # A dark gray for readable text
+GRAY_COLOR = "#adb5bd"  # A light gray for non-critical elements like grid lines
 
 
 def apply_custom_styling():
@@ -27,7 +29,7 @@ def apply_custom_styling():
         {
             "axes.facecolor": BACKGROUND_COLOR,
             "figure.facecolor": BACKGROUND_COLOR,
-            "grid.color": "#ffffff",
+            "grid.color": "#dee2e6",
             "text.color": TEXT_COLOR,
             "axes.labelcolor": TEXT_COLOR,
             "xtick.color": TEXT_COLOR,
@@ -40,18 +42,16 @@ def apply_custom_styling():
     plt.rcParams.update(
         {
             "font.family": "sans-serif",
-            "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+            "font.sans-serif": ["Lato", "Arial", "sans-serif"],
             "axes.spines.top": False,
             "axes.spines.right": False,
-            "axes.spines.left": True,
+            "axes.spines.left": False,
             "axes.spines.bottom": True,
             "axes.edgecolor": GRAY_COLOR,
-            "axes.titlepad": 20,
+            "axes.titlepad": 25,
             "axes.labelpad": 15,
             "xtick.major.size": 0,
             "ytick.major.size": 0,
-            "xtick.minor.size": 0,
-            "ytick.minor.size": 0,
             "xtick.major.pad": 10,
             "ytick.major.pad": 10,
             "figure.titlesize": "large",

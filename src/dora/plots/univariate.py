@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from .styling import PRIMARY_COLOR, apply_custom_styling
+from .styling import PRIMARY_BLUE, apply_custom_styling
 
 
 def generate_plots(
@@ -36,7 +36,7 @@ def generate_plots(
         for plot_type in config_params.get("plot_types", {}).get("numerical", []):
             plt.figure(figsize=(10, 6))
             if plot_type == "histogram":
-                sns.histplot(df[column], kde=True, color=PRIMARY_COLOR)
+                sns.histplot(df[column], kde=True, color=PRIMARY_BLUE)
                 plt.title(
                     f"Distribution of {column.replace('_', ' ').title()}",
                     loc="left",
@@ -48,7 +48,7 @@ def generate_plots(
                 plt.grid()
 
             elif plot_type == "boxplot":
-                sns.boxplot(x=df[column], color=PRIMARY_COLOR)
+                sns.boxplot(x=df[column], color=PRIMARY_BLUE)
                 plt.title(
                     f"Box Plot for {column.replace('_', ' ').title()}",
                     loc="left",
@@ -69,7 +69,7 @@ def generate_plots(
         if "barplot" in config_params.get("plot_types", {}).get("categorical", []):
             plt.figure(figsize=(10, 6))
             ax = sns.countplot(
-                y=df[column], order=df[column].value_counts().index, color=PRIMARY_COLOR
+                y=df[column], order=df[column].value_counts().index, color=PRIMARY_BLUE
             )
             plt.title(
                 f"Frequency of {column.replace('_', ' ').title()}",

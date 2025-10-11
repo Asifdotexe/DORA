@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from .styling import PRIMARY_COLOR, apply_custom_styling
+from .styling import PRIMARY_BLUE, apply_custom_styling
 
 
 def generate_plots(
@@ -48,7 +48,9 @@ def generate_plots(
         plot_generated = False
         # Numeric feature vs Numeric feature
         if feature_is_numeric and target_is_numeric:
-            sns.scatterplot(data=df, x=feature, y=target_column, alpha=0.7)
+            sns.scatterplot(
+                data=df, x=feature, y=target_column, alpha=0.6, color=PRIMARY_BLUE
+            )
             plt.title(
                 f"{target_column.replace('_', ' ').title()} vs. {feature.replace('_', ' ').title()}",
                 loc="left",
@@ -61,7 +63,7 @@ def generate_plots(
 
         # Categorical Feature vs. Numeric Target
         elif not feature_is_numeric and target_is_numeric:
-            sns.boxplot(data=df, x=target_column, y=feature, color=PRIMARY_COLOR)
+            sns.boxplot(data=df, x=target_column, y=feature, color=PRIMARY_BLUE)
             plt.title(
                 f"Distribution of {target_column.replace('_', ' ').title()} by {feature.replace('_', ' ').title()}",
                 loc="left",
