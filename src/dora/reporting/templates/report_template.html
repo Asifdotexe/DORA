@@ -4,56 +4,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
-    <!-- Loading external CSS without SRI verification poses a supply-chain security risk. If the CDN is compromised, malicious code could be injected into the report. -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- We use Google Fonts for a cleaner, more modern typography. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { padding: 2rem; }
+        /* --- DORA Brand Colors --- */
+        :root {
+            --primary-blue: #1a535c;
+            --accent-aqua: #4ecdc4;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- Header & Branding --- */
+        .header {
+            background-color: white;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--card-shadow);
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo-container img {
+            width: 120px; /* Control logo size */
+        }
+        .header-text h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .header-text p {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        /* --- Main Content & Layout --- */
+        main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 3rem;
+        }
+
+        h2.section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Card Design for Content --- */
+        .card {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden; /* Ensures content stays within rounded corners */
+        }
+        .card-header {
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* --- Responsive Chart Container --- */
         .chart-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: 1.5rem;
         }
-        .chart {
-            flex-basis: 48%;
-            border: 1px solid #ddd;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .chart-card {
+            /* This flex rule is key to responsiveness. Items will wrap naturally. */
+            flex: 1 1 450px;
+            display: flex;
+            flex-direction: column;
         }
-        .chart img { max-width: 100%; }
-        h2 { border-bottom: 2px solid #0d6efd; padding-bottom: 0.5rem; margin-top: 2rem; }
+        .chart-card img {
+            width: 100%;
+            height: auto;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* --- Table Styling --- */
+        .table-container {
+            overflow-x: auto; /* Makes tables scrollable on small screens */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        thead th {
+            background-color: var(--primary-blue);
+            color: white;
+            font-weight: 700;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            main {
+                padding: 1rem;
+            }
+            .chart-card {
+                /* On small screens, charts take up the full width */
+                flex-basis: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="display-4">{{ title }}</h1>
-        <!-- CORRECTED: Display the pre-formatted time variable -->
-        <p class="lead">Generated on {{ generation_time }} by DORA.</p>
+    <header class="header">
+        <div class="logo-container">
+             <img src="https://raw.githubusercontent.com/Asifdotexe/DORA/main/data/assets/dora-updated-concept.png" alt="DORA Logo">
+        </div>
+        <div class="header-text">
+            <h1>{{ title }}</h1>
+            <p>Generated on {{ generation_time }}</p>
+        </div>
+    </header>
 
+    <main>
         {% if profile %}
         <section id="profiling">
-            <h2>Data Profile</h2>
-            <p><strong>Dataset Shape:</strong> {{ profile.dataset_shape[0] }} rows, {{ profile.dataset_shape[1] }} columns</p>
-
-            <h3>Missing Values</h3>
-            {{ profile.missing_values_html | safe }}
-
-            <h3>Descriptive Statistics</h3>
-            {{ profile.descriptive_statistics_html | safe }}
+            <h2 class="section-title">Data Profile</h2>
+            <div class="card">
+                <div class="card-header">
+                    Dataset Overview
+                </div>
+                <div class="card-body">
+                    <p><strong>Shape:</strong> {{ profile.dataset_shape[0] }} rows, {{ profile.dataset_shape[1] }} columns</p>
+                </div>
+            </div>
+            {% if profile.missing_values_html %}
+            <div class="card">
+                <div class="card-header">
+                    Missing Values
+                </div>
+                <div class="card-body table-container">
+                    {{ profile.missing_values_html | safe }}
+                </div>
+            </div>
+            {% endif %}
+            {% if profile.descriptive_statistics_html %}
+            <div class="card">
+                <div class="card-header">
+                    Descriptive Statistics
+                </div>
+                <div class="card-body table-container">
+                    {{ profile.descriptive_statistics_html | safe }}
+                </div>
+            </div>
+            {% endif %}
         </section>
         {% endif %}
 
         {% if univariate_plots %}
         <section id="univariate">
-            <h2>Univariate Analysis</h2>
+            <h2 class="section-title">Univariate Analysis</h2>
             <div class="chart-container">
                 {% for plot in univariate_plots %}
-                <div class="chart">
-                    <!-- Screen readers will announce the raw filename (e.g., sales_vs_target.png),
-                     which is not descriptive. Reuse the human-readable caption so alt text matches what sighted users see. -->
-                    <h5>{{ plot.replace('_', ' ').replace('.png', '') | title }}</h5>
-                    <img src="charts/{{ plot }}" alt="{{ plot }}">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        {{ plot.replace('_', ' ').replace('.png', '') | title }}
+                    </div>
+                    <img src="charts/{{ plot }}" alt="{{ plot.replace('_', ' ').replace('.png', '') | title }}">
                 </div>
                 {% endfor %}
             </div>
@@ -62,12 +216,12 @@
 
         {% if bivariate_plots %}
         <section id="bivariate">
-            <h2>Bivariate Analysis</h2>
+            <h2 class="section-title">Bivariate Analysis</h2>
             <div class="chart-container">
                 {% for plot in bivariate_plots %}
-                <div class="chart">
+                <div class="card chart-card">
                     {% set caption = plot.replace('_', ' ').replace('.png', '') | title %}
-                    <h5>{{ caption }}</h5>
+                    <div class="card-header">{{ caption }}</div>
                     <img src="charts/{{ plot }}" alt="{{ caption }}">
                 </div>
                 {% endfor %}
@@ -77,21 +231,18 @@
 
         {% if multivariate_plots %}
         <section id="multivariate">
-            <h2>Multivariate Analysis</h2>
+            <h2 class="section-title">Multivariate Analysis</h2>
             <div class="chart-container">
                 {% for plot in multivariate_plots %}
-                <div class="chart">
-                    <!-- Screen readers will announce the raw filename (e.g., sales_vs_target.png),
-                     which is not descriptive. Reuse the human-readable caption so alt text matches what sighted users see. -->
+                <div class="card chart-card">
                     {% set caption = plot.replace('_', ' ').replace('.png', '') | title %}
-                    <h5>{{ caption }}</h5>
+                    <div class="card-header">{{ caption }}</div>
                     <img src="charts/{{ plot }}" alt="{{ caption }}">
                 </div>
                 {% endfor %}
             </div>
         </section>
         {% endif %}
-
-    </div>
+    </main>
 </body>
 </html>
