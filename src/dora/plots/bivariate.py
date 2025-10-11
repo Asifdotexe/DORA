@@ -3,7 +3,8 @@ This module is responsible for generating visualisations for bivariate analysis
 """
 
 import logging
-import os
+from pathlib import Path
+from typing import Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -13,7 +14,10 @@ from .styling import PRIMARY_COLOR, apply_custom_styling
 
 
 def generate_plots(
-    df: pd.DataFrame, target_column: str, charts_dir: str, config_params: dict
+    df: pd.DataFrame,
+    target_column: str,
+    charts_dir: Union[str, Path],
+    config_params: dict,
 ) -> list[str]:
     """
     Generates and save the plot for target-centric bi-variate plot
@@ -24,7 +28,7 @@ def generate_plots(
     :returns: A list of paths pointing towards the plots
     """
     apply_custom_styling()
-    # FIXME: Maybe this can be outside the function?
+
     # Check to determine if target centric analysis is needed
     if not config_params.get("target_centric"):
         logging.info(
@@ -32,6 +36,7 @@ def generate_plots(
         )
         return []
 
+    charts_dir_path = Path(charts_dir)
     plot_paths = []
     features = [column for column in df.columns if column != target_column]
     target_is_numeric = pd.api.types.is_numeric_dtype(df[target_column])
@@ -68,13 +73,11 @@ def generate_plots(
             plot_generated = True
 
         if plot_generated:
-            path = os.path.join(
-                charts_dir, f"bivariate_{feature}_vs_{target_column}.png"
-            )
+            path = charts_dir_path / f"bivariate_{feature}_vs_{target_column}.png"
             plt.tight_layout()
             plt.savefig(path)
             plt.close()
-            plot_paths.append(os.path.relpath(path, charts_dir))
+            plot_paths.append(str(path.relative_to(charts_dir_path)))
             logging.info(
                 "Generated bivariate plot for %s vs %s", feature, target_column
             )

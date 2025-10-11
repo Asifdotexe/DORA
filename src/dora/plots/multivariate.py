@@ -3,7 +3,8 @@ This module is responsible for generating visualisations for multivariate analys
 """
 
 import logging
-import os
+from pathlib import Path
+from typing import Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -12,7 +13,9 @@ import seaborn as sns
 from .styling import apply_custom_styling
 
 
-def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> list[str]:
+def generate_plots(
+    df: pd.DataFrame, charts_dir: Union[str, Path], config_params: dict
+) -> list[str]:
     """
     Generates and saves a correlation heatmap.
 
@@ -23,6 +26,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
     """
     apply_custom_styling()
 
+    charts_dir_path = Path(charts_dir)
     plot_paths = []
     cols = config_params.get("correlation_cols")
 
@@ -50,10 +54,10 @@ def generate_plots(df: pd.DataFrame, charts_dir: str, config_params: dict) -> li
     )
     plt.tight_layout()
 
-    path = os.path.join(charts_dir, "multivariate_correlation_matrix.png")
+    path = charts_dir_path / "multivariate_correlation_matrix.png"
     plt.savefig(path)
     plt.close()
-    plot_paths.append(os.path.relpath(path, charts_dir))
+    plot_paths.append(str(path.relative_to(charts_dir_path)))
     logging.info("Generated correlation matrix.")
 
     return plot_paths
