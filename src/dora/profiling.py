@@ -32,14 +32,17 @@ def _create_sparkline(series: pd.Series) -> str:
     return b64_string
 
 
-def generate_profile(df: pd.DataFrame) -> dict:
+def generate_profile(df: pd.DataFrame, max_sparklines: int = 100) -> dict:
     """
     Performs data profiling on a given dataframe, generating stats and sparklines for each column.
 
     :param df: Pandas dataframe containing data
+    :param max_sparklines: Maximum number of sparklines to generate (default: 100)
     :returns: Dictionary containing detailed profiling information for each column.
     """
     column_profiles = []
+    numeric_cols_count = 0
+
     for column in df.columns:
         col_series = df[column]
         profile_data = {"name": column}
@@ -54,7 +57,13 @@ def generate_profile(df: pd.DataFrame) -> dict:
             }
             profile_data["type"] = "Numerical"
             profile_data["stats"] = stats
-            profile_data["sparkline_base64"] = _create_sparkline(col_series)
+
+            # Only generate sparkline if under the limit
+            if numeric_cols_count < max_sparklines:
+                profile_data["sparkline_base64"] = _create_sparkline(col_series)
+                numeric_cols_count += 1
+            else:
+                profile_data["sparkline_base64"] = None
         else:
             stats = {
                 "unique_values": col_series.nunique(),
