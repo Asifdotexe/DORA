@@ -6,13 +6,14 @@ import logging
 from pathlib import Path
 from typing import Union
 
+import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
 from .styling import PRIMARY_BLUE, apply_custom_styling
 
-plt.use('Agg')
+ma.use('Agg')
 
 
 def generate_plots(
