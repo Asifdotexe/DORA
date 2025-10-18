@@ -13,7 +13,7 @@ import seaborn as sns
 
 from .styling import PRIMARY_BLUE, apply_custom_styling
 
-ma.use('Agg')
+matplotlib.use('Agg')
 
 
 def generate_plots(
