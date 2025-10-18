@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-plt.use('Agg')
-
 from .styling import apply_custom_styling
+
+plt.use('Agg')
 
 
 def generate_plots(
