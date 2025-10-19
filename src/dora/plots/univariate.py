@@ -41,7 +41,7 @@ def generate_plots(
         for plot_type in config_params.get("plot_types", {}).get("numerical", []):
             plt.figure(figsize=(10, 6))
             if plot_type == "histogram":
-                sns.histplot(df[column], kde=True, color=PRIMARY_BLUE)
+                sns.histplot(df[column], color=PRIMARY_BLUE)
                 plt.title(
                     f"Distribution of {column.replace('_', ' ').title()}",
                     loc="left",
