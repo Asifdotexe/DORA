@@ -15,8 +15,6 @@ import seaborn as sns
 
 from .styling import PRIMARY_BLUE, apply_custom_styling
 
-matplotlib.use('Agg')
-
 
 def generate_plots(
     df: pd.DataFrame, charts_dir: Union[str, Path], config_params: dict
