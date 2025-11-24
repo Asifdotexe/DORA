@@ -6,12 +6,14 @@ import logging
 from pathlib import Path
 from typing import Union
 
+import matplotlib
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
 from .styling import apply_custom_styling
-
 
 def generate_plots(
     df: pd.DataFrame, charts_dir: Union[str, Path], config_params: dict

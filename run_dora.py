@@ -8,6 +8,9 @@ It supports two modes:
     (e.g., `python run_dora.py`)
 """
 
+import io
+import cProfile
+import pstats
 import logging
 from pathlib import Path
 
@@ -173,11 +176,23 @@ def run(
         file_okay=True,
         dir_okay=False,
         readable=True,
-    )
+    ),
+    profile: bool = typer.Option(
+        False,
+        "--profile",
+        is_flag=True,
+        help="Enable performance profiling and print the results.",
+    ),
 ):
     """
     Runs the automated EDA process either from a config file or via an interactive wizard.
     """
+    profiler = None
+    if profile:
+        # If profiling is enabled, wrap the main execution in the profiler.
+        profiler = cProfile.Profile()
+        profiler.enable()
+
     config = None
     df = None
 
@@ -231,6 +246,26 @@ def run(
     except Exception as e:
         logging.error("An unexpected error occurred: %s", e, exc_info=True)
         raise typer.Exit(code=1)
+    finally:
+        # This block ensures that the profiler results are printed even if an error occurs.
+        if profiler:
+            profiler.disable()
+            rprint("\n[bold magenta] --- Performance Profile --- [/bold magenta]")
+            s = io.StringIO()
+            # Sort by cumulative time spent in functions
+            ps = pstats.Stats(profiler, stream=s).sort_stats("cumulative")
+            ps.print_stats(30)  # Print top 30 functions
+            rprint(s.getvalue())
+
+            # Save full stats to a file for more detailed analysis
+            profile_output_file = "dora_profile.prof"
+            profiler.dump_stats(profile_output_file)
+            rprint(
+                f"[green]Full profiling stats saved to '{profile_output_file}'.[/green]"
+            )
+            rprint(
+                "Tip: Use a tool like 'snakeviz' to visualize the results (`pip install snakeviz` then `snakeviz dora_profile.prof`)"
+            )
 
 
 if __name__ == "__main__":

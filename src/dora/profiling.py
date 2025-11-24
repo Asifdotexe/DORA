@@ -20,7 +20,7 @@ def _create_sparkline(series: pd.Series) -> str:
     """
     apply_custom_styling()
     plt.figure(figsize=(4, 0.75))
-    sns.histplot(series, kde=True, color=PRIMARY_BLUE, legend=False)
+    sns.histplot(series, color=PRIMARY_BLUE, legend=False)
     plt.gca().set_axis_off()
     plt.margins(0)
     plt.tight_layout(pad=0)
