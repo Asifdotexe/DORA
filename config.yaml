@@ -1,10 +1,10 @@
 # --- Input/Output Settings ---
-input_file: 'data/raw/insurance.csv'
-output_dir: 'output/insurance_report'
-report_title: 'Exploratory Data Analysis of Insurance Premiums'
+input_file: "../../data/raw/insurance.csv"
+output_dir: "../../output/insurance_report"
+report_title: "Exploratory Data Analysis of Insurance Premiums"
 
 # --- Dataset Settings ---
-target_variable: 'charges'
+target_variable: "charges"
 
 # --- Analysis Pipeline ---
 # Define the steps to run. The tool will execute them in this order.
@@ -19,9 +19,9 @@ analysis_pipeline:
       enabled: true
       plot_types:
         # Can be 'histogram', 'boxplot'
-        numerical: ['histogram', 'boxplot']
+        numerical: ["histogram", "boxplot"]
         # Can be 'barplot'
-        categorical: ['barplot']
+        categorical: ["barplot"]
 
   - bivariate:
       # Analyze relationships between two variables.
@@ -35,4 +35,4 @@ analysis_pipeline:
       enabled: true
       # Specify columns for the correlation heatmap.
       # If empty or not provided, uses all numerical columns.
-      correlation_cols: ['age', 'bmi', 'children', 'charges']
+      correlation_cols: ["age", "bmi", "children", "charges"]
