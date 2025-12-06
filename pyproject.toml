@@ -1,5 +1,5 @@
 [project]
-name = "dora-py"
+name = "dora-eda"
 version = "3.0.0"
 description = "Exploratory data analysis and presentation tool"
 authors = [
