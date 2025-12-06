@@ -1,17 +1,17 @@
 """
 This is the application entrypoint.
 
-It supports two modes:
+It supports two modes (Assuming you are are in the 'src/dora' directory):
 1.  File Mode: Runs the analysis based on a specified YAML config file.
-    (e.g., `python run_dora.py --config config.yaml`)
+    (e.g., `python main.py --config config.yaml`)
 2.  Interactive Mode: If no config file is given, it launches a setup wizard.
-    (e.g., `python run_dora.py`)
+    (e.g., `python main.py`)
 """
 
-import io
 import cProfile
-import pstats
+import io
 import logging
+import pstats
 from pathlib import Path
 
 import pandas as pd
@@ -22,7 +22,6 @@ from rich import print as rprint
 from dora.analyzer import Analyzer
 from dora.config_loader import load_config
 
-# Configure logging at the entry point
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -30,29 +29,29 @@ logging.basicConfig(
 app = typer.Typer(help="DORA: The Data-Oriented Report Automator")
 
 
-def read_data_file(file_path: Path) -> pd.DataFrame:
+def read_data(file_path: Path) -> pd.DataFrame | None:
     """
-    Reads a data file into a pandas DataFrame, supporting multiple formats.
+    Reads a data file into a pandas DataFrame.
 
-    This function keeps our file-reading logic in one place, making it easy to
-    manage and extend in the future.
+    :param file_path: Path to the file to be read.
+    :returns: A pandas DataFrame containing the data from the file.
     """
-    # We use the file's suffix to determine which pandas function to use.
-    # This allows DORA to be flexible with its input.
     suffix = file_path.suffix.lower()
-    if suffix == ".csv":
-        return pd.read_csv(file_path)
-    if suffix == ".xlsx":
-        return pd.read_excel(file_path)
-    if suffix == ".json":
-        return pd.read_json(file_path)
-    if suffix == ".parquet":
-        return pd.read_parquet(file_path)
 
-    # If the file type is not supported, we raise an error with clear instructions for the user.
-    raise ValueError(
-        f"Unsupported file type: {suffix}. Please use CSV, Excel, JSON, or Parquet."
-    )
+    try:
+        if suffix == ".csv":
+            return pd.read_csv(file_path)
+        if suffix == ".xlsx":
+            return pd.read_excel(file_path)
+        if suffix == ".json":
+            return pd.read_json(file_path)
+        if suffix == ".parquet":
+            return pd.read_parquet(file_path)
+
+    except ValueError:
+        logging.error(
+            f"Unsupported file type: {suffix}. Please use CSV, Excel, JSON, or Parquet."
+        )
 
 
 def create_config_interactively() -> tuple[pd.DataFrame, dict]:
@@ -64,9 +63,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
     rprint("[bold blue]DORA Interactive Setup Wizard[/bold blue]")
     rprint("Let's configure your EDA report step by step.")
 
-    # Getting the user input
     # We loop until a valid file is provided to prevent the program from crashing later on.
-    # This ensures a smooth start to the analysis.
     while True:
         # FIXME: As of right now this only supports CSV but in future we can give user the ability to upload any file
         # such as .csv, .xlsx, .parquet, .json, ... etc. and we automatically identify it and read it accordingly
@@ -74,7 +71,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
         input_file = Path(input_file_str)
         if input_file.exists() and input_file.is_file():
             try:
-                df = read_data_file(input_file)
+                df = read_data(input_file)
                 # If the file is read successfully, we can exit the loop.
                 break
             except pd.errors.EmptyDataError:
@@ -98,6 +95,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
     default_title = f"EDA Report for {input_file.stem}"
     report_title = typer.prompt("📝 Enter the report title", default=default_title)
 
+    assert type(df) is pd.DataFrame
     # Knowing the target variable allows DORA to create more focused and insightful plots (like feature vs. target),
     # which is often the main goal of EDA.
     rprint("\n[bold]Available columns:[/bold]")
@@ -254,7 +252,7 @@ def run(
             s = io.StringIO()
             # Sort by cumulative time spent in functions
             ps = pstats.Stats(profiler, stream=s).sort_stats("cumulative")
-            ps.print_stats(30)  # Print top 30 functions
+            ps.print_stats(30)
             rprint(s.getvalue())
 
             # Save full stats to a file for more detailed analysis
