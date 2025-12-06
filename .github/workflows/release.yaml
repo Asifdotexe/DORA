@@ -1,0 +1,46 @@
+name: Release to PyPI
+
+on:
+  push:
+    tags:
+      - "v*.*.*" # Triggers the workflow on push for tags starting with 'v' (e.g. v1.0.0)
+
+jobs:
+  release:
+    name: Build, Release on GitHub, and Publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: |
+          pip install pipx
+          pipx install poetry
+
+      - name: Build the package
+        run: poetry build
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Poetry for PyPI
+        run: |
+          poetry config http-basic.pypi __token__ ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Publish to PyPI
+        run: poetry publish

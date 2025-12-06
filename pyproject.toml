@@ -1,6 +1,6 @@
 [project]
-name = "dora"
-version = "2.0.0"
+name = "dora-py"
+version = "3.0.0"
 description = "Exploratory data analysis and presentation tool"
 authors = [
     {name = "Asif Sayyed",email = "asifdotexe@gmail.com"}
@@ -21,9 +21,21 @@ dependencies = [
     "pyarrow (>=21.0.0,<22.0.0)"
 ]
 
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+urls = {Repository = "https://github.com/Asifdotexe/DORA"}
+
 [tool.poetry]
 package-mode = true
 packages = [{ include = "dora", from = "src" }]
+
+[tool.poetry.scripts]
+dora = "dora.main:main"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^3.3.9"
