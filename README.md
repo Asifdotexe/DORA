@@ -8,25 +8,6 @@
 An interactive command-line tool to automate Exploratory Data Analysis (EDA) and generate beautiful, insightful reports in seconds.
 </em>
 
-<!-- <p align="center">
-    <a href="https://github.com/Asifdotexe/DORA/blob/main/pyproject.toml">
-        <img src="https://www.google.com/search?q=https://img.shields.io/badge/python-3.13%252B-blue.svg" alt="Python Version">
-    </a>
-    <a href="https://github.com/Asifdotexe/DORA/blob/main/LICENSE">
-        <img src="https://www.google.com/search?q=https://img.shields.io/badge/license-MIT-green.svg" alt="License">
-    </a>
-    <a href="https://github.com/psf/black">
-        <img src="https://www.google.com/search?q=https://img.shields.io/badge/code%2520style-black-000000.svg" alt="Code Style: Black">
-    </a>
-    <a href="https://python-poetry.org/">
-        <img src="https://www.google.com/search?q=https://img.shields.io/badge/built%2520with-Poetry-orange.svg" alt="Built with Poetry">
-    </a>
-    <a href="https://github.com/Asifdotexe/DORA/actions">
-        <img src="https://www.google.com/search?q=https://img.shields.io/github/actions/workflow/status/Asifdotexe/DORA/main.yml%3Fbranch%3Dmain" alt="Build Status">
-    </a>
-</p> -->
-
-
 ## Overview
 
 Welcome to DORA! This isn't just a script; it's an intelligent EDA assistant. DORA empowers you to move from a raw dataset to a comprehensive HTML report with minimal effort. It's designed to be powerful and configurable, yet simple enough for anyone to use thanks to its interactive mode.
@@ -72,7 +53,8 @@ poetry install --with dev
 This is the easiest way to run DORA. The interactive wizard will guide you through the entire process.
 
 ```bash
-poetry run python run_dora.py
+cd src/dora
+poetry run python main.py
 ```
 
 You will be prompted to:
@@ -130,7 +112,8 @@ analysis_pipeline:
 ### b. Run DORA with the config file:
 
 ```bash
-poetry run python run_dora.py --config config.yaml
+cd src/dora
+poetry run python main.py --config config.yaml
 ```
 
 ## Viewing the Output
