@@ -17,6 +17,8 @@ Welcome to DORA! This isn't just a script; it's an intelligent EDA assistant. DO
 Install DORA directly from PyPI using pip:
 ```bash
 pip install dora-eda
+# check version to validate installation
+dora -v
 ```
 
 ## 2. Usage
