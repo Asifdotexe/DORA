@@ -12,6 +12,7 @@ import cProfile
 import io
 import logging
 import pstats
+from importlib import metadata
 from pathlib import Path
 
 import pandas as pd
@@ -27,6 +28,19 @@ logging.basicConfig(
 )
 
 app = typer.Typer(help="DORA: The Data-Oriented Report Automator")
+
+
+def version_callback(value: bool):
+    """
+    Callback function to display the version and exit.
+    """
+    if value:
+        # We fetch the version directly from the installed package metadata.
+        # Since 'dora-eda' is defined in pyproject.toml, this will retrieve
+        # that exact version string as long as the package is installed.
+        version = metadata.version("dora-eda")
+        rprint(f"DORA v{version}")
+        raise typer.Exit()
 
 
 def read_data(file_path: Path) -> pd.DataFrame | None:
@@ -180,6 +194,14 @@ def run(
         "--profile",
         is_flag=True,
         help="Enable performance profiling and print the results.",
+    ),
+    version: bool = typer.Option(
+        None,
+        "--version",
+        "-v",
+        callback=version_callback,
+        is_eager=True,
+        help="Show the application version and exit.",
     ),
 ):
     """

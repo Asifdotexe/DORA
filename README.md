@@ -10,66 +10,43 @@ An interactive command-line tool to automate Exploratory Data Analysis (EDA) and
 
 ## Overview
 
-Welcome to DORA! This isn't just a script; it's an intelligent EDA assistant. DORA empowers you to move from a raw dataset to a comprehensive HTML report with minimal effort. It's designed to be powerful and configurable, yet simple enough for anyone to use thanks to its interactive mode.
+Welcome to DORA! This isn't just a script; it's an intelligent EDA assistant. DORA empowers you to move from a raw dataset to a comprehensive HTML report with minimal effort. It is designed to be powerful and configurable for experts, yet simple enough for anyone to use thanks to its interactive wizard.
 
-## Key Features
 
-- Dual-Mode Operation:
-    - Interactive mode: A step-by-step wizard to configure your analysis (no coding involved)
-    - Configuration driven: For reproducible workflows, define your analysis in a `config.yaml` file
-- Flexible Data Input: Supports CSV, Excel, JSON, and Parquet files.
-    - Note: For Excel files, DORA will only read and analyze the first sheet.
-- Data Profiling: Get an overview of your dataset's health, including missing values, descriptive statistics and data types
-- Target-centric analysis: Generates plots that explore the relationship between your features and a specified target variable
-- HTML Reports: Generates a HTML report that's easy to share and view in any browser.
-
-## User Guide
-
-Get started with DORA in just two commands. Ensure you have [Poetry](https://python-poetry.org/docs/#installation) installed first.
-
-### Step 1
+## 1. installation
+Install DORA directly from PyPI using pip:
 ```bash
-# For Windows (Powershell)
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
-
-# For Linux or MacOS (Terminal)
-curl -sSL https://install.python-poetry.org | python3 -
+pip install dora-eda
+# check version to validate installation
+dora -v
 ```
 
-### Step 2
-```bash
-# Clone the repository
-git clone https://github.com/Asifdotexe/DORA.git
-cd DORA
+## 2. Usage
+DORA has two modes of operation: Interactive (for first-time runs) and Config-Driven (for reproducible automation).
+Run DORA without existing configuration (Fresh run)
 
-# Install all dependencies using Poetry
-poetry install
-
-# The --with dev flag is important as it also installs development tools like pylint. (for developers only)
-poetry install --with dev
-```
-
-## Quick Start (Interactive Mode)
-This is the easiest way to run DORA. The interactive wizard will guide you through the entire process.
+## A. Interactive Mode (Quick Start)
+Simply run the command without arguments. DORA will launch a wizard to guide you through the setup.
 
 ```bash
-cd src/dora
-poetry run python main.py
+dora
 ```
-
 You will be prompted to:
-- Enter the path to your CSV file.
-- Specify an output directory.
-- (Optionally) select a target variable.
-- Choose which analysis steps to perform.
-At the end, it will even ask if you want to save your choices to a `config.yaml` file for next time!
+- Select your data file (CSV, Excel, JSON, Parquet).
+- Choose an output directory.
+- (Optional) Select a target variable for focused analysis.
+- Pick which analysis steps to perform.
+- (Optional) Save your settings to a `config.yaml` file for future use.
 
-## Advanced Usage (Config-Driven Mode)
-For reproducible results or to integrate DORA into a larger workflow, the configuration-driven mode is ideal.
+## B. Config-Driven Mode (Advanced)
+If you already have a configuration file (e.g., from a previous run), you can skip the wizard and run the analysis immediately.
 
-### a. Create a config.yaml file:
+```bash
+dora --config <path/to/config.yaml>
+```
 
-```yaml
+**Example `config.yaml`:**
+```bash
 # --- Input/Output Settings ---
 input_file: 'data/insurance.csv'
 output_dir: 'output/insurance_report'
@@ -79,81 +56,82 @@ report_title: 'Exploratory Data Analysis of Insurance Premiums'
 target_variable: 'charges'
 
 # --- Analysis Pipeline ---
-# Define the steps to run. The tool will execute them in this order.
 analysis_pipeline:
   - profile:
-      # Generate detailed data profile (missing values, cardinality, stats).
-      # No extra parameters needed.
       enabled: true
-
   - univariate:
-      # Generate plots for individual columns.
       enabled: true
       plot_types:
-        # Can be 'histogram', 'boxplot'
         numerical: ['histogram', 'boxplot']
-        # Can be 'barplot'
         categorical: ['barplot']
-
   - bivariate:
-      # Analyze relationships between two variables.
       enabled: true
-      # If true, focuses on plotting features against the target_variable.
-      # If false, would require more specific pairs to be defined (more advanced).
       target_centric: true
-
   - multivariate:
-      # Analyze relationships among three or more variables.
       enabled: true
-      # Specify columns for the correlation heatmap.
-      # If empty or not provided, uses all numerical columns.
       correlation_cols: ['age', 'bmi', 'children', 'charges']
 ```
-### b. Run DORA with the config file:
+## 3. Supported Data Formats
+DORA automatically detects and reads the following file types:
+- CSV (`*.csv`)
+- Excel (`*.xlsx`) - Note: Analyzes the first sheet only.
+- JSON (`*.json`)
+- Parquet (`*.parquet`)
 
+## 4. Viewing the Output
+After the analysis is complete, check your output directory for:
+- 📄 `eda_report.html`: The full, interactive report. Open this in any web browser.
+- 📈 `charts/`: A folder containing all generated plots as high-quality images.
+
+# Developer Guide
+Interested in contributing to DORA? Awesome! Follow these steps to set up your local development environment.
+
+## 1. Prerequisites
+You need Poetry for dependency management.
 ```bash
-cd src/dora
-poetry run python main.py --config config.yaml
+# Windows (Powershell)
+(Invoke-WebRequest -Uri [https://install.python-poetry.org](https://install.python-poetry.org) -UseBasicParsing).Content | py -
+
+# Linux/macOS
+curl -sSL [https://install.python-poetry.org](https://install.python-poetry.org) | python3 -
 ```
 
-## Viewing the Output
-After the analysis is complete, you will find a new folder at your specified output path containing:
-- eda_report.html: Your final, shareable report. Open it in any browser.
-- charts/: A sub-folder with all the generated plots saved as individual image files.
-
-## Developer Onboarding
-Interested in contributing to DORA? Awesome! Here’s how to get set up.
-
-### 1. Setting Up the Development Environment
-The `poetry install` command you ran earlier for developers already installed all the development dependencies (like `pytest` and `pylint`).
-
-### 2. Running Linters and Formatters
-We use `black` for formatting, `isort` for sorting imports, and `pylint` for linting. We recommend setting up `pre-commit hooks` to automate this process.
-
+## 2. Setup
+Clone the repository and install dependencies (including dev tools).
 ```bash
-# Install the pre-commit hooks (run this once)
+git clone https://github.com/Asifdotexe/DORA.git
+cd dora
+poetry install --with dev
+```
+
+## 3. Code Quality
+We use standard tools to keep the codebase clean. Please run these before submitting a PR.
+
+**Automated Checks (Recommended):**
+Install the pre-commit hooks once, and they will run automatically on every commit.
+```bash
 poetry run pre-commit install
-
-# Now, your code will be automatically checked and formatted every time you make a commit
 ```
-
-To run the checks manually:
-
+**Manual Checks:**
 ```bash
-# Format code with Black and isort
+# Format code
 poetry run black .
 poetry run isort .
 
-# Run the linter
+# Lint code
 poetry run pylint src/dora
 ```
+**Running Tests:**
+```bash
+poetry run pytest
+```
 
-### 3. How to Contribute
-- Fork the repository.
-- Create a new branch (git checkout -b feature/my-new-feature).
-- Make your changes and add tests for them.
-- Ensure all tests and pre-commit checks pass.
-- Push to your branch and submit a Pull Request.
+## 4. How to Contribute
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes.
+4. Push to the branch.
+5. Open a Pull Request.
 
 ## License
 This project is licensed under the MIT License. See the `LICENSE` file for details.
