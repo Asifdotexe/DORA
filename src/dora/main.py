@@ -107,6 +107,8 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
         )
 
         if KaggleHandler.is_kaggle_url(input_str):
+            # FIXME: You don't have permission to access resource at URL: https://www.kaggle.com/datasets/"sakshisatre/tips-dataset"
+            # Please make sure you are authenticated if you are trying to access a private resource or a resource requiring consent.
             dataset_id = KaggleHandler.extract_dataset_id(input_str)
             if typer.confirm(f"Download Kaggle dataset '{dataset_id}'?", default=True):
                 input_file = KaggleHandler.download_dataset(dataset_id)
