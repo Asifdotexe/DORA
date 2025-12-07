@@ -18,10 +18,12 @@ from pathlib import Path
 import pandas as pd
 import typer
 import yaml
+from pyarrow import RuntimeInfo
 from rich import print as rprint
 
 from dora.analyzer import Analyzer
 from dora.config_loader import load_config
+from dora.kaggle import KaggleHandler
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -68,6 +70,28 @@ def read_data(file_path: Path) -> pd.DataFrame | None:
         )
 
 
+def handle_kaggle_download(input_str: str) -> Path:
+    """
+    Wrapper to handle the kaggle download
+    """
+    dataset_id = KaggleHandler.extract_dataset_id(input_str)
+    rprint(f"[cyan]Downloading dataset {dataset_id}...[/cyan]")
+
+    try:
+        file_path = KaggleHandler.download_dataset(dataset_id)
+        rprint(f"[green]Download complete. Using file {file_path.name}[/green]")
+        return file_path
+    except ImportError:
+        rprint("[bold red]'kagglehub' library not found.[/bold red]")
+        raise typer.Exit(code=1)
+    except RuntimeError as e:
+        rprint(f"[bold red]{e}[/bold red]")
+        raise typer.Exit(code=1)
+    except FileNotFoundError as e:
+        rprint(f"[bold red]{e}[/bold red]")
+        raise typer.Exit(code=1)
+
+
 def create_config_interactively() -> tuple[pd.DataFrame, dict]:
     """
     Guides the user through an interactive CLI session to build the config.
@@ -79,10 +103,19 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
 
     # We loop until a valid file is provided to prevent the program from crashing later on.
     while True:
-        # FIXME: As of right now this only supports CSV but in future we can give user the ability to upload any file
-        # such as .csv, .xlsx, .parquet, .json, ... etc. and we automatically identify it and read it accordingly
-        input_file_str = typer.prompt("📁 Enter the path to your input CSV file")
-        input_file = Path(input_file_str)
+        input_str = typer.prompt(
+            "📁 Enter local file path OR Kaggle URL/ID (Example: 'owner/dataset-name')"
+        )
+
+        if KaggleHandler.is_kaggle_url(input_str):
+            dataset_id = KaggleHandler.extract_dataset_id(input_str)
+            if typer.confirm(f"Download Kaggle dataset '{dataset_id}'?", default=True):
+                input_file = KaggleHandler.download_dataset(dataset_id)
+            else:
+                continue
+        else:
+            input_file = Path(input_str)
+
         if input_file.exists() and input_file.is_file():
             try:
                 df = read_data(input_file)
