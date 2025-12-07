@@ -18,7 +18,6 @@ from pathlib import Path
 import pandas as pd
 import typer
 import yaml
-from pyarrow import RuntimeInfo
 from rich import print as rprint
 
 from dora.analyzer import Analyzer
