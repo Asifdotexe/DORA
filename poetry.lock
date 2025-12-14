@@ -906,20 +906,27 @@ test = ["ipykernel", "pre-commit", "pytest (<9)", "pytest-cov", "pytest-timeout"
 
 [[package]]
 name = "kagglehub"
-version = "0.2.9"
+version = "0.3.13"
 description = "Access Kaggle resources anywhere"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "kagglehub-0.2.9-py3-none-any.whl", hash = "sha256:4689019c69f52a86130e3b8c02e41ba521d17ac1d2644d8178a9eb32bbc74ea9"},
-    {file = "kagglehub-0.2.9.tar.gz", hash = "sha256:761366c7349910612c9df879fae0a305a2146bf3b3f90e8be8434ab823d53687"},
+    {file = "kagglehub-0.3.13-py3-none-any.whl", hash = "sha256:e00dec8b81396cbad9c7b5eb62a33cf8ae27da26227abd196ed8f054c845ca00"},
+    {file = "kagglehub-0.3.13.tar.gz", hash = "sha256:d3c8b6250627d665096cd91a9487559bf5ed61be607eaf63d14511b20eea646e"},
 ]
 
 [package.dependencies]
 packaging = "*"
+pyyaml = "*"
 requests = "*"
 tqdm = "*"
+
+[package.extras]
+hf-datasets = ["datasets", "pandas"]
+pandas-datasets = ["pandas"]
+polars-datasets = ["polars"]
+signing = ["betterproto (>=2.0.0b6)", "model-signing", "sigstore (>=3.6.1)"]
 
 [[package]]
 name = "kiwisolver"
@@ -2533,4 +2540,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "1e0df4d7cfc937da36654cb2194e96e1ae7a56bc5c3e06a5842a41378ef4db86"
+content-hash = "9e80ac70b0ca29bd85097345f043f290469b148bdd40555cf5f4decb99264c6f"
