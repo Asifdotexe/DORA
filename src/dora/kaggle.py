@@ -39,8 +39,10 @@ class KaggleHandler:
     def extract_dataset_id(input_str: str) -> str:
         """
         Extract the 'owner/dataset-name' identifier from a Kaggle URL.
+
+        :param input_str: The input string (link) to extract the dataset ID from.
+        :return: The extracted dataset ID.
         """
-        # NOTE: Updated from match to search pattern in the entire string
         match = re.search(r"kaggle\.com/datasets/([^/]+/[^/?]+)", input_str)
         if match:
             return match.group(1)
@@ -62,7 +64,7 @@ class KaggleHandler:
             raise ValueError(f"Failed to download dataset: {e}") from e
 
         # Extracting file based on their extensions
-        supported_extensions = [".csv", ".json", ".parquet", ".xlsx", ".xls"]
+        supported_extensions = [".csv", ".json", ".parquet", ".xlsx"]
         files = [
             file
             for file in dataset_download_directory.glob("**/*")

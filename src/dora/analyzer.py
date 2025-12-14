@@ -56,8 +56,7 @@ class Analyzer:
                 elif step_name == "multivariate":
                     self._run_multivariate(params)
 
-        # After all the analysis is done, we compile everything into a
-        # beautiful, easy-to-read report.
+        # After all the analysis is done, we compile everything into a beautiful, easy-to-read report.
         self._generate_report()
 
     def _run_profiling(self):

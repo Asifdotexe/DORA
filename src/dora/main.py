@@ -31,9 +31,12 @@ logging.basicConfig(
 app = typer.Typer(help="DORA: The Data-Oriented Report Automator")
 
 
-def version_callback(value: bool):
+def version_callback(value: bool) -> None:
     """
     Callback function to display the version and exit.
+
+    :param value: Whether to display the version or not.
+    :return: None
     """
     if value:
         # We fetch the version directly from the installed package metadata.
