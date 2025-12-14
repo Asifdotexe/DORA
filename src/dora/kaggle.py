@@ -59,7 +59,7 @@ class KaggleHandler:
             dataset_path = kagglehub.dataset_download(dataset_id)
             dataset_download_directory = Path(dataset_path)
         except RuntimeError as e:
-            raise ValueError(f"Failed to download dataset: {e}")
+            raise ValueError(f"Failed to download dataset: {e}") from e
 
         # Extracting file based on their extensions
         supported_extensions = [".csv", ".json", ".parquet", ".xlsx", ".xls"]
@@ -73,6 +73,6 @@ class KaggleHandler:
             raise ValueError("No supported files found in the downloaded dataset.")
 
         # Pick the largest file by default
-        # FIXME: This logic has it's flaws and needs to be revised.
+        # FIXME: This logic has its flaws and needs to be revised.
         main_file = max(files, key=lambda file: file.stat().st_size)
         return main_file

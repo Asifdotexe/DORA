@@ -151,7 +151,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
     )
     # We validate the user's input to ensure it's a real column, which prevents errors during the analysis phase.
     if not target_variable or target_variable not in df.columns:
-        if target_variable:  # User entered an invalid column
+        if target_variable:
             rprint(
                 f"[yellow]Warning: Column '{target_variable}' not found. Proceeding without a target.[/yellow]"
             )
