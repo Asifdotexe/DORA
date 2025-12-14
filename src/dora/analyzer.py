@@ -11,6 +11,9 @@ from .plots import bivariate, multivariate, univariate
 from .profiling import generate_profile
 from .reporting.generator import create_report
 
+# TODO: Better handling for categorical variables (e.g., set max limit to categories)
+# TODO: Handling ID columns (e.g., customer_id)
+
 
 class Analyzer:
     """
