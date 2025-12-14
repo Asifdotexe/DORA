@@ -69,26 +69,25 @@ def read_data(file_path: Path) -> pd.DataFrame | None:
         )
 
 
-def handle_kaggle_download(input_str: str) -> Path:
+def handle_kaggle_download(dataset_id: str) -> Path:
     """
     Wrapper to handle the kaggle download
+
+    :param dataset_id: Kaggle dataset ID e.g. 'owner/dataset-name'
+    :returns: Path to downloaded dataset file
     """
-    dataset_id = KaggleHandler.extract_dataset_id(input_str)
     rprint(f"[cyan]Downloading dataset {dataset_id}...[/cyan]")
 
     try:
         file_path = KaggleHandler.download_dataset(dataset_id)
         rprint(f"[green]Download complete. Using file {file_path.name}[/green]")
         return file_path
-    except ImportError:
-        rprint("[bold red]'kagglehub' library not found.[/bold red]")
-        raise typer.Exit(code=1)
+    except ValueError as e:
+        rprint(f"[bold red]{e}[/bold red]")
+        raise typer.Exit(code=1) from e
     except RuntimeError as e:
         rprint(f"[bold red]{e}[/bold red]")
-        raise typer.Exit(code=1)
-    except FileNotFoundError as e:
-        rprint(f"[bold red]{e}[/bold red]")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 def create_config_interactively() -> tuple[pd.DataFrame, dict]:
@@ -105,13 +104,10 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
         input_str = typer.prompt(
             "📁 Enter local file path OR Kaggle URL/ID (Example: 'owner/dataset-name')"
         )
-
         if KaggleHandler.is_kaggle_url(input_str):
-            # FIXME: You don't have permission to access resource at URL: https://www.kaggle.com/datasets/"sakshisatre/tips-dataset"
-            # Please make sure you are authenticated if you are trying to access a private resource or a resource requiring consent.
             dataset_id = KaggleHandler.extract_dataset_id(input_str)
             if typer.confirm(f"Download Kaggle dataset '{dataset_id}'?", default=True):
-                input_file = KaggleHandler.download_dataset(dataset_id)
+                input_file = handle_kaggle_download(dataset_id)
             else:
                 continue
         else:

@@ -11,18 +11,28 @@ import kagglehub
 
 class KaggleHandler:
     """
-    Class for interactive with kaggle via KaggleHub
+    Class for interacting with kaggle via KaggleHub
     """
 
     @staticmethod
     def is_kaggle_url(input_str: str) -> bool:
         """
         Checks if the given URL is a valid Kaggle URL.
+
+        :param input_str: The URL to check.
+        :return: True if the URL is a valid Kaggle URL, False otherwise.
         """
-        return "kaggle.com" in input_str or (
+        # Check for kaggle.com domain or owner/dataset format (simple heuristic)
+        if "kaggle.com" in input_str:
+            return True
+        # Check if it looks like owner/dataset-name format
+        # Must have exactly one "/" and not be an existing file or absolute path
+        return (
             "/" in input_str
+            and input_str.count("/") == 1
             and not Path(input_str).exists()
             and not input_str.startswith("/")
+            and not input_str.startswith("http")
         )
 
     @staticmethod
@@ -30,7 +40,8 @@ class KaggleHandler:
         """
         Extract the 'owner/dataset-name' identifier from a Kaggle URL.
         """
-        match = re.match(r"kaggle\.com/datassets/([^/]+[^/]+)", input_str)
+        # NOTE: Updated from match to search pattern in the entire string
+        match = re.search(r"kaggle\.com/datasets/([^/]+/[^/?]+)", input_str)
         if match:
             return match.group(1)
         return input_str
