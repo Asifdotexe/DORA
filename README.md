@@ -21,6 +21,7 @@ If you have used tools like [ydata-profiling](https://github.com/ydataai/ydata-p
 ## Get started in 2 minutes
 
 1. Install DORA
+
 Open your terminal and run the following command:
 
 ```bash
@@ -28,16 +29,24 @@ pip install dora-eda
 ```
 
 2. Run DORA
+
 Simply run the following command:
+(the DORA supports the following extensions formats: `.csv`, `.xlsx`, `.json`, `.parquet`)
 
 ```bash
 dora
 ```
 An interactive wizard will appear and ask a few simple questions:
-- What is the path to your data file? (You can type a path like `data/raw/insurance.csv` or even a Kaggle dataset URL like `https://www.kaggle.com/datasets/sakshisatre/tips-dataset`)
+- What is the path to your data file? (You can type a path like `data/raw/insurance` or even a Kaggle dataset URL like `https://www.kaggle.com/datasets/sakshisatre/tips-dataset`)
 - Where should we save the report?
 - What kind of analysis do you want?
+
 Sit back for a few seconds, and DORA will generate your report.
+
+**Example:**
+<p align="center">
+    <img src="data/assets/cli-demo.png" alt="DORA Demo" width="700"/>
+</p>
 
 ## Usage Examples
 
