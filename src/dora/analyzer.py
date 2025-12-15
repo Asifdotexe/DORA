@@ -11,6 +11,9 @@ from .plots import bivariate, multivariate, univariate
 from .profiling import generate_profile
 from .reporting.generator import create_report
 
+# TODO: Better handling for categorical variables (e.g., set max limit to categories)
+# TODO: Handling ID columns (e.g., customer_id)
+
 
 class Analyzer:
     """
@@ -53,8 +56,7 @@ class Analyzer:
                 elif step_name == "multivariate":
                     self._run_multivariate(params)
 
-        # After all the analysis is done, we compile everything into a
-        # beautiful, easy-to-read report.
+        # After all the analysis is done, we compile everything into a beautiful, easy-to-read report.
         self._generate_report()
 
     def _run_profiling(self):

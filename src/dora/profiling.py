@@ -81,6 +81,8 @@ def generate_profile(df: pd.DataFrame, max_sparklines: int = 100) -> dict:
 
     # We find the missing values and convert the resulting DataFrame to an HTML string here.
     # If there are no missing values, this string will be empty.
+    #
+    # TODO: Add percentage missing values to the stats dictionary
     missing_df = pd.DataFrame(df.isnull().sum(), columns=["missing_count"]).query(
         "missing_count > 0"
     )

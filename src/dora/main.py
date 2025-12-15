@@ -22,6 +22,7 @@ from rich import print as rprint
 
 from dora.analyzer import Analyzer
 from dora.config_loader import load_config
+from dora.kaggle import KaggleHandler
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -30,9 +31,12 @@ logging.basicConfig(
 app = typer.Typer(help="DORA: The Data-Oriented Report Automator")
 
 
-def version_callback(value: bool):
+def version_callback(value: bool) -> None:
     """
     Callback function to display the version and exit.
+
+    :param value: Whether to display the version or not.
+    :return: None
     """
     if value:
         # We fetch the version directly from the installed package metadata.
@@ -68,6 +72,32 @@ def read_data(file_path: Path) -> pd.DataFrame | None:
         )
 
 
+def handle_kaggle_download(dataset_id: str) -> Path:
+    """
+    Wrapper to handle the kaggle download
+
+    :param dataset_id: Kaggle dataset ID e.g. 'owner/dataset-name'
+    :returns: Path to downloaded dataset file
+    """
+    rprint(f"[cyan]Downloading dataset {dataset_id}...[/cyan]")
+
+    try:
+        file_path = KaggleHandler.download_dataset(dataset_id)
+        rprint(f"[green]Download complete. Using file {file_path.name}[/green]")
+        return file_path
+    except ValueError as e:
+        rprint(f"[bold red]{e}[/bold red]")
+        raise typer.Exit(code=1) from e
+    except RuntimeError as e:
+        rprint(f"[bold red]{e}[/bold red]")
+        raise typer.Exit(code=1) from e
+    except Exception as e:
+        rprint(
+            f"[bold red]An unexpected error occurred during download: {e}[/bold red]"
+        )
+        raise typer.Exit(code=1) from e
+
+
 def create_config_interactively() -> tuple[pd.DataFrame, dict]:
     """
     Guides the user through an interactive CLI session to build the config.
@@ -79,10 +109,18 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
 
     # We loop until a valid file is provided to prevent the program from crashing later on.
     while True:
-        # FIXME: As of right now this only supports CSV but in future we can give user the ability to upload any file
-        # such as .csv, .xlsx, .parquet, .json, ... etc. and we automatically identify it and read it accordingly
-        input_file_str = typer.prompt("📁 Enter the path to your input CSV file")
-        input_file = Path(input_file_str)
+        input_str = typer.prompt(
+            "📁 Enter local file path OR Kaggle URL/ID (Example: 'owner/dataset-name')"
+        )
+        if KaggleHandler.is_kaggle_url(input_str):
+            dataset_id = KaggleHandler.extract_dataset_id(input_str)
+            if typer.confirm(f"Download Kaggle dataset '{dataset_id}'?", default=True):
+                input_file = handle_kaggle_download(dataset_id)
+            else:
+                continue
+        else:
+            input_file = Path(input_str)
+
         if input_file.exists() and input_file.is_file():
             try:
                 df = read_data(input_file)
@@ -121,7 +159,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
     )
     # We validate the user's input to ensure it's a real column, which prevents errors during the analysis phase.
     if not target_variable or target_variable not in df.columns:
-        if target_variable:  # User entered an invalid column
+        if target_variable:
             rprint(
                 f"[yellow]Warning: Column '{target_variable}' not found. Proceeding without a target.[/yellow]"
             )
