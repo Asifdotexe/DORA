@@ -91,6 +91,11 @@ def handle_kaggle_download(dataset_id: str) -> Path:
     except RuntimeError as e:
         rprint(f"[bold red]{e}[/bold red]")
         raise typer.Exit(code=1) from e
+    except Exception as e:
+        rprint(
+            f"[bold red]An unexpected error occurred during download: {e}[/bold red]"
+        )
+        raise typer.Exit(code=1) from e
 
 
 def create_config_interactively() -> tuple[pd.DataFrame, dict]:
