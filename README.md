@@ -34,7 +34,7 @@ Simply run the following command:
 dora
 ```
 An interactive wizard will appear and ask a few simple questions:
-- What is the path to your data file? (You can type a path like `data/example.csv` or even a Kaggle dataset URL like `https://www.kaggle.com/datasets/sakshisatre/tips-dataset`)
+- What is the path to your data file? (You can type a path like `data/raw/insurance.csv` or even a Kaggle dataset URL like `https://www.kaggle.com/datasets/sakshisatre/tips-dataset`)
 - Where should we save the report?
 - What kind of analysis do you want?
 Sit back for a few seconds, and DORA will generate your report.
