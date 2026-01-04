@@ -1,6 +1,6 @@
 # Contribution Onboarding
 
-Thank you for your interest in contributing to Data Oriented Report Automator (DORA)!
+Thank you for your interest in contributing to Data-Oriented Report Automator (DORA)!
 
 1. Prerequisites
 
@@ -9,7 +9,7 @@ Ensure you have [Python 3.13](https://www.python.org/downloads/) or higher insta
 ```bash
 (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 ```
-- For Linux/MacOS
+- For Linux/macOS
 ```bash
 curl -sSL [https://install.python-poetry.org](https://install.python-poetry.org) | python3 -
 ```
@@ -33,19 +33,19 @@ We highly recommend installing `pre-commit` hooks, which will run these checks a
 ```bash
 poetry run pre-commit install
 ```
-if you prefer to run checks manually:
+If you prefer to run checks manually:
 - Formatting: `poetry run black .`
 - Linting: `poetry run pylint src/dora .`
 - Import sort: `poetry run isort .`
 4. Running tests
 
-We use `pytest` for our test suits. Please ensure all tests pass before submitting a pull request.
+We use `pytest` for our test suites. Please ensure all tests pass before submitting a pull request.
 ```bash
 poetry run pytest
 ```
 
 ## How to submit a contribution
-1. Fork the repository on github
+1. Fork the repository on GitHub
 2. Create a feature branch for your changes:
 ```bash
 git checkout -b feature/your-feature-name
