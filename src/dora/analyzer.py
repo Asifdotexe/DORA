@@ -10,6 +10,7 @@ import pandas as pd
 from .plots import bivariate, multivariate, univariate
 from .profiling import generate_profile
 from .reporting.generator import create_report
+from .schema import Config, AnalysisStep
 
 # TODO: Better handling for categorical variables (e.g., set max limit to categories)
 # TODO: Handling ID columns (e.g., customer_id)
@@ -20,12 +21,12 @@ class Analyzer:
     Orchestrates the entire Exploratory data analysis process based on configuration.
     """
 
-    def __init__(self, df: pd.DataFrame, config: dict):
+    def __init__(self, df: pd.DataFrame, config: Config):
         self.df = df
         self.config = config
-        self.output_dir = self.config["output_dir"]
+        self.output_dir = self.config.output_dir
         self.charts_dir = os.path.join(self.output_dir, "charts")
-        self.report_data = {"title": self.config.get("report_title", "EDA Report")}
+        self.report_data = {"title": self.config.report_title}
 
         # To keep our project tidy, we'll create dedicated folders for our outputs right away.
         # This prevents clutter and makes the final report easy to find.
@@ -37,24 +38,26 @@ class Analyzer:
         This is the main conductor, stepping through the user's chosen analysis
         plan and running each part in order.
         """
-        pipeline = self.config.get("analysis_pipeline", [])
+        pipeline = self.config.analysis_pipeline
 
         for step in pipeline:
-            step_name = list(step.keys())[0]
-            params = step[step_name]
+            # step is an AnalysisStep object
+            if step.profile and step.profile.enabled:
+                logging.info("--- Running Step: Profile ---")
+                self._run_profiling()
+            
+            if step.univariate and step.univariate.enabled:
+                logging.info("--- Running Step: Univariate ---")
+                # Pass dictionary to maintain compatibility with existing plot functions for now
+                self._run_univariate(step.univariate.model_dump())
 
-            # We only run the steps that the user has explicitly enabled in the config.
-            # This makes the tool flexible and respects the user's choices.
-            if params and params.get("enabled", False):
-                logging.info("--- Running Step: %s ---", step_name.capitalize())
-                if step_name == "profile":
-                    self._run_profiling()
-                elif step_name == "univariate":
-                    self._run_univariate(params)
-                elif step_name == "bivariate":
-                    self._run_bivariate(params)
-                elif step_name == "multivariate":
-                    self._run_multivariate(params)
+            if step.bivariate and step.bivariate.enabled:
+                logging.info("--- Running Step: Bivariate ---")
+                self._run_bivariate(step.bivariate.model_dump())
+
+            if step.multivariate and step.multivariate.enabled:
+                logging.info("--- Running Step: Multivariate ---")
+                self._run_multivariate(step.multivariate.model_dump())
 
         # After all the analysis is done, we compile everything into a beautiful, easy-to-read report.
         self._generate_report()
@@ -72,7 +75,7 @@ class Analyzer:
     def _run_bivariate(self, params: dict):
         # Now we start looking for connections. If the user has a specific goal (a target variable),
         # this is where we explore how other features might influence it.
-        target = self.config.get("target_variable")
+        target = self.config.target_variable
 
         # It's important to check if a target was actually provided.
         # Running this analysis without one wouldn't make sense, so we'll skip it.

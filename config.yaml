@@ -1,5 +1,5 @@
 # --- Input/Output Settings ---
-input_file: "../../data/raw/insurance.csv"
+input_file: "data/raw/insurance.csv"
 output_dir: "../../output/insurance_report"
 report_title: "Exploratory Data Analysis of Insurance Premiums"
 
