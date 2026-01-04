@@ -74,13 +74,18 @@ def generate_plots(
             
             # Handle high cardinality
             max_cats = config_params.get("max_categories", 20)
-            plot_series = _handle_high_cardinality(df[column], max_cats)
+            plot_series, truncated = _handle_high_cardinality(df[column], max_cats)
 
             ax = sns.countplot(
                 y=plot_series, order=plot_series.value_counts().index, color=PRIMARY_BLUE
             )
+            
+            title_text = f"Frequency of {column.replace('_', ' ').title()}"
+            if truncated:
+                title_text += f"\n(Top {max_cats} categories)"
+            
             plt.title(
-                f"Frequency of {column.replace('_', ' ').title()}",
+                title_text,
                 loc="left",
                 fontsize=16,
                 fontweight="bold",
@@ -108,27 +113,44 @@ def generate_plots(
     return plot_paths
 
 
-def _handle_high_cardinality(series: pd.Series, max_categories: int) -> pd.Series:
+def _handle_high_cardinality(series: pd.Series, max_categories: int) -> tuple[pd.Series, bool]:
     """
     Truncates the number of categories in a series to the top K most frequent.
     Remaining categories are grouped into 'Other'.
 
     :param series: The categorical series to process.
     :param max_categories: The maximum number of unique categories to keep.
-    :return: A modified series with high cardinality handled.
-    :rtype: pd.Series
+    :return: A tuple containing the modified series and a boolean indicating if truncation occurred.
+    :raises ValueError: If max_categories is less than 1.
     """
-    if series.nunique() <= max_categories:
-        return series
+    if max_categories < 1:
+        raise ValueError("max_categories must be an integer greater than or equal to 1")
 
-    # Identify top K - 1 categories
-    top_categories = series.value_counts().nlargest(max_categories - 1).index
+    if series.empty:
+        return series.copy(), False
+
+    # Return input if unique count is within limits and max_categories > 1 (if 1, we force 'Other' unless only 1 exists)
+    # Actually if max_categories == 1, we only keep the top 1 (if any), rest is Other. 
+    # If there is already only 1 unique value, no truncation needed.
+    if series.nunique() <= max_categories:
+        return series.copy(), False
+
+    # If max_categories is 1, we effectively want everything to be 'Other' except maybe the top 1?
+    # Requirement: "handle max_categories == 1 explicitly (treat top_categories as empty so all non-null values become 'Other')"
+    # Wait, the prompt says "treat top_categories as empty so all non-null values become 'Other'".
+    # Effectively this means we see 0 top categories to keep? 
+    # If max_categories is 1, normally top_k would be 1-1=0?
+    # Let's follow the prompt exactly: "treat top_categories as empty".
+    
+    truncation_occurred = True
+    
+    if max_categories == 1:
+        top_categories = pd.Index([])
+    else:
+        # Identify top K - 1 categories
+        top_categories = series.value_counts().nlargest(max_categories - 1).index
     
     # Replace others with 'Other'
-    # Use apply/where or standard replacement
-    # Using apply for explicit handling, though isin + loc is faster usually.
-    # For categorical dtype, we might need to add category 'Other' first.
-    
     new_series = series.copy()
     if isinstance(new_series.dtype, pd.CategoricalDtype):
          if "Other" not in new_series.cat.categories:
@@ -137,4 +159,4 @@ def _handle_high_cardinality(series: pd.Series, max_categories: int) -> pd.Serie
     # Using where: Replace values NOT in top_categories with 'Other'
     new_series = new_series.where(new_series.isin(top_categories), "Other")
     
-    return new_series
+    return new_series, truncation_occurred
