@@ -21,7 +21,7 @@ git clone https://github.com/Asifdotexe/DORA.git
 ```
 
 ```bash
-cd dora
+cd DORA
 ```
 
 ```bash
@@ -50,7 +50,7 @@ poetry run pytest
 ```bash
 git checkout -b feature/your-feature-name
 ```
-3. Make your changes, follow the coding style and add comments where 
+3. Make your changes, follow the coding style and add comments where necessary
 4. Run the checks
 5. Commit your changes and push to your fork
 6. Submit a pull request to the main repository
