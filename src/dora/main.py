@@ -24,14 +24,8 @@ from dora.analyzer import Analyzer
 from dora.config_loader import load_config
 from dora.data_loader import read_data
 from dora.kaggle import KaggleHandler
-from dora.schema import (
-    AnalysisStep,
-    BivariateStep,
-    Config,
-    MultivariateStep,
-    ProfileStep,
-    UnivariateStep,
-)
+from dora.schema import (AnalysisStep, BivariateStep, Config, MultivariateStep,
+                         ProfileStep, UnivariateStep)
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -169,9 +163,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
         default=True,
     ):
         pipeline.append(
-            AnalysisStep(
-                bivariate=BivariateStep(enabled=True, target_centric=True)
-            )
+            AnalysisStep(bivariate=BivariateStep(enabled=True, target_centric=True))
         )
 
     if typer.confirm(
@@ -182,7 +174,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
                 multivariate=MultivariateStep(enabled=True, correlation_cols=[])
             )
         )
-    
+
     config = Config(
         input_file=input_file,
         output_dir=Path(output_dir),
@@ -267,7 +259,7 @@ def run(
                 "\n💾 Save this configuration to 'config.yaml' for future use?"
             ):
                 with open("config.yaml", "w", encoding="utf-8") as f:
-                    yaml.dump(config.model_dump(mode='json'), f, sort_keys=False)
+                    yaml.dump(config.model_dump(mode="json"), f, sort_keys=False)
                 rprint("[green]Configuration saved to 'config.yaml'.[/green]")
 
         # Run Analysis

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Union
 
 import matplotlib
+
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
@@ -14,6 +15,7 @@ import pandas as pd
 import seaborn as sns
 
 from .styling import PRIMARY_BLUE, apply_custom_styling
+from .utils import handle_high_cardinality
 
 
 def generate_plots(
@@ -66,9 +68,18 @@ def generate_plots(
 
         # Categorical Feature vs. Numeric Target
         elif not feature_is_numeric and target_is_numeric:
-            sns.boxplot(data=df, x=target_column, y=feature, color=PRIMARY_BLUE)
+            max_cats = config_params.get("max_categories", 20)
+            plot_series, truncated = handle_high_cardinality(df[feature], max_cats)
+
+            # For boxplot we can pass vectors directly
+            sns.boxplot(x=df[target_column], y=plot_series, color=PRIMARY_BLUE)
+
+            title_text = f"Distribution of {target_column.replace('_', ' ').title()} by {feature.replace('_', ' ').title()}"
+            if truncated:
+                title_text += f"\n(Top {max_cats} categories)"
+
             plt.title(
-                f"Distribution of {target_column.replace('_', ' ').title()} by {feature.replace('_', ' ').title()}",
+                title_text,
                 loc="left",
                 fontsize=16,
                 fontweight="bold",

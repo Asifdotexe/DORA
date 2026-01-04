@@ -10,7 +10,7 @@ import pandas as pd
 from .plots import bivariate, multivariate, univariate
 from .profiling import generate_profile
 from .reporting.generator import create_report
-from .schema import Config, AnalysisStep
+from .schema import AnalysisStep, Config
 
 # TODO: Better handling for categorical variables (e.g., set max limit to categories)
 # TODO: Handling ID columns (e.g., customer_id)
@@ -45,7 +45,7 @@ class Analyzer:
             if step.profile and step.profile.enabled:
                 logging.info("--- Running Step: Profile ---")
                 self._run_profiling()
-            
+
             if step.univariate and step.univariate.enabled:
                 logging.info("--- Running Step: Univariate ---")
                 # Pass dictionary to maintain compatibility with existing plot functions for now
