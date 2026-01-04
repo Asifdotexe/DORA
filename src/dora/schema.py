@@ -1,7 +1,7 @@
 
 from typing import List, Optional, Dict
 from pathlib import Path
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 class ProfileStep(BaseModel):
     """
@@ -60,6 +60,20 @@ class AnalysisStep(BaseModel):
     univariate: Optional[UnivariateStep] = None
     bivariate: Optional[BivariateStep] = None
     multivariate: Optional[MultivariateStep] = None
+
+    @model_validator(mode='after')
+    def check_exactly_one_field(self) -> 'AnalysisStep':
+        """
+        Validates that exactly one configuration field is set.
+
+        :raises ValueError: If zero or more than one field is set.
+        :return: The model instance.
+        """
+        fields = [self.profile, self.univariate, self.bivariate, self.multivariate]
+        count = sum(1 for f in fields if f is not None)
+        if count != 1:
+            raise ValueError("Exactly one analysis step must be provided (profile, univariate, bivariate, or multivariate).")
+        return self
 
 class Config(BaseModel):
     """
