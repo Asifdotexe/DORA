@@ -1,9 +1,12 @@
 """
 Module for loading data from various file formats.
 """
+
 import logging
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
+
 
 def read_data(file_path: Path) -> pd.DataFrame:
     """
@@ -23,7 +26,7 @@ def read_data(file_path: Path) -> pd.DataFrame:
             return pd.read_json(file_path)
         if suffix == ".parquet":
             return pd.read_parquet(file_path)
-        
+
         raise ValueError(f"Unsupported file extension: {suffix}")
 
     except ValueError as e:

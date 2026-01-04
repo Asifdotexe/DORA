@@ -2,11 +2,14 @@
 This module is responsible for generating visualisations for univariate analysis
 """
 
+# pylint: disable=wrong-import-position
+
 import logging
 from pathlib import Path
 from typing import Union
 
 import matplotlib
+
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
@@ -14,6 +17,7 @@ import pandas as pd
 import seaborn as sns
 
 from .styling import PRIMARY_BLUE, apply_custom_styling
+from .utils import handle_high_cardinality
 
 
 def generate_plots(
@@ -71,11 +75,23 @@ def generate_plots(
     for column in categorical_columns:
         if "barplot" in config_params.get("plot_types", {}).get("categorical", []):
             plt.figure(figsize=(10, 6))
+
+            # Handle high cardinality
+            max_cats = config_params.get("max_categories", 20)
+            plot_series, truncated = handle_high_cardinality(df[column], max_cats)
+
             ax = sns.countplot(
-                y=df[column], order=df[column].value_counts().index, color=PRIMARY_BLUE
+                y=plot_series,
+                order=plot_series.value_counts().index,
+                color=PRIMARY_BLUE,
             )
+
+            title_text = f"Frequency of {column.replace('_', ' ').title()}"
+            if truncated:
+                title_text += f"\n(Top {max_cats} categories)"
+
             plt.title(
-                f"Frequency of {column.replace('_', ' ').title()}",
+                title_text,
                 loc="left",
                 fontsize=16,
                 fontweight="bold",

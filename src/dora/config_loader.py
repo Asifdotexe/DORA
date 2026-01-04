@@ -1,7 +1,10 @@
 import logging
-import yaml
 from pathlib import Path
+
+import yaml
+
 from dora.schema import Config
+
 
 def load_config(config_path: Path) -> Config:
     """
