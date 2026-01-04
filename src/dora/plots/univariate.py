@@ -71,8 +71,13 @@ def generate_plots(
     for column in categorical_columns:
         if "barplot" in config_params.get("plot_types", {}).get("categorical", []):
             plt.figure(figsize=(10, 6))
+            
+            # Handle high cardinality
+            max_cats = config_params.get("max_categories", 20)
+            plot_series = _handle_high_cardinality(df[column], max_cats)
+
             ax = sns.countplot(
-                y=df[column], order=df[column].value_counts().index, color=PRIMARY_BLUE
+                y=plot_series, order=plot_series.value_counts().index, color=PRIMARY_BLUE
             )
             plt.title(
                 f"Frequency of {column.replace('_', ' ').title()}",
@@ -101,3 +106,35 @@ def generate_plots(
             logging.info("Generated barplot for %s", column)
 
     return plot_paths
+
+
+def _handle_high_cardinality(series: pd.Series, max_categories: int) -> pd.Series:
+    """
+    Truncates the number of categories in a series to the top K most frequent.
+    Remaining categories are grouped into 'Other'.
+
+    :param series: The categorical series to process.
+    :param max_categories: The maximum number of unique categories to keep.
+    :return: A modified series with high cardinality handled.
+    :rtype: pd.Series
+    """
+    if series.nunique() <= max_categories:
+        return series
+
+    # Identify top K - 1 categories
+    top_categories = series.value_counts().nlargest(max_categories - 1).index
+    
+    # Replace others with 'Other'
+    # Use apply/where or standard replacement
+    # Using apply for explicit handling, though isin + loc is faster usually.
+    # For categorical dtype, we might need to add category 'Other' first.
+    
+    new_series = series.copy()
+    if isinstance(new_series.dtype, pd.CategoricalDtype):
+         if "Other" not in new_series.cat.categories:
+             new_series = new_series.cat.add_categories("Other")
+    
+    # Using where: Replace values NOT in top_categories with 'Other'
+    new_series = new_series.where(new_series.isin(top_categories), "Other")
+    
+    return new_series

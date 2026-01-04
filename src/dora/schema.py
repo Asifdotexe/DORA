@@ -25,6 +25,7 @@ class UnivariateStep(BaseModel):
             "categorical": ["barplot"]
         }
     )
+    max_categories: int = 20
 
 class BivariateStep(BaseModel):
     """
@@ -35,6 +36,7 @@ class BivariateStep(BaseModel):
     """
     enabled: bool = True
     target_centric: bool = True
+    max_categories: int = 20
 
 class MultivariateStep(BaseModel):
     """
