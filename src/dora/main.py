@@ -22,7 +22,16 @@ from rich import print as rprint
 
 from dora.analyzer import Analyzer
 from dora.config_loader import load_config
+from dora.data_loader import read_data
 from dora.kaggle import KaggleHandler
+from dora.schema import (
+    AnalysisStep,
+    BivariateStep,
+    Config,
+    MultivariateStep,
+    ProfileStep,
+    UnivariateStep,
+)
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -45,31 +54,6 @@ def version_callback(value: bool) -> None:
         version = metadata.version("dora-eda")
         rprint(f"DORA v{version}")
         raise typer.Exit()
-
-
-def read_data(file_path: Path) -> pd.DataFrame | None:
-    """
-    Reads a data file into a pandas DataFrame.
-
-    :param file_path: Path to the file to be read.
-    :returns: A pandas DataFrame containing the data from the file.
-    """
-    suffix = file_path.suffix.lower()
-
-    try:
-        if suffix == ".csv":
-            return pd.read_csv(file_path)
-        if suffix == ".xlsx":
-            return pd.read_excel(file_path)
-        if suffix == ".json":
-            return pd.read_json(file_path)
-        if suffix == ".parquet":
-            return pd.read_parquet(file_path)
-
-    except ValueError:
-        logging.error(
-            f"Unsupported file type: {suffix}. Please use CSV, Excel, JSON, or Parquet."
-        )
 
 
 def handle_kaggle_download(dataset_id: str) -> Path:
@@ -98,7 +82,7 @@ def handle_kaggle_download(dataset_id: str) -> Path:
         raise typer.Exit(code=1) from e
 
 
-def create_config_interactively() -> tuple[pd.DataFrame, dict]:
+def create_config_interactively() -> tuple[pd.DataFrame, Config]:
     """
     Guides the user through an interactive CLI session to build the config.
 
@@ -126,19 +110,8 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
                 df = read_data(input_file)
                 # If the file is read successfully, we can exit the loop.
                 break
-            except pd.errors.EmptyDataError:
-                rprint(
-                    "[bold red]Error: The selected file is empty. Please choose a different file.[/bold red]"
-                )
-            except pd.errors.ParserError:
-                rprint(
-                    """[bold red]Error: Could not parse the CSV file. It might be malformed.
-                                 Please check the file and try again.[/bold red]"""
-                )
-            except UnicodeDecodeError:
-                rprint(
-                    "[bold red]Error: Could not decode the file. Try saving it with UTF-8 encoding.[/bold red]"
-                )
+            except Exception as e:
+                rprint(f"[bold red]Error reading file: {e}[/bold red]")
         else:
             rprint("[bold red]File not found. Please enter a valid path.[/bold red]")
 
@@ -166,13 +139,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
         target_variable = None
 
     # This is where we gather all the user's choices into a single, structured "plan" that the Analyzer will execute.
-    config = {
-        "input_file": str(input_file),
-        "output_dir": output_dir,
-        "report_title": report_title,
-        "target_variable": target_variable,
-        "analysis_pipeline": [],
-    }
+    pipeline = []
 
     # To give the user full control, we ask them to opt-in to each analysis step.
     # This makes the tool flexible for both quick overviews and deep dives.
@@ -180,37 +147,49 @@ def create_config_interactively() -> tuple[pd.DataFrame, dict]:
     if typer.confirm(
         "📊 Generate Data Profile (overview, missing values, etc.)?", default=True
     ):
-        config["analysis_pipeline"].append({"profile": {"enabled": True}})
+        pipeline.append(AnalysisStep(profile=ProfileStep(enabled=True)))
 
     if typer.confirm(
         "📈 Generate Univariate Analysis (plots for single columns)?", default=True
     ):
-        config["analysis_pipeline"].append(
-            {
-                "univariate": {
-                    "enabled": True,
-                    "plot_types": {
+        pipeline.append(
+            AnalysisStep(
+                univariate=UnivariateStep(
+                    enabled=True,
+                    plot_types={
                         "numerical": ["histogram", "boxplot"],
                         "categorical": ["barplot"],
                     },
-                }
-            }
+                )
+            )
         )
 
     if target_variable and typer.confirm(
         f"🔗 Generate Bivariate Analysis (features vs. '{target_variable}')?",
         default=True,
     ):
-        config["analysis_pipeline"].append(
-            {"bivariate": {"enabled": True, "target_centric": True}}
+        pipeline.append(
+            AnalysisStep(
+                bivariate=BivariateStep(enabled=True, target_centric=True)
+            )
         )
 
     if typer.confirm(
         "🌐 Generate Multivariate Analysis (correlation matrix)?", default=True
     ):
-        config["analysis_pipeline"].append(
-            {"multivariate": {"enabled": True, "correlation_cols": []}}
+        pipeline.append(
+            AnalysisStep(
+                multivariate=MultivariateStep(enabled=True, correlation_cols=[])
+            )
         )
+    
+    config = Config(
+        input_file=input_file,
+        output_dir=Path(output_dir),
+        report_title=report_title,
+        target_variable=target_variable,
+        analysis_pipeline=pipeline,
+    )
 
     return df, config
 
@@ -271,8 +250,8 @@ def run(
 
             logging.info("Loading configuration from: %s", config_path)
             config = load_config(config_path)
-            logging.info("Loading data from: %s", config["input_file"])
-            df = pd.read_csv(config["input_file"])
+            logging.info("Loading data from: %s", config.input_file)
+            df = read_data(config.input_file)
         else:
             # Interactive Mode
             # If no config file is passed, we enter the guided setup. This makes
@@ -284,7 +263,7 @@ def run(
                 "\n💾 Save this configuration to 'config.yaml' for future use?"
             ):
                 with open("config.yaml", "w", encoding="utf-8") as f:
-                    yaml.dump(config, f, sort_keys=False)
+                    yaml.dump(config.model_dump(), f, sort_keys=False)
                 rprint("[green]Configuration saved to 'config.yaml'.[/green]")
 
         # Run Analysis
@@ -296,7 +275,7 @@ def run(
         logging.info("Starting analysis pipeline...")
         analyzer.run()
 
-        logging.info("✅ Analysis complete! Report saved in: %s", config["output_dir"])
+        logging.info("✅ Analysis complete! Report saved in: %s", config.output_dir)
 
     except FileNotFoundError as e:
         logging.error("Error: Input file not found. %s", e)

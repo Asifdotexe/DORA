@@ -8,6 +8,14 @@ import pandas as pd
 import pytest
 
 from dora.analyzer import Analyzer
+from dora.schema import (
+    AnalysisStep,
+    BivariateStep,
+    Config,
+    MultivariateStep,
+    ProfileStep,
+    UnivariateStep,
+)
 
 
 @pytest.fixture
@@ -32,26 +40,30 @@ def test_environment(tmp_path: Path) -> dict:
 
     output_dir = tmp_path / "output"
 
-    config = {
-        "input_file": str(csv_path),
-        "output_dir": str(output_dir),
-        "report_title": "Test EDA Report",
-        "target_variable": "charges",
-        "analysis_pipeline": [
-            {"profile": {"enabled": True}},
-            {
-                "univariate": {
-                    "enabled": True,
-                    "plot_types": {
+    config = Config(
+        input_file=csv_path,
+        output_dir=output_dir,
+        report_title="Test EDA Report",
+        target_variable="charges",
+        analysis_pipeline=[
+            AnalysisStep(profile=ProfileStep(enabled=True)),
+            AnalysisStep(
+                univariate=UnivariateStep(
+                    enabled=True,
+                    plot_types={
                         "numerical": ["histogram"],
                         "categorical": ["barplot"],
                     },
-                }
-            },
-            {"bivariate": {"enabled": True, "target_centric": True}},
-            {"multivariate": {"enabled": True, "correlation_cols": []}},
+                )
+            ),
+            AnalysisStep(
+                bivariate=BivariateStep(enabled=True, target_centric=True)
+            ),
+            AnalysisStep(
+                multivariate=MultivariateStep(enabled=True, correlation_cols=[])
+            ),
         ],
-    }
+    )
 
     return {"df": df, "config": config, "output_dir": output_dir}
 

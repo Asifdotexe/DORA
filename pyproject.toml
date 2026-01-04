@@ -19,7 +19,8 @@ dependencies = [
     "jinja2 (>=3.1.6,<4.0.0)",
     "openpyxl (>=3.1.5,<4.0.0)",
     "pyarrow (>=21.0.0,<22.0.0)",
-    "kagglehub (==0.3.13)"
+    "kagglehub (==0.3.13)",
+    "pydantic (>=2.12.5,<3.0.0)"
 ]
 
 classifiers = [
