@@ -31,7 +31,7 @@ pip install dora-eda
 2. Run DORA
 
 Simply run the following command:
-(the DORA supports the following extensions formats: `.csv`, `.xlsx`, `.json`, `.parquet`)
+DORA supports the following file formats: `.csv`, `.xlsx`, `.json`, `.parquet`
 
 ```bash
 dora
