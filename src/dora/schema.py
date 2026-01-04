@@ -1,12 +1,23 @@
 
-from typing import List, Optional, Dict, Literal
+from typing import List, Optional, Dict
 from pathlib import Path
 from pydantic import BaseModel, Field, field_validator
 
 class ProfileStep(BaseModel):
+    """
+    Configuration for the data profiling step.
+
+    :param enabled: Whether to enable the profiling step.
+    """
     enabled: bool = True
 
 class UnivariateStep(BaseModel):
+    """
+    Configuration for the univariate analysis step.
+
+    :param enabled: Whether to enable the univariate analysis.
+    :param plot_types: Dictionary mapping variable types to list of plot types.
+    """
     enabled: bool = True
     plot_types: Dict[str, List[str]] = Field(
         default_factory=lambda: {
@@ -16,20 +27,50 @@ class UnivariateStep(BaseModel):
     )
 
 class BivariateStep(BaseModel):
+    """
+    Configuration for the bivariate analysis step.
+
+    :param enabled: Whether to enable the bivariate analysis.
+    :param target_centric: If True, focuses on relationships with the target variable.
+    """
     enabled: bool = True
     target_centric: bool = True
 
 class MultivariateStep(BaseModel):
+    """
+    Configuration for the multivariate analysis step.
+
+    :param enabled: Whether to enable the multivariate analysis.
+    :param correlation_cols: List of columns to include in correlation analysis. Empty list implies all numerical columns.
+    """
     enabled: bool = True
     correlation_cols: List[str] = Field(default_factory=list)
 
 class AnalysisStep(BaseModel):
+    """
+    Container for a single step in the analysis pipeline.
+    Only one field should be populated per instance.
+
+    :param profile: Configuration for profiling, if this is a profiling step.
+    :param univariate: Configuration for univariate analysis, if applicable.
+    :param bivariate: Configuration for bivariate analysis, if applicable.
+    :param multivariate: Configuration for multivariate analysis, if applicable.
+    """
     profile: Optional[ProfileStep] = None
     univariate: Optional[UnivariateStep] = None
     bivariate: Optional[BivariateStep] = None
     multivariate: Optional[MultivariateStep] = None
 
 class Config(BaseModel):
+    """
+    Main configuration for the DORA analysis.
+
+    :param input_file: Path to the input dataset (CSV, Excel, etc.).
+    :param output_dir: Directory where the report and charts will be saved.
+    :param report_title: Title of the generated HTML report.
+    :param target_variable: The name of the target variable for supervised analysis.
+    :param analysis_pipeline: List of analysis steps to execute.
+    """
     input_file: Path
     output_dir: Path
     report_title: str = "EDA Report"
@@ -39,6 +80,13 @@ class Config(BaseModel):
     @field_validator("input_file")
     @classmethod
     def validate_input_file(cls, v: Path) -> Path:
+        """
+        Validates that the input file exists.
+
+        :param v: The path to the input file.
+        :raises ValueError: If the file does not exist.
+        :return: The validated path.
+        """
         if not v.exists():
             raise ValueError(f"Input file not found: {v}")
         return v
