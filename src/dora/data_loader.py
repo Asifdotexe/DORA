@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-def read_data(file_path: Path) -> pd.DataFrame | None:
+def read_data(file_path: Path) -> pd.DataFrame:
     """
     Reads a data file into a pandas DataFrame.
 

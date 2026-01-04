@@ -76,17 +76,3 @@ class Config(BaseModel):
     report_title: str = "EDA Report"
     target_variable: Optional[str] = None
     analysis_pipeline: List[AnalysisStep] = Field(default_factory=list)
-
-    @field_validator("input_file")
-    @classmethod
-    def validate_input_file(cls, v: Path) -> Path:
-        """
-        Validates that the input file exists.
-
-        :param v: The path to the input file.
-        :raises ValueError: If the file does not exist.
-        :return: The validated path.
-        """
-        if not v.exists():
-            raise ValueError(f"Input file not found: {v}")
-        return v

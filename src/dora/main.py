@@ -250,6 +250,10 @@ def run(
 
             logging.info("Loading configuration from: %s", config_path)
             config = load_config(config_path)
+
+            if not config.input_file.exists():
+                raise FileNotFoundError(f"Input file not found: {config.input_file}")
+
             logging.info("Loading data from: %s", config.input_file)
             df = read_data(config.input_file)
         else:
@@ -263,7 +267,7 @@ def run(
                 "\n💾 Save this configuration to 'config.yaml' for future use?"
             ):
                 with open("config.yaml", "w", encoding="utf-8") as f:
-                    yaml.dump(config.model_dump(), f, sort_keys=False)
+                    yaml.dump(config.model_dump(mode='json'), f, sort_keys=False)
                 rprint("[green]Configuration saved to 'config.yaml'.[/green]")
 
         # Run Analysis
