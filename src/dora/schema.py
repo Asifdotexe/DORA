@@ -5,7 +5,7 @@ Defines the Pydantic schemas for the DORA configuration.
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class ProfileStep(BaseModel):
@@ -36,6 +36,20 @@ class UnivariateStep(BaseModel):
     )
     max_categories: int = 20
 
+    @field_validator("max_categories")
+    @classmethod
+    def validate_max_categories(cls, v: int) -> int:
+        """
+        Validates that max_categories is greater than 0.
+
+        :param v: The value to validate.
+        :raises ValueError: If v is less than or equal to 0.
+        :return: The validated value.
+        """
+        if v <= 0:
+            raise ValueError(f"max_categories must be greater than 0, got {v}")
+        return v
+
 
 class BivariateStep(BaseModel):
     """
@@ -49,6 +63,20 @@ class BivariateStep(BaseModel):
     enabled: bool = True
     target_centric: bool = True
     max_categories: int = 20
+
+    @field_validator("max_categories")
+    @classmethod
+    def validate_max_categories(cls, v: int) -> int:
+        """
+        Validates that max_categories is greater than 0.
+
+        :param v: The value to validate.
+        :raises ValueError: If v is less than or equal to 0.
+        :return: The validated value.
+        """
+        if v <= 0:
+            raise ValueError(f"max_categories must be greater than 0, got {v}")
+        return v
 
 
 class MultivariateStep(BaseModel):
