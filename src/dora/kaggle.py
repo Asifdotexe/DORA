@@ -7,13 +7,14 @@ import re
 from pathlib import Path
 
 import kagglehub
+from rich import print as rprint
+from rich.prompt import IntPrompt
 
 
 class KaggleHandler:
     """
     Class for interacting with kaggle via KaggleHub
     """
-
     @staticmethod
     def is_kaggle_url(input_str: str) -> bool:
         """
@@ -56,7 +57,7 @@ class KaggleHandler:
         :param dataset_id: The 'owner/dataset-name' identifier of the dataset to download.
         :return: The path to the downloaded file.
         """
-        logging.info(f"Downloading dataset {dataset_id}")
+        logging.info("Downloading dataset %s", dataset_id)
         try:
             dataset_path = kagglehub.dataset_download(dataset_id)
             dataset_download_directory = Path(dataset_path)
@@ -74,7 +75,20 @@ class KaggleHandler:
         if not files:
             raise ValueError("No supported files found in the downloaded dataset.")
 
-        # Pick the largest file by default
-        # FIXME: This logic has its flaws and needs to be revised.
-        main_file = max(files, key=lambda file: file.stat().st_size)
-        return main_file
+        if len(files) == 1:
+            return files[0]
+
+        # Interactive selection for multiple files
+        rprint(f"\n[cyan]Multiple data files found in {dataset_id}:[/cyan]")
+        for i, file in enumerate(files):
+            try:
+                size_mb = file.stat().st_size / (1024 * 1024)
+                rprint(f"[{i + 1}] {file.name} ({size_mb:.2f} MB)")
+            except (OSError, PermissionError) as e:
+                logging.warning("Could not stat file %s: %s", file.name, e)
+                rprint(f"[{i + 1}] {file.name} (size unknown)")
+
+        choice = IntPrompt.ask(
+            "Select a file number", choices=[str(i + 1) for i in range(len(files))]
+        )
+        return files[choice - 1]
