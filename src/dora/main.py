@@ -12,6 +12,8 @@ import cProfile
 import io
 import logging
 import pstats
+import subprocess
+import sys
 from importlib import metadata
 from pathlib import Path
 
@@ -32,6 +34,29 @@ logging.basicConfig(
 )
 
 app = typer.Typer(help="DORA: The Data-Oriented Report Automator")
+
+
+@app.command()
+def ui():
+    """
+    Launch the DORA Web UI (Streamlit Configurator).
+    """
+    logging.info("Launching Web UI...")
+    ui_path = Path(__file__).parent / "ui.py"
+    if not ui_path.exists():
+        rprint(f"[bold red]Error: UI file not found at {ui_path}[/bold red]")
+        raise typer.Exit(code=1)
+
+    try:
+        # We use sys.executable to ensure we use the same python environment
+        subprocess.run(
+            [sys.executable, "-m", "streamlit", "run", str(ui_path)], check=True
+        )
+    except subprocess.CalledProcessError as e:
+        rprint(f"[bold red]UI crashed (Exit Code: {e.returncode})[/bold red]")
+        raise typer.Exit(code=e.returncode) from e
+    except KeyboardInterrupt:
+        rprint("\n[yellow]UI stopped by user.[/yellow]")
 
 
 def version_callback(value: bool) -> None:
