@@ -15,6 +15,7 @@ class KaggleHandler:
     """
     Class for interacting with kaggle via KaggleHub
     """
+
     @staticmethod
     def is_kaggle_url(input_str: str) -> bool:
         """
@@ -49,13 +50,14 @@ class KaggleHandler:
             return match.group(1)
         return input_str
 
-    @staticmethod
-    def download_dataset(dataset_id: str) -> Path:
+    @classmethod
+    def _fetch_dataset_files(cls, dataset_id: str) -> list[Path]:
         """
-        Download a Kaggle dataset from kagglehub and return the path to the downloaded file.
+        Internal helper to download a dataset and return list of supported files.
 
-        :param dataset_id: The 'owner/dataset-name' identifier of the dataset to download.
-        :return: The path to the downloaded file.
+        :param dataset_id: The 'owner/dataset-name' identifier.
+        :return: List of Path objects for supported files.
+        :raises ValueError: If download fails or no supported files found.
         """
         logging.info("Downloading dataset %s", dataset_id)
         try:
@@ -74,6 +76,34 @@ class KaggleHandler:
 
         if not files:
             raise ValueError("No supported files found in the downloaded dataset.")
+
+        return files
+
+    @classmethod
+    def get_dataset_files(cls, dataset_id: str) -> list[Path]:
+        """
+        Public API to get all supported files from a dataset (for UI usage).
+
+        :param dataset_id: The 'owner/dataset-name' identifier.
+        :return: List of Path objects.
+        """
+        return cls._fetch_dataset_files(dataset_id)
+
+    @staticmethod
+    def download_dataset(dataset_id: str) -> Path:
+        """
+        Download a Kaggle dataset from kagglehub and return the path to the downloaded file.
+        Interactive: Prompts user via console if multiple files exist.
+
+        :param dataset_id: The 'owner/dataset-name' identifier of the dataset to download.
+        :return: The path to the downloaded file.
+        """
+        # Delegate the download/glob logic to the helper
+        try:
+            files = KaggleHandler._fetch_dataset_files(dataset_id)
+        except ValueError as e:
+            # Re-raise to match previous behavior or let it bubble up
+            raise e
 
         if len(files) == 1:
             return files[0]
