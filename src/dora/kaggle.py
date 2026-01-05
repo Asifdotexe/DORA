@@ -81,8 +81,12 @@ class KaggleHandler:
         # Interactive selection for multiple files
         rprint(f"\n[cyan]Multiple data files found in {dataset_id}:[/cyan]")
         for i, file in enumerate(files):
-            size_mb = file.stat().st_size / (1024 * 1024)
-            rprint(f"[{i + 1}] {file.name} ({size_mb:.2f} MB)")
+            try:
+                size_mb = file.stat().st_size / (1024 * 1024)
+                rprint(f"[{i + 1}] {file.name} ({size_mb:.2f} MB)")
+            except (OSError, PermissionError) as e:
+                logging.warning("Could not stat file %s: %s", file.name, e)
+                rprint(f"[{i + 1}] {file.name} (size unknown)")
 
         choice = IntPrompt.ask(
             "Select a file number", choices=[str(i + 1) for i in range(len(files))]
