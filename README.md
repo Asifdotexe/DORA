@@ -17,7 +17,6 @@ An interactive command-line tool to automate Exploratory Data Analysis (EDA) and
         <img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" alt="Open in Streamlit">
     </a>
     <br>
-    <strong><a href="PLACEHOLDER_LINK">Try DORA Online?</a></strong>
 </p>
 
 ## What is DORA?
