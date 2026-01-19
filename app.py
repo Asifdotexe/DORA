@@ -135,11 +135,8 @@ def load_kaggle_data(kaggle_input):
             else:
                 dataset_id = kaggle_input
 
-            st.text(f"Dataset ID: {dataset_id}")
-
             # Download using existing handler
             file_path = KaggleHandler.download_dataset(dataset_id)
-            st.write(f"Downloaded to: {file_path}")
 
             # Load data
             df = read_data(file_path)
@@ -159,7 +156,7 @@ def render_ingestion():
     with tab_local:
         st.info("Upload a CSV, Excel, JSON, or Parquet file.")
         uploaded_file = st.file_uploader(
-            "Choose a file", type=["csv", "xlsx", "xls", "json", "parquet"]
+            "Choose a file", type=["csv", "xlsx", "json", "parquet"]
         )
 
         if uploaded_file is not None:
@@ -357,7 +354,6 @@ def render_profile_tab(report_data):
     """Render the data profile content."""
     st.header("Data Profile")
     try:
-        profile_data = report_data["profile"]
         profile_data = report_data["profile"]
         
         # Metrics Row
