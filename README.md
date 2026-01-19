@@ -12,9 +12,21 @@
 An interactive command-line tool to automate Exploratory Data Analysis (EDA) and generate beautiful, insightful reports in seconds.
 </em>
 
+<p align="center">
+    <a href="https://dora-eda.streamlit.app/">
+        <img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" alt="Open in Streamlit">
+    </a>
+    <br>
+    <strong><a href="PLACEHOLDER_LINK">Try DORA Online?</a></strong>
+</p>
+
 ## What is DORA?
 
 DORA is a tool that does the heavy lifting of data analysis for you. Instead of writing code to create charts and calculate statistics, you give DORA your data file, and it builds a comprehensive, beautiful HTML report automatically.
+
+You can use DORA in two ways:
+1.  **Web App**: No installation needed. Just upload your data and download the report.
+2.  **CLI Tool**: Install locally for power usage and automation.
 
 If you have used tools like [ydata-profiling](https://github.com/ydataai/ydata-profiling) and [sweetviz](https://pypi.org/project/sweetviz/), DORA lets you do more. It provides a way to process kaggle dataset as well without a lot of clutter.
 

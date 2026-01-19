@@ -394,6 +394,16 @@ def render_download_section():
 
     st.divider()
     st.subheader("Download Report Data")
+    
+    st.info(
+        """
+        📥 **How to view your report:**
+        1. Click the button below to download the ZIP file.
+        2. Extract the ZIP file to a folder on your computer.
+        3. Double-click `eda_report.html` to open it in your browser.
+        """
+    )
+    
     zip_base_name = (
         st.session_state.output_dir.parent / f"{st.session_state.session_id}_report"
     )
