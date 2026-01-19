@@ -2,10 +2,12 @@
 Streamlit application for DORA (Data-Oriented Report Automator).
 """
 
+from datetime import datetime
 import logging
 import os
 import shutil
 import uuid
+import re
 from pathlib import Path
 
 import streamlit as st
@@ -32,6 +34,8 @@ def init_session_state():
         st.session_state.output_dir = base_output
     if "input_source" not in st.session_state:
         st.session_state.input_source = None
+    if "zip_path" not in st.session_state:
+        st.session_state.zip_path = None
 
 
 def setup_page():
@@ -218,12 +222,30 @@ def generate_final_report(current_report_data):
     try:
         create_report(current_report_data, st.session_state.output_dir)
 
-        # Create ZIP
-        zip_base_name = (
-            st.session_state.output_dir.parent
-            / f"{st.session_state.session_id}_report"
-        )
-        shutil.make_archive(zip_base_name, "zip", st.session_state.output_dir)
+        # Construct new zip filename: [input_filename]_[timestamp]
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Clean safe filename from input source
+        raw_name = str(st.session_state.input_source)
+        # Remove extension if present (simple check)
+        if "." in raw_name:
+             safe_name = raw_name.rsplit(".", 1)[0]
+        else:
+             safe_name = raw_name
+        
+        # Replace non-alphanumeric chars (except _-) with underscore for safety
+        safe_name = re.sub(r'[^\w\-]', '_', safe_name)
+        
+        zip_filename = f"{safe_name}_{timestamp}"
+        zip_base_path = st.session_state.output_dir.parent / zip_filename
+        
+        # shutil.make_archive adds the extension automatically
+        archive_path_str = shutil.make_archive(str(zip_base_path), "zip", st.session_state.output_dir)
+        zip_path = Path(archive_path_str)
+        
+        # Store in session state for download button
+        st.session_state.zip_path = zip_path
+
         st.success(
             f"Analysis Complete! Report generated in {st.session_state.output_dir}"
         )
@@ -404,19 +426,19 @@ def render_download_section():
         """
     )
     
-    zip_base_name = (
-        st.session_state.output_dir.parent / f"{st.session_state.session_id}_report"
-    )
-    zip_path = zip_base_name.with_suffix(".zip")
-
-    if zip_path.exists():
+    # Use path from session state if available
+    zip_path = st.session_state.get("zip_path")
+    
+    if zip_path and zip_path.exists():
         with open(zip_path, "rb") as f:
             st.download_button(
                 label="Download Full Report (ZIP)",
                 data=f,
-                file_name="dora_analysis.zip",
+                file_name=zip_path.name,
                 mime="application/zip",
             )
+    else:
+        st.warning("Report file not found. Please re-run the analysis.")
 
 
 def main():
