@@ -46,11 +46,64 @@ def setup_page():
         layout="wide",
         initial_sidebar_state="expanded",
     )
-    st.title("📊 DORA: Data-Oriented Report Automator")
+
+    # Inject Custom CSS
     st.markdown(
         """
-        Welcome to DORA! This tool automates the Exploratory Data Analysis (EDA) process.
-        Upload a dataset or connect to Kaggle to get started.
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+            
+            html, body, [class*="css"]  {
+                font-family: 'Inter', sans-serif;
+            }
+            
+            h1, h2, h3 {
+                background: -webkit-linear-gradient(45deg, #4ecdc4, #2b9388);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-weight: 700;
+            }
+            
+            .stButton>button {
+                border-radius: 8px;
+                background: linear-gradient(90deg, #4ecdc4 0%, #2b9388 100%);
+                color: white;
+                border: none;
+                font-weight: 600;
+                transition: transform 0.1s ease-in-out;
+            }
+            
+            .stButton>button:hover {
+                transform: scale(1.02);
+                color: white;
+            }
+            
+            div[data-testid="stExpander"] {
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            
+            div[data-testid="stMetricValue"] {
+                font-size: 1.8rem !important;
+                color: #4ecdc4;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Logo and Header
+    logo_path = Path("data/assets/dora-updated-concept.png")
+    if logo_path.exists():
+        st.image(str(logo_path), width=400)
+    else:
+        st.title("📊 DORA")
+        
+    st.markdown(
+        """
+        ### Automate your EDA in seconds.
+        Upload a dataset or connect to Kaggle to generate insightful, beautiful reports instantly.
         """
     )
 
@@ -305,9 +358,14 @@ def render_profile_tab(report_data):
     st.header("Data Profile")
     try:
         profile_data = report_data["profile"]
-        col1, col2 = st.columns(2)
-        col1.metric("Rows", profile_data["dataset_shape"][0])
-        col2.metric("Columns", profile_data["dataset_shape"][1])
+        profile_data = report_data["profile"]
+        
+        # Metrics Row
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Rows", f"{profile_data['dataset_shape'][0]:,}")
+        col2.metric("Columns", f"{profile_data['dataset_shape'][1]:,}")
+        col3.metric("Duplicate Rows", profile_data.get("duplicates", "N/A"))
+        col4.metric("Memory Usage", profile_data.get("memory_usage", "N/A"))
 
         st.subheader("Column Profiles")
         for col_prof in profile_data["column_profiles"]:
