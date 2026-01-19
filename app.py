@@ -12,6 +12,9 @@ import streamlit as st
 
 from src.dora.data_loader import read_data
 from src.dora.kaggle import KaggleHandler
+from src.dora.profiling import generate_profile
+from src.dora.plots import univariate, bivariate, multivariate
+from src.dora.reporting.generator import create_report
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,16 +32,6 @@ def init_session_state():
         st.session_state.output_dir = base_output
     if "input_source" not in st.session_state:
         st.session_state.input_source = None
-
-
-def reset_analysis():
-    """Reset the analysis state when new data is loaded."""
-    st.session_state.df = None
-    st.session_state.input_source = None
-    # Clear previous outputs
-    if st.session_state.output_dir.exists():
-        shutil.rmtree(st.session_state.output_dir)
-    st.session_state.output_dir.mkdir(parents=True, exist_ok=True)
 
 
 def setup_page():
@@ -166,6 +159,78 @@ def render_sidebar():
     return config
 
 
+def run_profile_step(df, current_report_data):
+    """Run data profiling step."""
+    try:
+        profile_data = generate_profile(df)
+        current_report_data["profile"] = profile_data
+    except Exception as e:
+        st.error(f"Error in Profiling: {e}")
+
+
+def run_univariate_step(df, charts_dir, current_report_data):
+    """Run univariate analysis step."""
+    try:
+        params = {
+            "plot_types": {
+                "numerical": ["histogram", "boxplot"],
+                "categorical": ["barplot"],
+            },
+            "max_categories": 20,
+        }
+        plot_paths = univariate.generate_plots(df, charts_dir, params)
+        current_report_data["univariate_plots"] = plot_paths
+    except Exception as e:
+        st.error(f"Error in Univariate Analysis: {e}")
+
+
+def run_bivariate_step(df, config, charts_dir, current_report_data):
+    """Run bivariate analysis step."""
+    if not config["target_variable"]:
+        st.warning("Skipping Bivariate Analysis: No Target Variable selected.")
+        return
+
+    try:
+        params = {"target_centric": True, "max_categories": 20}
+        plot_paths = bivariate.generate_plots(
+            df,
+            config["target_variable"],
+            charts_dir,
+            params,
+        )
+        current_report_data["bivariate_plots"] = plot_paths
+    except Exception as e:
+        st.error(f"Error in Bivariate Analysis: {e}")
+
+
+def run_multivariate_step(df, charts_dir, current_report_data):
+    """Run multivariate analysis step."""
+    try:
+        params = {"correlation_cols": []}
+        plot_paths = multivariate.generate_plots(df, charts_dir, params)
+        current_report_data["multivariate_plots"] = plot_paths
+    except Exception as e:
+        st.error(f"Error in Multivariate Analysis: {e}")
+
+
+def generate_final_report(current_report_data):
+    """Generate the HTML report and ZIP archive."""
+    try:
+        create_report(current_report_data, st.session_state.output_dir)
+
+        # Create ZIP
+        zip_base_name = (
+            st.session_state.output_dir.parent
+            / f"{st.session_state.session_id}_report"
+        )
+        shutil.make_archive(zip_base_name, "zip", st.session_state.output_dir)
+        st.success(
+            f"Analysis Complete! Report generated in {st.session_state.output_dir}"
+        )
+    except Exception as e:
+        st.error(f"Error generating final report: {e}")
+
+
 def execute_analysis(config):
     """Execute the analysis steps based on configuration."""
     with st.spinner("Running Analysis..."):
@@ -188,89 +253,91 @@ def execute_analysis(config):
             "title": f"EDA Report for {st.session_state.input_source}",
         }
 
-        # 1. Profile Step
+        # Run configured steps
         if config["run_profile"]:
-            try:
-                from src.dora.profiling import generate_profile
+            run_profile_step(st.session_state.df, current_report_data)
 
-                profile_data = generate_profile(st.session_state.df)
-                current_report_data["profile"] = profile_data
-            except Exception as e:
-                st.error(f"Error in Profiling: {e}")
-
-        # 2. Univariate Step
         if config["run_univariate"]:
-            try:
-                from src.dora.plots import univariate
+            run_univariate_step(st.session_state.df, charts_dir, current_report_data)
 
-                params = {
-                    "plot_types": {
-                        "numerical": ["histogram", "boxplot"],
-                        "categorical": ["barplot"],
-                    },
-                    "max_categories": 20,
-                }
-                plot_paths = univariate.generate_plots(
-                    st.session_state.df, charts_dir, params
-                )
-                current_report_data["univariate_plots"] = plot_paths
-            except Exception as e:
-                st.error(f"Error in Univariate Analysis: {e}")
-
-        # 3. Bivariate Step
         if config["run_bivariate"]:
-            if not config["target_variable"]:
-                st.warning("Skipping Bivariate Analysis: No Target Variable selected.")
-            else:
-                try:
-                    from src.dora.plots import bivariate
+            run_bivariate_step(st.session_state.df, config, charts_dir, current_report_data)
 
-                    params = {"target_centric": True, "max_categories": 20}
-                    plot_paths = bivariate.generate_plots(
-                        st.session_state.df,
-                        config["target_variable"],
-                        charts_dir,
-                        params,
-                    )
-                    current_report_data["bivariate_plots"] = plot_paths
-                except Exception as e:
-                    st.error(f"Error in Bivariate Analysis: {e}")
-
-        # 4. Multivariate Step
         if config["run_multivariate"]:
-            try:
-                from src.dora.plots import multivariate
-
-                params = {"correlation_cols": []}
-                plot_paths = multivariate.generate_plots(
-                    st.session_state.df, charts_dir, params
-                )
-                current_report_data["multivariate_plots"] = plot_paths
-            except Exception as e:
-                st.error(f"Error in Multivariate Analysis: {e}")
+            run_multivariate_step(st.session_state.df, charts_dir, current_report_data)
 
         # Update Session State
         st.session_state.report_data = current_report_data
         st.session_state.analysis_complete = True
 
         # Generate Physical Report Immediately
-        try:
-            from src.dora.reporting.generator import create_report
+        generate_final_report(current_report_data)
 
-            create_report(current_report_data, st.session_state.output_dir)
 
-            # Create ZIP
-            zip_base_name = (
-                st.session_state.output_dir.parent
-                / f"{st.session_state.session_id}_report"
+def render_profile_tab(report_data):
+    """Render the data profile content."""
+    st.header("Data Profile")
+    try:
+        profile_data = report_data["profile"]
+        col1, col2 = st.columns(2)
+        col1.metric("Rows", profile_data["dataset_shape"][0])
+        col2.metric("Columns", profile_data["dataset_shape"][1])
+
+        st.subheader("Column Profiles")
+        for col_prof in profile_data["column_profiles"]:
+            with st.expander(f"{col_prof['name']} ({col_prof['type']})"):
+                st.json(col_prof["stats"])
+                if col_prof.get("sparkline_base64"):
+                    st.markdown(
+                        f'<img src="data:image/png;base64,{col_prof["sparkline_base64"]}" />',
+                        unsafe_allow_html=True,
+                    )
+
+        if profile_data.get("missing_values_html"):
+            st.subheader("Missing Values")
+            st.markdown(
+                profile_data["missing_values_html"], unsafe_allow_html=True
             )
-            shutil.make_archive(zip_base_name, "zip", st.session_state.output_dir)
-            st.success(
-                f"Analysis Complete! Report generated in {st.session_state.output_dir}"
-            )
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        st.error(f"Error displaying profile: {e}")
 
-        except Exception as e:
-            st.error(f"Error generating final report: {e}")
+
+def render_univariate_tab(report_data, charts_dir):
+    """Render the univariate analysis content."""
+    st.header("Univariate Analysis")
+    plot_paths = report_data["univariate_plots"]
+    if not plot_paths:
+        st.info("No plots generated.")
+    else:
+        cols = st.columns(2)
+        for i, path_str in enumerate(plot_paths):
+            full_path = charts_dir / Path(path_str).name
+            if full_path.exists():
+                cols[i % 2].image(str(full_path), width="stretch")
+
+
+def render_bivariate_tab(report_data, charts_dir):
+    """Render the bivariate analysis content."""
+    st.header("Bivariate Analysis")
+    plot_paths = report_data["bivariate_plots"]
+    if not plot_paths:
+        st.info("No plots generated.")
+    else:
+        cols = st.columns(2)
+        for i, path_str in enumerate(plot_paths):
+            full_path = charts_dir / Path(path_str).name
+            if full_path.exists():
+                cols[i % 2].image(str(full_path), width="stretch")
+
+
+def render_multivariate_tab(report_data, charts_dir):
+    """Render the multivariate analysis content."""
+    st.header("Multivariate Analysis")
+    plot_paths = report_data["multivariate_plots"]
+    for path_str in plot_paths:
+        full_path = charts_dir / Path(path_str).name
+        if full_path.exists():
+            st.image(str(full_path), width="stretch")
 
 
 def render_report_tabs():
@@ -295,74 +362,28 @@ def render_report_tabs():
         tabs = st.tabs(tabs_list)
         tab_idx = 0
 
-        # 1. Profile Render
+        # Profile Render
         if "profile" in report_data:
             with tabs[tab_idx]:
-                st.header("Data Profile")
-                try:
-                    profile_data = report_data["profile"]
-                    col1, col2 = st.columns(2)
-                    col1.metric("Rows", profile_data["dataset_shape"][0])
-                    col2.metric("Columns", profile_data["dataset_shape"][1])
-
-                    st.subheader("Column Profiles")
-                    for col_prof in profile_data["column_profiles"]:
-                        with st.expander(f"{col_prof['name']} ({col_prof['type']})"):
-                            st.json(col_prof["stats"])
-                            if col_prof.get("sparkline_base64"):
-                                st.markdown(
-                                    f'<img src="data:image/png;base64,{col_prof["sparkline_base64"]}" />',
-                                    unsafe_allow_html=True,
-                                )
-
-                    if profile_data.get("missing_values_html"):
-                        st.subheader("Missing Values")
-                        st.markdown(
-                            profile_data["missing_values_html"], unsafe_allow_html=True
-                        )
-                except Exception as e:
-                    st.error(f"Error displaying profile: {e}")
+                render_profile_tab(report_data)
             tab_idx += 1
 
-        # 2. Univariate Render
+        # Univariate Render
         if "univariate_plots" in report_data:
             with tabs[tab_idx]:
-                st.header("Univariate Analysis")
-                plot_paths = report_data["univariate_plots"]
-                if not plot_paths:
-                    st.info("No plots generated.")
-                else:
-                    cols = st.columns(2)
-                    for i, path_str in enumerate(plot_paths):
-                        full_path = charts_dir / Path(path_str).name
-                        if full_path.exists():
-                            cols[i % 2].image(str(full_path), width="stretch")
+                render_univariate_tab(report_data, charts_dir)
             tab_idx += 1
 
-        # 3. Bivariate Render
+        # Bivariate Render
         if "bivariate_plots" in report_data:
             with tabs[tab_idx]:
-                st.header("Bivariate Analysis")
-                plot_paths = report_data["bivariate_plots"]
-                if not plot_paths:
-                    st.info("No plots generated.")
-                else:
-                    cols = st.columns(2)
-                    for i, path_str in enumerate(plot_paths):
-                        full_path = charts_dir / Path(path_str).name
-                        if full_path.exists():
-                            cols[i % 2].image(str(full_path), width="stretch")
+                render_bivariate_tab(report_data, charts_dir)
             tab_idx += 1
 
-        # 4. Multivariate Render
+        # Multivariate Render
         if "multivariate_plots" in report_data:
             with tabs[tab_idx]:
-                st.header("Multivariate Analysis")
-                plot_paths = report_data["multivariate_plots"]
-                for path_str in plot_paths:
-                    full_path = charts_dir / Path(path_str).name
-                    if full_path.exists():
-                        st.image(str(full_path), width="stretch")
+                render_multivariate_tab(report_data, charts_dir)
             tab_idx += 1
 
 
