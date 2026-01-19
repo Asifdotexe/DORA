@@ -143,6 +143,10 @@ def render_sidebar():
 
     st.sidebar.header("2. Configuration")
 
+    if st.sidebar.button("⚠️ Clear & Start Fresh", type="primary", use_container_width=True):
+        st.session_state.clear()
+        st.rerun()
+
     # Target Variable
     target_variable = st.sidebar.selectbox(
         "Target Variable (for Bivariate Analysis)",
