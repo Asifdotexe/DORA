@@ -38,18 +38,6 @@ Open your terminal and run the following command:
 pip install dora-eda
 ```
 
-### Option 2: Run the Web App Locally
-
-If you prefer a visual interface, you can run the Streamlit app:
-
-1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Run the app:
-
-```bash
-streamlit run app.py
-```
-
 2. Run DORA
 
 Simply run the following command:
