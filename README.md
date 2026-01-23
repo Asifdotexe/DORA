@@ -8,8 +8,7 @@
     <img src="data/assets/demo-snippet.png" alt="DORA Demo" width="700"/>
 </p>
 
-<em align="center">
-An interactive command-line tool to automate Exploratory Data Analysis (EDA) and generate beautiful, insightful reports in seconds.
+An interactive power-tool to automate Exploratory Data Analysis (EDA) and generate beautiful, insightful reports in seconds.
 </em>
 
 <p align="center">

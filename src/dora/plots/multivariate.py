@@ -11,6 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -48,8 +49,9 @@ def generate_plots(
 
     plt.figure(figsize=(12, 10))
     corr = df_numeric.corr()
+    mask = np.triu(np.ones_like(corr, dtype=bool))
     cmap = sns.diverging_palette(230, 20, as_cmap=True)
-    sns.heatmap(corr, annot=True, fmt=".2f", cmap=cmap, linewidths=0.5)
+    sns.heatmap(corr, mask=mask, annot=True, fmt=".2f", cmap=cmap, linewidths=0.5)
     plt.title(
         "Correlation Matrix of Numerical Features",
         loc="left",
