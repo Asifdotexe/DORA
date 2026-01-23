@@ -194,12 +194,24 @@ def render_ingestion():
             files = st.session_state.kaggle_files
             if len(files) > 1:
                 st.info(f"Found {len(files)} files. Please select one:")
-                file_names = [f.name for f in files]
-                selected_filename = st.selectbox("Select file", file_names, key="kaggle_file_select")
+                
+                # Create a mapping of display name -> file object
+                # We use the relative path from the dataset directory to ensure uniqueness
+                # If that fails, we fallback to the full path string
+                file_mapping = {}
+                for f in files:
+                    # Try to make path relative to the download directory for cleaner display
+                    # Since we don't have the download dir handy here easily without re-deriving,
+                    # we can use the parent folder name + filename as a unique-enough proxy for display
+                    # or just the full path if needed.
+                    unique_name = f"{f.parent.name}/{f.name}"
+                    file_mapping[unique_name] = f
+                
+                selected_display_name = st.selectbox("Select file", list(file_mapping.keys()), key="kaggle_file_select")
                 
                 if st.button("Load Selected File", key="btn_kaggle_multiload"):
-                    # Find the path for the selected file
-                    selected_path = next((f for f in files if f.name == selected_filename), None)
+                    # Find the path for the selected file using the mapping
+                    selected_path = file_mapping.get(selected_display_name)
                     if selected_path:
                          _load_specific_kaggle_file(selected_path, st.session_state.kaggle_dataset_id)
 
