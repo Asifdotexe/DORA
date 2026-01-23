@@ -8,8 +8,7 @@
     <img src="data/assets/demo-snippet.png" alt="DORA Demo" width="700"/>
 </p>
 
-<em align="center">
-An interactive command-line tool to automate Exploratory Data Analysis (EDA) and generate beautiful, insightful reports in seconds.
+An interactive power-tool to automate Exploratory Data Analysis (EDA) and generate beautiful, insightful reports in seconds.
 </em>
 
 <p align="center">
@@ -37,6 +36,18 @@ Open your terminal and run the following command:
 
 ```bash
 pip install dora-eda
+```
+
+### Option 2: Run the Web App Locally
+
+If you prefer a visual interface, you can run the Streamlit app:
+
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run the app:
+
+```bash
+streamlit run app.py
 ```
 
 2. Run DORA
