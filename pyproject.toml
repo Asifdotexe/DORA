@@ -1,6 +1,6 @@
 [project]
 name = "dora-eda"
-version = "4.0.0"
+version = "4.0.1"
 description = "Exploratory data analysis and presentation tool"
 authors = [
     {name = "Asif Sayyed",email = "asifdotexe@gmail.com"}
