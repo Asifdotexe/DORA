@@ -135,17 +135,32 @@ def load_kaggle_data(kaggle_input):
             else:
                 dataset_id = kaggle_input
 
-            # Download using existing handler
-            file_path = KaggleHandler.download_dataset(dataset_id)
+            # Fetch all supported files
+            files = KaggleHandler.download_files(dataset_id)
+            
+            # Store found files in session state so we can let the user pick one if needed
+            st.session_state.kaggle_files = files
+            st.session_state.kaggle_dataset_id = dataset_id
 
-            # Load data
-            df = read_data(file_path)
-            st.session_state.df = df
-            st.session_state.input_source = dataset_id
-            st.success(f"Successfully loaded data from '{dataset_id}'")
+            # If there's only one file, load it immediately
+            if len(files) == 1:
+               _load_specific_kaggle_file(files[0], dataset_id)
 
     except Exception as e:
         st.error(f"Error processing Kaggle dataset: {e}")
+
+def _load_specific_kaggle_file(file_path, dataset_id):
+    """Helper to load a specific file from a Kaggle dataset."""
+    try:
+        with st.spinner(f"Loading {file_path.name}..."):
+            df = read_data(file_path)
+            st.session_state.df = df
+            st.session_state.input_source = f"{dataset_id}/{file_path.name}"
+            st.success(f"Successfully loaded '{file_path.name}' from '{dataset_id}'")
+            # Clear the file list selection state once loaded, if you prefer
+            # st.session_state.kaggle_files = None 
+    except Exception as e:
+        st.error(f"Error loading file: {e}")
 
 
 def render_ingestion():
@@ -173,6 +188,20 @@ def render_ingestion():
                 load_kaggle_data(kaggle_input)
             else:
                 st.warning("Please enter a valid Dataset ID or URL.")
+        
+        # Check if we have multiple files to choose from
+        if "kaggle_files" in st.session_state and st.session_state.kaggle_files:
+            files = st.session_state.kaggle_files
+            if len(files) > 1:
+                st.info(f"Found {len(files)} files. Please select one:")
+                file_names = [f.name for f in files]
+                selected_filename = st.selectbox("Select file", file_names, key="kaggle_file_select")
+                
+                if st.button("Load Selected File", key="btn_kaggle_multiload"):
+                    # Find the path for the selected file
+                    selected_path = next((f for f in files if f.name == selected_filename), None)
+                    if selected_path:
+                         _load_specific_kaggle_file(selected_path, st.session_state.kaggle_dataset_id)
 
 
 def render_preview():

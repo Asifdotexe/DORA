@@ -50,12 +50,12 @@ class KaggleHandler:
         return input_str
 
     @staticmethod
-    def download_dataset(dataset_id: str) -> Path:
+    def download_files(dataset_id: str) -> list[Path]:
         """
-        Download a Kaggle dataset from kagglehub and return the path to the downloaded file.
-
-        :param dataset_id: The 'owner/dataset-name' identifier of the dataset to download.
-        :return: The path to the downloaded file.
+        Download a Kaggle dataset and return a list of all supported files.
+        
+        :param dataset_id: The 'owner/dataset-name' identifier.
+        :return: List of Path objects for supported files.
         """
         logging.info("Downloading dataset %s", dataset_id)
         try:
@@ -74,6 +74,19 @@ class KaggleHandler:
 
         if not files:
             raise ValueError("No supported files found in the downloaded dataset.")
+            
+        return files
+
+    @staticmethod
+    def download_dataset(dataset_id: str) -> Path:
+        """
+        Download a Kaggle dataset from kagglehub and return the path to the downloaded file.
+        If multiple files are present, it prompts the user to select one (CLI mode).
+
+        :param dataset_id: The 'owner/dataset-name' identifier of the dataset to download.
+        :return: The path to the downloaded file.
+        """
+        files = KaggleHandler.download_files(dataset_id)
 
         if len(files) == 1:
             return files[0]
