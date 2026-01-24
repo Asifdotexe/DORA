@@ -43,9 +43,12 @@
 
             <div class="hero-gallery">
                 <div class="gallery-tabs">
-                    <button class="gallery-tab" onclick="switchGallery('report')">HTML Report</button>
-                    <button class="gallery-tab" onclick="switchGallery('web')">Web Interface</button>
-                    <button class="gallery-tab active" onclick="switchGallery('cli')">CLI Tool</button>
+                    <button class="gallery-tab" data-tab="report" onclick="switchGallery('report', event)">HTML
+                        Report</button>
+                    <button class="gallery-tab" data-tab="web" onclick="switchGallery('web', event)">Web
+                        Interface</button>
+                    <button class="gallery-tab active" data-tab="cli" onclick="switchGallery('cli', event)">CLI
+                        Tool</button>
                 </div>
 
                 <div class="gallery-content active" id="gallery-cli">

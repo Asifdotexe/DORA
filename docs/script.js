@@ -71,13 +71,13 @@ const tabs = ['cli', 'web', 'report'];
 let currentTabIndex = 0;
 let autoRotateInterval;
 
-function switchGallery(tabId) {
+function switchGallery(tabId, event) {
     // Update active state
     // Buttons
     document.querySelectorAll('.gallery-tab').forEach(tab => {
         tab.classList.remove('active');
-        // Find the button that called this function or matches the tabId
-        if (tab.onclick.toString().includes(tabId)) {
+        // Check data attribute
+        if (tab.dataset.tab === tabId) {
             tab.classList.add('active');
         }
     });
@@ -91,15 +91,15 @@ function switchGallery(tabId) {
     // Update current index for auto-rotation
     currentTabIndex = tabs.indexOf(tabId);
 
-    // Reset timer on manual interaction (if event exists)
-    if (window.event && window.event.isTrusted) {
+    // Reset timer on manual interaction (if event exists and is trusted)
+    if (event && event.isTrusted) {
         resetAutoRotate();
     }
 }
 
 function autoRotate() {
     currentTabIndex = (currentTabIndex + 1) % tabs.length;
-    switchGallery(tabs[currentTabIndex]);
+    switchGallery(tabs[currentTabIndex]); // No event passed for auto-rotation
 }
 
 function resetAutoRotate() {
