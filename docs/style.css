@@ -366,17 +366,44 @@ footer {
 }
 
 /* Responsive */
+/* Responsive */
+.nav-toggle {
+    display: none;
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     h1 {
         font-size: 2.5rem;
     }
 
-    .nav-links {
-        display: none;
-        /* simple mobile hide for now */
+    .nav-toggle {
+        display: block;
     }
 
-    .hero-image-placeholder {
-        height: 300px;
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 1rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        z-index: 100;
+    }
+
+    .nav-links.active {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .nav-links a {
+        margin: 1rem 0;
+        display: block;
     }
 }

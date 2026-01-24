@@ -109,3 +109,32 @@ function resetAutoRotate() {
 
 // Start auto-rotation
 autoRotateInterval = setInterval(autoRotate, 5000);
+
+// Mobile Nav Toggle
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+
+if (navToggle) {
+    navToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+
+        // Change icon
+        const icon = navToggle.querySelector('i');
+        if (navLinks.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+
+    // Close menu when clicking a link
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            navToggle.querySelector('i').classList.add('fa-bars');
+            navToggle.querySelector('i').classList.remove('fa-times');
+        });
+    });
+}
