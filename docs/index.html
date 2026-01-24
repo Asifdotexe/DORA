@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DORA - Data Oriented Report Automator</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <div class="container">
+        <nav>
+            <a href="#" class="logo">
+                <img src="assets/logo.png" alt="DORA Logo" style="height: 50px;">
+            </a>
+            <div class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it Works</a>
+                <a href="#install">Install</a>
+                <a href="https://github.com/Asifdotexe/DORA" target="_blank" rel="noopener noreferrer"><i
+                        class="fab fa-github"></i> GitHub</a>
+                <a href="https://pypi.org/project/dora-eda/" target="_blank" rel="noopener noreferrer"><i
+                        class="fas fa-box"></i> PyPI</a>
+            </div>
+            <a href="#install" class="btn btn-primary">Get Started</a>
+        </nav>
+
+        <section class="hero">
+            <h1>Automate Data Analysis<br>in Seconds</h1>
+            <p>From raw data to beautiful, actionable HTML reports instantly. The most powerful open-source EDA tool for
+                data scientists.</p>
+
+            <div class="cta-buttons">
+                <a href="https://dora-eda.streamlit.app/" target="_blank" class="btn btn-primary">Launch Web App</a>
+                <a href="#install" class="btn btn-secondary">Install via pip</a>
+            </div>
+
+            <div class="hero-gallery">
+                <div class="gallery-tabs">
+                    <button class="gallery-tab" data-tab="report" onclick="switchGallery('report', event)">HTML
+                        Report</button>
+                    <button class="gallery-tab" data-tab="web" onclick="switchGallery('web', event)">Web
+                        Interface</button>
+                    <button class="gallery-tab active" data-tab="cli" onclick="switchGallery('cli', event)">CLI
+                        Tool</button>
+                </div>
+
+                <div class="gallery-content active" id="gallery-cli">
+                    <img src="assets/cli-demo.png" alt="DORA CLI Demo" class="gallery-image">
+                </div>
+
+                <div class="gallery-content" id="gallery-web">
+                    <img src="assets/web-ui-demo.png" alt="DORA Web Interface" class="gallery-image">
+                </div>
+
+                <div class="gallery-content" id="gallery-report">
+                    <img src="assets/report-demo-snippet.png" alt="DORA HTML Report" class="gallery-image">
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Why DORA?</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-rocket icon"></i>
+                        <h3>Instant Reports</h3>
+                        <p>Generate comprehensive EDA reports with a single command. No more writing boilerplate code
+                            for basic analysis.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-pie icon"></i>
+                        <h3>Interactive Visuals</h3>
+                        <p>Get rich, interactive charts powered by modern web technologies. Dive deep into your data
+                            with zoom, pan, and hover details.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fab fa-kaggle icon"></i>
+                        <h3>Kaggle Integration</h3>
+                        <p>Directly download and analyze datasets from Kaggle. DORA handles authentication and file
+                            selection for you.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="how-it-works">
+            <div class="container">
+                <h2>How It Works</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Input Data</h3>
+                        <p>Provide a CSV, key in a Kaggle URL, or upload your file.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Process</h3>
+                        <p>DORA analyzes distributions, correlations, and missing values automatically.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Report</h3>
+                        <p>Receive a shareable HTML report with all insights ready to present.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="install" class="get-started">
+            <div class="container">
+                <h2>Ready to Dive In?</h2>
+                <p style="color: rgba(255,255,255,0.9); margin-bottom: 2rem;">Get up and running in less than a minute.
+                </p>
+
+                <h3>Option 1: CLI Tool</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('pip-install')">Copy</button>
+                    <code id="pip-install">$ pip install dora-eda</code>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Option 2: Web Interface (No Install)</h3>
+                <p style="margin-bottom: 1rem; color: white;">Use DORA directly in your browser without installing
+                    anything.</p>
+                <a href="https://dora-eda.streamlit.app/" target="_blank" class="btn btn-primary"
+                    style="background: white; color: var(--secondary-color);">Launch App</a>
+            </div>
+        </section>
+
+        <footer>
+            <div class="container">
+                <div class="footer-links">
+                    <a href="#">Home</a>
+                    <a href="https://github.com/Asifdotexe/DORA">GitHub</a>
+                    <a href="https://pypi.org/project/dora-eda/">PyPI</a>
+                </div>
+                <p>&copy; 2026 DORA Project. Licensed under MIT.</p>
+                <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.6;">Designed & Built by <a
+                        href="https://github.com/Asifdotexe" target="_blank"
+                        style="color: inherit; text-decoration: none;">Asif Sayyed</a></p>
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
