@@ -22,11 +22,11 @@ import typer
 import yaml
 from rich import print as rprint
 
-from dora.analyzer import Analyzer
+from dora.analyzer import run_analysis
 from dora.config_loader import load_config
 from dora.data_loader import read_data
-from dora.kaggle import KaggleHandler
-from dora.schema import AnalysisStep, BivariateStep, Config, MultivariateStep, ProfileStep, UnivariateStep
+from dora.kaggle import download_dataset, extract_dataset_id, is_kaggle_url
+from dora.schema import Config
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -59,7 +59,7 @@ def handle_kaggle_download(dataset_id: str) -> Path:
     rprint(f"[cyan]Downloading dataset {dataset_id}...[/cyan]")
 
     try:
-        file_path = KaggleHandler.download_dataset(dataset_id)
+        file_path = download_dataset(dataset_id)
         rprint(f"[green]Download complete. Using file {file_path.name}[/green]")
         return file_path
     except ValueError as e:
@@ -85,8 +85,8 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
     # We loop until a valid file is provided to prevent the program from crashing later on.
     while True:
         input_str = typer.prompt("📁 Enter local file path OR Kaggle URL/ID (Example: 'owner/dataset-name')")
-        if KaggleHandler.is_kaggle_url(input_str):
-            dataset_id = KaggleHandler.extract_dataset_id(input_str)
+        if is_kaggle_url(input_str):
+            dataset_id = extract_dataset_id(input_str)
             if typer.confirm(f"Download Kaggle dataset '{dataset_id}'?", default=True):
                 input_file = handle_kaggle_download(dataset_id)
             else:
@@ -125,43 +125,27 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
             rprint(f"[yellow]Warning: Column '{target_variable}' not found. Proceeding without a target.[/yellow]")
         target_variable = None
 
-    # This is where we gather all the user's choices into a single, structured "plan" that the Analyzer will execute.
-    pipeline = []
-
     # To give the user full control, we ask them to opt-in to each analysis step.
     # This makes the tool flexible for both quick overviews and deep dives.
     rprint("\n[bold blue]Select the analysis steps to perform:[/bold blue]")
-    if typer.confirm("📊 Generate Data Profile (overview, missing values, etc.)?", default=True):
-        pipeline.append(AnalysisStep(profile=ProfileStep(enabled=True)))
+    profile_enabled = typer.confirm("📊 Generate Data Profile (overview, missing values, etc.)?", default=True)
+    univariate_enabled = typer.confirm("📈 Generate Univariate Analysis (plots for single columns)?", default=True)
 
-    if typer.confirm("📈 Generate Univariate Analysis (plots for single columns)?", default=True):
-        pipeline.append(
-            AnalysisStep(
-                univariate=UnivariateStep(
-                    enabled=True,
-                    plot_types={
-                        "numerical": ["histogram", "boxplot"],
-                        "categorical": ["barplot"],
-                    },
-                )
-            )
-        )
+    bivariate_enabled = False
+    if target_variable and typer.confirm("🔗 Generate Bivariate Analysis (relationships with target)?", default=True):
+        bivariate_enabled = True
 
-    if target_variable and typer.confirm(
-        f"🔗 Generate Bivariate Analysis (features vs. '{target_variable}')?",
-        default=True,
-    ):
-        pipeline.append(AnalysisStep(bivariate=BivariateStep(enabled=True, target_centric=True)))
-
-    if typer.confirm("🌐 Generate Multivariate Analysis (correlation matrix)?", default=True):
-        pipeline.append(AnalysisStep(multivariate=MultivariateStep(enabled=True, correlation_cols=[])))
+    multivariate_enabled = typer.confirm("🕸 Generate Multivariate Analysis (correlation matrix)?", default=True)
 
     config = Config(
         input_file=input_file,
         output_dir=Path(output_dir),
         report_title=report_title,
         target_variable=target_variable,
-        analysis_pipeline=pipeline,
+        profile_enabled=profile_enabled,
+        univariate_enabled=univariate_enabled,
+        bivariate_enabled=bivariate_enabled,
+        multivariate_enabled=multivariate_enabled,
     )
 
     return df, config
@@ -244,11 +228,8 @@ def run(
         # Run Analysis
         # Once the configuration is ready (either from a file or the wizard),
         # we hand it over to the Analyzer to do the heavy lifting.
-        logger.info("Initializing EDA Analyzer...")
-        analyzer = Analyzer(df, config)
-
         logger.info("Starting analysis pipeline...")
-        analyzer.run()
+        run_analysis(df, config)
 
         logger.info("✅ Analysis complete! Report saved in: %s", config.output_dir)
 

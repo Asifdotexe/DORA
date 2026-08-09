@@ -7,8 +7,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from dora.analyzer import Analyzer
-from dora.schema import AnalysisStep, BivariateStep, Config, MultivariateStep, ProfileStep, UnivariateStep
+from dora.analyzer import run_analysis
+from dora.schema import Config
 
 
 @pytest.fixture
@@ -38,20 +38,16 @@ def test_environment(tmp_path: Path) -> dict:
         output_dir=output_dir,
         report_title="Test EDA Report",
         target_variable="charges",
-        analysis_pipeline=[
-            AnalysisStep(profile=ProfileStep(enabled=True)),
-            AnalysisStep(
-                univariate=UnivariateStep(
-                    enabled=True,
-                    plot_types={
-                        "numerical": ["histogram"],
-                        "categorical": ["barplot"],
-                    },
-                )
-            ),
-            AnalysisStep(bivariate=BivariateStep(enabled=True, target_centric=True)),
-            AnalysisStep(multivariate=MultivariateStep(enabled=True, correlation_cols=[])),
-        ],
+        profile_enabled=True,
+        univariate_enabled=True,
+        bivariate_enabled=True,
+        bivariate_target_centric=True,
+        multivariate_enabled=True,
+        multivariate_correlation_cols=[],
+        univariate_plot_types={
+            "numerical": ["histogram"],
+            "categorical": ["barplot"],
+        },
     )
 
     return {"df": df, "config": config, "output_dir": output_dir}
@@ -65,12 +61,11 @@ def test_full_pipeline_and_benchmark(test_environment, benchmark):
     df = test_environment["df"]
     config = test_environment["config"]
     output_dir = test_environment["output_dir"]
-    analyzer = Analyzer(df, config)
 
     # Run the entire pipeline and benchmark its execution time.
-    # The `benchmark` fixture comes from pytest-benchmark. It runs `analyzer.run`
+    # The `benchmark` fixture comes from pytest-benchmark. It runs `run_analysis`
     # multiple times to get a reliable performance measurement.
-    benchmark(analyzer.run)
+    benchmark(run_analysis, df, config)
 
     # Assert: Verify that the pipeline produced the expected output files.
     # This confirms the correctness of the run.

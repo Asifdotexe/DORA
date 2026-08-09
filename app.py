@@ -13,7 +13,7 @@ from pathlib import Path
 import streamlit as st
 
 from src.dora.data_loader import read_data
-from src.dora.kaggle import KaggleHandler
+from src.dora.kaggle import download_files, extract_dataset_id, is_kaggle_url
 from src.dora.plots import bivariate, multivariate, univariate
 from src.dora.profiling import generate_profile
 from src.dora.reporting.generator import create_report
@@ -130,13 +130,13 @@ def load_kaggle_data(kaggle_input):
     try:
         with st.spinner("Connecting to Kaggle..."):
             # Extract ID if it's a URL
-            if KaggleHandler.is_kaggle_url(kaggle_input):
-                dataset_id = KaggleHandler.extract_dataset_id(kaggle_input)
+            if is_kaggle_url(kaggle_input):
+                dataset_id = extract_dataset_id(kaggle_input)
             else:
                 dataset_id = kaggle_input
 
             # Fetch all supported files
-            files = KaggleHandler.download_files(dataset_id)
+            files = download_files(dataset_id)
 
             # Store found files in session state so we can let the user pick one if needed
             st.session_state.kaggle_files = files

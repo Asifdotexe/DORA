@@ -18,3 +18,14 @@
   - Why: `ruff` is a Rust-based linter and formatter that consolidates all three tools and runs much faster.
 - Updated `.pre-commit-config.yaml` and `checks.bat` to use the new `ruff` hooks and `prek` command.
   - Why: To execute the new faster toolchain correctly.
+- Cleaned up manual lint issues found by Ruff (broad exceptions, redundant logger usage, timezone awareness).
+  - Why: Ensured code adheres to modern Python practices and passes new Ruff checks.
+- Conducted a repo-wide ponytail audit and removed ~150 lines of over-engineered abstractions.
+  - Flattened `AnalysisStep` Pydantic models in `schema.py` to use flat configuration properties.
+  - Replaced the `Analyzer` class wrapper in `analyzer.py` with a simple `run_analysis` procedural function.
+  - Refactored `KaggleHandler` from a static class into simple module-level functions in `kaggle.py`.
+  - Why: Reduced unnecessary abstraction layers, bringing the codebase in line with YAGNI principles and improving maintainability.
+- Updated the Pytest test suite (`test_schema.py`, `test_analyser.py`) to align with the simplified architecture.
+  - Why: To guarantee correctness of the new leaner codebase design.
+- Fixed un-sorted imports in `tests/test_schema.py` using `ruff check --fix`.
+  - Why: Ensure code style consistency and pass pre-commit checks.
