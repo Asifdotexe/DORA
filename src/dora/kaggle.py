@@ -15,6 +15,7 @@ class KaggleHandler:
     """
     Class for interacting with kaggle via KaggleHub
     """
+
     @staticmethod
     def is_kaggle_url(input_str: str) -> bool:
         """
@@ -53,7 +54,7 @@ class KaggleHandler:
     def download_files(dataset_id: str) -> list[Path]:
         """
         Download a Kaggle dataset and return a list of all supported files.
-        
+
         :param dataset_id: The 'owner/dataset-name' identifier.
         :return: List of Path objects for supported files.
         """
@@ -74,7 +75,7 @@ class KaggleHandler:
 
         if not files:
             raise ValueError("No supported files found in the downloaded dataset.")
-            
+
         return files
 
     @staticmethod
