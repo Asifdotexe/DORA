@@ -100,3 +100,4 @@ Thumbs.db
 
 # VS Code specific
 .vscode/
+.ruff_cache/

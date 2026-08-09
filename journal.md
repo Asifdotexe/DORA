@@ -12,3 +12,9 @@
   - Why: To provide a quick and easy way for Windows users to run `uv run pre-commit run --all-files`.
 - Updated GitHub Actions workflows (`ci.yaml` and `release.yaml`) to use `uv` instead of Poetry.
   - Why: To ensure continuous integration and deployments use the new package manager for building, testing, and publishing to PyPI.
+- Replaced `pre-commit` with `prek`.
+  - Why: `prek` is a drop-in, Rust-based alternative that executes checks significantly faster.
+- Replaced `pylint`, `black`, and `isort` with `ruff`.
+  - Why: `ruff` is a Rust-based linter and formatter that consolidates all three tools and runs much faster.
+- Updated `.pre-commit-config.yaml` and `checks.bat` to use the new `ruff` hooks and `prek` command.
+  - Why: To execute the new faster toolchain correctly.
