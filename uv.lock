@@ -328,6 +328,7 @@ dependencies = [
     { name = "pyarrow" },
     { name = "pydantic" },
     { name = "pyyaml" },
+    { name = "typer" },
 ]
 
 [package.optional-dependencies]
@@ -337,12 +338,10 @@ all = [
     { name = "seaborn" },
     { name = "streamlit" },
     { name = "tqdm" },
-    { name = "typer" },
 ]
 cli = [
     { name = "kagglehub" },
     { name = "tqdm" },
-    { name = "typer" },
 ]
 ui = [
     { name = "kagglehub" },
@@ -377,7 +376,7 @@ requires-dist = [
     { name = "seaborn", marker = "extra == 'ui'", specifier = ">=0.13.2,<0.14.0" },
     { name = "streamlit", marker = "extra == 'ui'", specifier = ">=1.53.0,<2.0.0" },
     { name = "tqdm", marker = "extra == 'cli'", specifier = ">=4.67.1,<5.0.0" },
-    { name = "typer", marker = "extra == 'cli'", specifier = ">=0.19.2,<0.20.0" },
+    { name = "typer", specifier = ">=0.19.2,<0.20.0" },
 ]
 provides-extras = ["cli", "ui", "all"]
 
