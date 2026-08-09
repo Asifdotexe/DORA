@@ -5,9 +5,7 @@ Utility functions for plotting.
 import pandas as pd
 
 
-def handle_high_cardinality(
-    series: pd.Series, max_categories: int
-) -> tuple[pd.Series, bool]:
+def handle_high_cardinality(series: pd.Series, max_categories: int) -> tuple[pd.Series, bool]:
     """
     Truncates the number of categories in a series to the top K most frequent.
     Remaining categories are grouped into 'Other'.
@@ -39,9 +37,8 @@ def handle_high_cardinality(
 
     # Replace others with 'Other'
     new_series = series.copy()
-    if isinstance(new_series.dtype, pd.CategoricalDtype):
-        if "Other" not in new_series.cat.categories:
-            new_series = new_series.cat.add_categories("Other")
+    if isinstance(new_series.dtype, pd.CategoricalDtype) and "Other" not in new_series.cat.categories:
+        new_series = new_series.cat.add_categories("Other")
 
     # Using where: Replace values NOT in top_categories with 'Other'
     new_series = new_series.where(new_series.isin(top_categories), "Other")

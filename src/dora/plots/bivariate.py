@@ -3,8 +3,10 @@ This module is responsible for generating visualisations for bivariate analysis
 """
 
 import logging
+
+logger = logging.getLogger(__name__)
+
 from pathlib import Path
-from typing import Union
 
 import matplotlib
 
@@ -21,7 +23,7 @@ from .utils import handle_high_cardinality
 def generate_plots(
     df: pd.DataFrame,
     target_column: str,
-    charts_dir: Union[str, Path],
+    charts_dir: str | Path,
     config_params: dict,
 ) -> list[str]:
     """
@@ -36,9 +38,7 @@ def generate_plots(
 
     # Check to determine if target centric analysis is needed
     if not config_params.get("target_centric"):
-        logging.info(
-            "Skipping the bivariate analysis as `target centric` is not enables"
-        )
+        logger.info("Skipping the bivariate analysis as `target centric` is not enables")
         return []
 
     charts_dir_path = Path(charts_dir)
@@ -53,9 +53,7 @@ def generate_plots(
         plot_generated = False
         # Numeric feature vs Numeric feature
         if feature_is_numeric and target_is_numeric:
-            sns.scatterplot(
-                data=df, x=feature, y=target_column, alpha=0.6, color=PRIMARY_BLUE
-            )
+            sns.scatterplot(data=df, x=feature, y=target_column, alpha=0.6, color=PRIMARY_BLUE)
             plt.title(
                 f"{target_column.replace('_', ' ').title()} vs. {feature.replace('_', ' ').title()}",
                 loc="left",
@@ -74,7 +72,9 @@ def generate_plots(
             # For boxplot we can pass vectors directly
             sns.boxplot(x=df[target_column], y=plot_series, color=PRIMARY_BLUE)
 
-            title_text = f"Distribution of {target_column.replace('_', ' ').title()} by {feature.replace('_', ' ').title()}"
+            title_text = (
+                f"Distribution of {target_column.replace('_', ' ').title()} by {feature.replace('_', ' ').title()}"
+            )
             if truncated:
                 title_text += f"\n(Top {max_cats} categories)"
 
@@ -94,8 +94,6 @@ def generate_plots(
             plt.savefig(path)
             plt.close()
             plot_paths.append(str(path.relative_to(charts_dir_path)))
-            logging.info(
-                "Generated bivariate plot for %s vs %s", feature, target_column
-            )
+            logger.info("Generated bivariate plot for %s vs %s", feature, target_column)
 
     return plot_paths

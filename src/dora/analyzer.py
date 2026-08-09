@@ -3,6 +3,8 @@ This module will orchestrate the analysis
 """
 
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 
 import pandas as pd
@@ -10,7 +12,7 @@ import pandas as pd
 from .plots import bivariate, multivariate, univariate
 from .profiling import generate_profile
 from .reporting.generator import create_report
-from .schema import AnalysisStep, Config
+from .schema import Config
 
 # TODO: Better handling for categorical variables (e.g., set max limit to categories)
 # TODO: Handling ID columns (e.g., customer_id)
@@ -43,20 +45,20 @@ class Analyzer:
         for step in pipeline:
             # step is an AnalysisStep object
             if step.profile and step.profile.enabled:
-                logging.info("--- Running Step: Profile ---")
+                logger.info("--- Running Step: Profile ---")
                 self._run_profiling()
 
             if step.univariate and step.univariate.enabled:
-                logging.info("--- Running Step: Univariate ---")
+                logger.info("--- Running Step: Univariate ---")
                 # Pass dictionary to maintain compatibility with existing plot functions for now
                 self._run_univariate(step.univariate.model_dump())
 
             if step.bivariate and step.bivariate.enabled:
-                logging.info("--- Running Step: Bivariate ---")
+                logger.info("--- Running Step: Bivariate ---")
                 self._run_bivariate(step.bivariate.model_dump())
 
             if step.multivariate and step.multivariate.enabled:
-                logging.info("--- Running Step: Multivariate ---")
+                logger.info("--- Running Step: Multivariate ---")
                 self._run_multivariate(step.multivariate.model_dump())
 
         # After all the analysis is done, we compile everything into a beautiful, easy-to-read report.
@@ -80,25 +82,19 @@ class Analyzer:
         # It's important to check if a target was actually provided.
         # Running this analysis without one wouldn't make sense, so we'll skip it.
         if params.get("target_centric") and not target:
-            logging.warning(
-                "Bivariate 'target_centric' is true, but no 'target_variable' is defined. Skipping."
-            )
+            logger.warning("Bivariate 'target_centric' is true, but no 'target_variable' is defined. Skipping.")
             return
 
-        bivariate_plots = bivariate.generate_plots(
-            self.df, target, self.charts_dir, params
-        )
+        bivariate_plots = bivariate.generate_plots(self.df, target, self.charts_dir, params)
         self.report_data["bivariate_plots"] = bivariate_plots
 
     def _run_multivariate(self, params: dict):
         # This is where we see how numerical features interact with each other.
         # The correlation matrix is a powerful tool to spot these broader relationships at a glance.
-        multivariate_plots = multivariate.generate_plots(
-            self.df, self.charts_dir, params
-        )
+        multivariate_plots = multivariate.generate_plots(self.df, self.charts_dir, params)
         self.report_data["multivariate_plots"] = multivariate_plots
 
     def _generate_report(self):
         # We take all the charts and insights we've gathered and collate them into a single HTML report.
-        logging.info("--- Generating HTML Report ---")
+        logger.info("--- Generating HTML Report ---")
         create_report(self.report_data, self.output_dir)

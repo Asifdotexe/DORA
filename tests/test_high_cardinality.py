@@ -52,9 +52,7 @@ def test_handle_high_cardinality_categorical_dtype():
 def test_handle_high_cardinality_invalid_input():
     """Test that ValueError is raised for invalid max_categories."""
     series = pd.Series(["A", "B"])
-    with pytest.raises(
-        ValueError, match="max_categories must be an integer greater than or equal to 1"
-    ):
+    with pytest.raises(ValueError, match="max_categories must be an integer greater than or equal to 1"):
         handle_high_cardinality(series, max_categories=0)
 
 

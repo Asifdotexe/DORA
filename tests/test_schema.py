@@ -5,8 +5,7 @@ Unit tests for schema validation.
 import pytest
 from pydantic import ValidationError
 
-from dora.schema import (AnalysisStep, BivariateStep, ProfileStep,
-                         UnivariateStep)
+from dora.schema import AnalysisStep, BivariateStep, ProfileStep, UnivariateStep
 
 
 def test_analysis_step_valid_single_field():

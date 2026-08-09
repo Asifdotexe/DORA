@@ -3,6 +3,8 @@ Module for interacting with Kaggle API.
 """
 
 import logging
+
+logger = logging.getLogger(__name__)
 import re
 from pathlib import Path
 
@@ -58,7 +60,7 @@ class KaggleHandler:
         :param dataset_id: The 'owner/dataset-name' identifier.
         :return: List of Path objects for supported files.
         """
-        logging.info("Downloading dataset %s", dataset_id)
+        logger.info("Downloading dataset %s", dataset_id)
         try:
             dataset_path = kagglehub.dataset_download(dataset_id)
             dataset_download_directory = Path(dataset_path)
@@ -99,10 +101,8 @@ class KaggleHandler:
                 size_mb = file.stat().st_size / (1024 * 1024)
                 rprint(f"[{i + 1}] {file.name} ({size_mb:.2f} MB)")
             except (OSError, PermissionError) as e:
-                logging.warning("Could not stat file %s: %s", file.name, e)
+                logger.warning("Could not stat file %s: %s", file.name, e)
                 rprint(f"[{i + 1}] {file.name} (size unknown)")
 
-        choice = IntPrompt.ask(
-            "Select a file number", choices=[str(i + 1) for i in range(len(files))]
-        )
+        choice = IntPrompt.ask("Select a file number", choices=[str(i + 1) for i in range(len(files))])
         return files[choice - 1]

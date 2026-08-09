@@ -4,6 +4,9 @@ This module would be responsible to put together a HTML report
 
 import datetime
 import logging
+
+logger = logging.getLogger(__name__)
+
 import os
 
 import pandas as pd
@@ -38,24 +41,16 @@ def create_report(report_data: dict, output_dir: str) -> None:
                 columns=["missing_count"],
             )
             missing_df = missing_df[missing_df["missing_count"] > 0]
-            report_data["profile"]["missing_values_html"] = missing_df.to_html(
-                classes="table table-striped"
-            )
+            report_data["profile"]["missing_values_html"] = missing_df.to_html(classes="table table-striped")
 
         if "descriptive_statistics" in report_data["profile"]:
-            desc_stats_df = pd.DataFrame(
-                report_data["profile"]["descriptive_statistics"]
-            )
-            report_data["profile"]["descriptive_statistics_html"] = (
-                desc_stats_df.to_html(
-                    classes="table table-striped", float_format="%.2f"
-                )
+            desc_stats_df = pd.DataFrame(report_data["profile"]["descriptive_statistics"])
+            report_data["profile"]["descriptive_statistics_html"] = desc_stats_df.to_html(
+                classes="table table-striped", float_format="%.2f"
             )
 
     # Generates timestamp for the time of report generation
-    report_data["generation_time"] = datetime.datetime.now().strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
+    report_data["generation_time"] = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
 
     html_content = template.render(report_data)
 
@@ -65,6 +60,6 @@ def create_report(report_data: dict, output_dir: str) -> None:
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(html_content)
     # Handling potential IOErrors (permission, disk full etc.) to provide the user with more specific errors
-    except IOError as e:
-        logging.error("Failed to write report to %s: %s", report_path, e)
+    except OSError as e:
+        logger.error("Failed to write report to %s: %s", report_path, e)
         raise

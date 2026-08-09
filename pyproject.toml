@@ -61,7 +61,9 @@ dev = [
 line-length = 120
 
 [tool.ruff.lint]
-ignore = ["F811", "E501", "W291", "W293", "F401"]
+ignore = [
+    "B008",   # function-call-in-default-argument (B008)
+]
 
 [build-system]
 requires = ["hatchling"]

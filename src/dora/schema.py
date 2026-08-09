@@ -3,7 +3,6 @@ Defines the Pydantic schemas for the DORA configuration.
 """
 
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -28,7 +27,7 @@ class UnivariateStep(BaseModel):
     """
 
     enabled: bool = True
-    plot_types: Dict[str, List[str]] = Field(
+    plot_types: dict[str, list[str]] = Field(
         default_factory=lambda: {
             "numerical": ["histogram", "boxplot"],
             "categorical": ["barplot"],
@@ -89,7 +88,7 @@ class MultivariateStep(BaseModel):
     """
 
     enabled: bool = True
-    correlation_cols: List[str] = Field(default_factory=list)
+    correlation_cols: list[str] = Field(default_factory=list)
 
 
 class AnalysisStep(BaseModel):
@@ -103,10 +102,10 @@ class AnalysisStep(BaseModel):
     :param multivariate: Configuration for multivariate analysis, if applicable.
     """
 
-    profile: Optional[ProfileStep] = None
-    univariate: Optional[UnivariateStep] = None
-    bivariate: Optional[BivariateStep] = None
-    multivariate: Optional[MultivariateStep] = None
+    profile: ProfileStep | None = None
+    univariate: UnivariateStep | None = None
+    bivariate: BivariateStep | None = None
+    multivariate: MultivariateStep | None = None
 
     @model_validator(mode="after")
     def check_exactly_one_field(self) -> "AnalysisStep":
@@ -139,5 +138,5 @@ class Config(BaseModel):
     input_file: Path
     output_dir: Path
     report_title: str = "EDA Report"
-    target_variable: Optional[str] = None
-    analysis_pipeline: List[AnalysisStep] = Field(default_factory=list)
+    target_variable: str | None = None
+    analysis_pipeline: list[AnalysisStep] = Field(default_factory=list)

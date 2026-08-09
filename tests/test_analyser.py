@@ -8,8 +8,7 @@ import pandas as pd
 import pytest
 
 from dora.analyzer import Analyzer
-from dora.schema import (AnalysisStep, BivariateStep, Config, MultivariateStep,
-                         ProfileStep, UnivariateStep)
+from dora.schema import AnalysisStep, BivariateStep, Config, MultivariateStep, ProfileStep, UnivariateStep
 
 
 @pytest.fixture
@@ -51,9 +50,7 @@ def test_environment(tmp_path: Path) -> dict:
                 )
             ),
             AnalysisStep(bivariate=BivariateStep(enabled=True, target_centric=True)),
-            AnalysisStep(
-                multivariate=MultivariateStep(enabled=True, correlation_cols=[])
-            ),
+            AnalysisStep(multivariate=MultivariateStep(enabled=True, correlation_cols=[])),
         ],
     )
 
