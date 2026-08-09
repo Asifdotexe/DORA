@@ -8,8 +8,8 @@
   - Why: It is required for HTML generation across all use cases (core, cli, ui).
 - Added kagglehub to both `cli` and `ui` optional groups.
   - Why: Both interfaces require it for downloading datasets via kaggle links.
-- Created `run_precommit.bat` script.
-  - Why: To provide a quick and easy way for Windows users to run `uv run pre-commit run --all-files`.
+- Created `checks.bat` script.
+  - Why: To provide a quick and easy way for Windows users to run `uv run prek run --all-files`.
 - Updated GitHub Actions workflows (`ci.yaml` and `release.yaml`) to use `uv` instead of Poetry.
   - Why: To ensure continuous integration and deployments use the new package manager for building, testing, and publishing to PyPI.
 - Replaced `pre-commit` with `prek`.

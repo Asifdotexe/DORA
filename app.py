@@ -146,7 +146,7 @@ def load_kaggle_data(kaggle_input):
             if len(files) == 1:
                 _load_specific_kaggle_file(files[0], dataset_id)
 
-    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:
+    except ValueError as e:
         st.error(f"Error processing Kaggle dataset: {e}")
 
 
