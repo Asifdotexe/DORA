@@ -67,9 +67,7 @@ def generate_profile(df: pd.DataFrame, max_sparklines: int = 100) -> dict:
         else:
             stats = {
                 "unique_values": col_series.nunique(),
-                "top_value": (
-                    col_series.mode().iloc[0] if not col_series.mode().empty else "N/A"
-                ),
+                "top_value": (col_series.mode().iloc[0] if not col_series.mode().empty else "N/A"),
             }
             top_5 = col_series.value_counts().nlargest(5)
             stats["top_5_counts"] = top_5.to_dict()
@@ -83,14 +81,8 @@ def generate_profile(df: pd.DataFrame, max_sparklines: int = 100) -> dict:
     # If there are no missing values, this string will be empty.
     #
     # TODO: Add percentage missing values to the stats dictionary
-    missing_df = pd.DataFrame(df.isnull().sum(), columns=["missing_count"]).query(
-        "missing_count > 0"
-    )
-    missing_values_html = (
-        missing_df.to_html(classes="table", border=0, index=True)
-        if not missing_df.empty
-        else None
-    )
+    missing_df = pd.DataFrame(df.isnull().sum(), columns=["missing_count"]).query("missing_count > 0")
+    missing_values_html = missing_df.to_html(classes="table", border=0, index=True) if not missing_df.empty else None
 
     final_profile = {
         "dataset_shape": df.shape,

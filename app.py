@@ -2,20 +2,20 @@
 Streamlit application for DORA (Data-Oriented Report Automator).
 """
 
-from datetime import datetime
 import logging
 import os
+import re
 import shutil
 import uuid
-import re
+from datetime import UTC, datetime
 from pathlib import Path
 
 import streamlit as st
 
 from src.dora.data_loader import read_data
-from src.dora.kaggle import KaggleHandler
+from src.dora.kaggle import download_files, extract_dataset_id, is_kaggle_url
+from src.dora.plots import bivariate, multivariate, univariate
 from src.dora.profiling import generate_profile
-from src.dora.plots import univariate, bivariate, multivariate
 from src.dora.reporting.generator import create_report
 
 logging.basicConfig(level=logging.INFO)
@@ -52,18 +52,18 @@ def setup_page():
         """
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-            
+
             html, body, [class*="css"]  {
                 font-family: 'Inter', sans-serif;
             }
-            
+
             h1, h2, h3 {
                 background: -webkit-linear-gradient(45deg, #4ecdc4, #2b9388);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 font-weight: 700;
             }
-            
+
             .stButton>button {
                 border-radius: 8px;
                 background: linear-gradient(90deg, #4ecdc4 0%, #2b9388 100%);
@@ -72,18 +72,18 @@ def setup_page():
                 font-weight: 600;
                 transition: transform 0.1s ease-in-out;
             }
-            
+
             .stButton>button:hover {
                 transform: scale(1.02);
                 color: white;
             }
-            
+
             div[data-testid="stExpander"] {
                 border: 1px solid #e0e0e0;
                 border-radius: 8px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
-            
+
             div[data-testid="stMetricValue"] {
                 font-size: 1.8rem !important;
                 color: #4ecdc4;
@@ -99,7 +99,7 @@ def setup_page():
         st.image(str(logo_path), width=400)
     else:
         st.title("📊 DORA")
-        
+
     st.markdown(
         """
         ### Automate your EDA in seconds.
@@ -121,7 +121,7 @@ def load_local_data(uploaded_file):
             st.session_state.df = df
             st.session_state.input_source = uploaded_file.name
             st.success(f"Successfully loaded '{uploaded_file.name}'")
-    except Exception as e:
+    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:
         st.error(f"Error loading file: {e}")
 
 
@@ -130,24 +130,25 @@ def load_kaggle_data(kaggle_input):
     try:
         with st.spinner("Connecting to Kaggle..."):
             # Extract ID if it's a URL
-            if KaggleHandler.is_kaggle_url(kaggle_input):
-                dataset_id = KaggleHandler.extract_dataset_id(kaggle_input)
+            if is_kaggle_url(kaggle_input):
+                dataset_id = extract_dataset_id(kaggle_input)
             else:
                 dataset_id = kaggle_input
 
             # Fetch all supported files
-            files = KaggleHandler.download_files(dataset_id)
-            
+            files = download_files(dataset_id)
+
             # Store found files in session state so we can let the user pick one if needed
             st.session_state.kaggle_files = files
             st.session_state.kaggle_dataset_id = dataset_id
 
             # If there's only one file, load it immediately
             if len(files) == 1:
-               _load_specific_kaggle_file(files[0], dataset_id)
+                _load_specific_kaggle_file(files[0], dataset_id)
 
-    except Exception as e:
+    except ValueError as e:
         st.error(f"Error processing Kaggle dataset: {e}")
+
 
 def _load_specific_kaggle_file(file_path, dataset_id):
     """Helper to load a specific file from a Kaggle dataset."""
@@ -158,8 +159,8 @@ def _load_specific_kaggle_file(file_path, dataset_id):
             st.session_state.input_source = f"{dataset_id}/{file_path.name}"
             st.success(f"Successfully loaded '{file_path.name}' from '{dataset_id}'")
             # Clear the file list selection state once loaded, if you prefer
-            # st.session_state.kaggle_files = None 
-    except Exception as e:
+            # st.session_state.kaggle_files = None
+    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:
         st.error(f"Error loading file: {e}")
 
 
@@ -170,14 +171,10 @@ def render_ingestion():
 
     with tab_local:
         st.info("Upload a CSV, Excel, JSON, or Parquet file.")
-        uploaded_file = st.file_uploader(
-            "Choose a file", type=["csv", "xlsx", "json", "parquet"]
-        )
+        uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx", "json", "parquet"])
 
-        if uploaded_file is not None:
-            # Button to trigger load
-            if st.button("Load Local Data", key="btn_local"):
-                load_local_data(uploaded_file)
+        if uploaded_file is not None and st.button("Load Local Data", key="btn_local"):
+            load_local_data(uploaded_file)
 
     with tab_kaggle:
         st.info("Enter a Kaggle Dataset ID (e.g., `owner/dataset`) or full URL.")
@@ -188,33 +185,33 @@ def render_ingestion():
                 load_kaggle_data(kaggle_input)
             else:
                 st.warning("Please enter a valid Dataset ID or URL.")
-        
+
         # Check if we have multiple files to choose from
         if "kaggle_files" in st.session_state and st.session_state.kaggle_files:
             files = st.session_state.kaggle_files
             if len(files) > 1:
                 st.info(f"Found {len(files)} files. Please select one:")
-                
+
                 # Create a mapping of full path -> file object to ensure uniqueness
                 file_mapping = {str(f): f for f in files}
-                
+
                 def extract_display_name(path_str):
                     """Format the display name to be shorter if possible"""
                     f = file_mapping[path_str]
                     return f"{f.parent.name}/{f.name}"
 
                 selected_file_key = st.selectbox(
-                    "Select file", 
-                    options=list(file_mapping.keys()), 
+                    "Select file",
+                    options=list(file_mapping.keys()),
                     format_func=extract_display_name,
-                    key="kaggle_file_select"
+                    key="kaggle_file_select",
                 )
-                
+
                 if st.button("Load Selected File", key="btn_kaggle_multiload"):
                     # Find the path for the selected file using the mapping
                     selected_path = file_mapping.get(selected_file_key)
                     if selected_path:
-                         _load_specific_kaggle_file(selected_path, st.session_state.kaggle_dataset_id)
+                        _load_specific_kaggle_file(selected_path, st.session_state.kaggle_dataset_id)
 
 
 def render_preview():
@@ -222,9 +219,7 @@ def render_preview():
     if st.session_state.df is not None:
         st.divider()
         st.subheader(f"Dataset Preview: {st.session_state.input_source}")
-        st.write(
-            f"**Shape:** {st.session_state.df.shape[0]} rows x {st.session_state.df.shape[1]} columns"
-        )
+        st.write(f"**Shape:** {st.session_state.df.shape[0]} rows x {st.session_state.df.shape[1]} columns")
         st.dataframe(st.session_state.df.head())
 
 
@@ -264,7 +259,7 @@ def run_profile_step(df, current_report_data):
     try:
         profile_data = generate_profile(df)
         current_report_data["profile"] = profile_data
-    except Exception as e:
+    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:
         st.error(f"Error in Profiling: {e}")
 
 
@@ -280,7 +275,7 @@ def run_univariate_step(df, charts_dir, current_report_data):
         }
         plot_paths = univariate.generate_plots(df, charts_dir, params)
         current_report_data["univariate_plots"] = plot_paths
-    except Exception as e:
+    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:
         st.error(f"Error in Univariate Analysis: {e}")
 
 
@@ -299,7 +294,7 @@ def run_bivariate_step(df, config, charts_dir, current_report_data):
             params,
         )
         current_report_data["bivariate_plots"] = plot_paths
-    except Exception as e:
+    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:
         st.error(f"Error in Bivariate Analysis: {e}")
 
 
@@ -309,7 +304,7 @@ def run_multivariate_step(df, charts_dir, current_report_data):
         params = {"correlation_cols": []}
         plot_paths = multivariate.generate_plots(df, charts_dir, params)
         current_report_data["multivariate_plots"] = plot_paths
-    except Exception as e:
+    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:
         st.error(f"Error in Multivariate Analysis: {e}")
 
 
@@ -319,33 +314,31 @@ def generate_final_report(current_report_data):
         create_report(current_report_data, st.session_state.output_dir)
 
         # Construct new zip filename: [input_filename]_[timestamp]
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+
         # Clean safe filename from input source
         raw_name = str(st.session_state.input_source)
         # Remove extension if present (simple check)
         if "." in raw_name:
-             safe_name = raw_name.rsplit(".", 1)[0]
+            safe_name = raw_name.rsplit(".", 1)[0]
         else:
-             safe_name = raw_name
-        
+            safe_name = raw_name
+
         # Replace non-alphanumeric chars (except _-) with underscore for safety
-        safe_name = re.sub(r'[^\w\-]', '_', safe_name)
-        
+        safe_name = re.sub(r"[^\w\-]", "_", safe_name)
+
         zip_filename = f"{safe_name}_{timestamp}"
         zip_base_path = st.session_state.output_dir.parent / zip_filename
-        
+
         # shutil.make_archive adds the extension automatically
         archive_path_str = shutil.make_archive(str(zip_base_path), "zip", st.session_state.output_dir)
         zip_path = Path(archive_path_str)
-        
+
         # Store in session state for download button
         st.session_state.zip_path = zip_path
 
-        st.success(
-            f"Analysis Complete! Report generated in {st.session_state.output_dir}"
-        )
-    except Exception as e:
+        st.success(f"Analysis Complete! Report generated in {st.session_state.output_dir}")
+    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:
         st.error(f"Error generating final report: {e}")
 
 
@@ -397,7 +390,7 @@ def render_profile_tab(report_data):
     st.header("Data Profile")
     try:
         profile_data = report_data["profile"]
-        
+
         # Metrics Row
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Rows", f"{profile_data['dataset_shape'][0]:,}")
@@ -417,10 +410,8 @@ def render_profile_tab(report_data):
 
         if profile_data.get("missing_values_html"):
             st.subheader("Missing Values")
-            st.markdown(
-                profile_data["missing_values_html"], unsafe_allow_html=True
-            )
-    except Exception as e:  # pylint: disable=broad-exception-caught
+            st.markdown(profile_data["missing_values_html"], unsafe_allow_html=True)
+    except (ValueError, TypeError, OSError, KeyError, RuntimeError) as e:  # pylint: disable=broad-exception-caught
         st.error(f"Error displaying profile: {e}")
 
 
@@ -516,7 +507,7 @@ def render_download_section():
 
     st.divider()
     st.subheader("Download Report Data")
-    
+
     st.info(
         """
         📥 **How to view your report:**
@@ -525,10 +516,10 @@ def render_download_section():
         3. Double-click `eda_report.html` to open it in your browser.
         """
     )
-    
+
     # Use path from session state if available
     zip_path = st.session_state.get("zip_path")
-    
+
     if zip_path and zip_path.exists():
         with open(zip_path, "rb") as f:
             st.download_button(
@@ -561,9 +552,8 @@ def main():
     if "report_data" not in st.session_state:
         st.session_state.report_data = None
 
-    if config:
-        if st.button("Run Analysis", type="primary"):
-            execute_analysis(config)
+    if config and st.button("Run Analysis", type="primary"):
+        execute_analysis(config)
 
     # Render Results and Download
     render_report_tabs()

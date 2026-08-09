@@ -3,6 +3,8 @@ Module for loading data from various file formats.
 """
 
 import logging
+
+logger = logging.getLogger(__name__)
 from pathlib import Path
 
 import pandas as pd
@@ -30,8 +32,8 @@ def read_data(file_path: Path) -> pd.DataFrame:
         raise ValueError(f"Unsupported file extension: {suffix}")
 
     except ValueError as e:
-        logging.error(f"Error reading file: {e}")
+        logger.error(f"Error reading file: {e}")
         raise
     except Exception as e:
-        logging.error(f"Unexpected error reading file {file_path}: {e}")
+        logger.error(f"Unexpected error reading file {file_path}: {e}")
         raise

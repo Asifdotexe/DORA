@@ -1,0 +1,31 @@
+## Date: 2026-08-09
+### Goal: Port package to uv and optimize dependencies
+- Migrated pyproject.toml from Poetry to standard PEP format and switched to uv.
+  - Why: Faster dependency resolution and standard ecosystem compatibility.
+- Split dependencies into core, `cli`, and `ui` optional groups.
+  - Why: Prevent bloating the environment for users who only need specific features (like only the terminal tool or only the web UI).
+- Kept jinja2 in core dependencies.
+  - Why: It is required for HTML generation across all use cases (core, cli, ui).
+- Added kagglehub to both `cli` and `ui` optional groups.
+  - Why: Both interfaces require it for downloading datasets via kaggle links.
+- Created `checks.bat` script.
+  - Why: To provide a quick and easy way for Windows users to run `uv run prek run --all-files`.
+- Updated GitHub Actions workflows (`ci.yaml` and `release.yaml`) to use `uv` instead of Poetry.
+  - Why: To ensure continuous integration and deployments use the new package manager for building, testing, and publishing to PyPI.
+- Replaced `pre-commit` with `prek`.
+  - Why: `prek` is a drop-in, Rust-based alternative that executes checks significantly faster.
+- Replaced `pylint`, `black`, and `isort` with `ruff`.
+  - Why: `ruff` is a Rust-based linter and formatter that consolidates all three tools and runs much faster.
+- Updated `.pre-commit-config.yaml` and `checks.bat` to use the new `ruff` hooks and `prek` command.
+  - Why: To execute the new faster toolchain correctly.
+- Cleaned up manual lint issues found by Ruff (broad exceptions, redundant logger usage, timezone awareness).
+  - Why: Ensured code adheres to modern Python practices and passes new Ruff checks.
+- Conducted a repo-wide ponytail audit and removed ~150 lines of over-engineered abstractions.
+  - Flattened `AnalysisStep` Pydantic models in `schema.py` to use flat configuration properties.
+  - Replaced the `Analyzer` class wrapper in `analyzer.py` with a simple `run_analysis` procedural function.
+  - Refactored `KaggleHandler` from a static class into simple module-level functions in `kaggle.py`.
+  - Why: Reduced unnecessary abstraction layers, bringing the codebase in line with YAGNI principles and improving maintainability.
+- Updated the Pytest test suite (`test_schema.py`, `test_analyser.py`) to align with the simplified architecture.
+  - Why: To guarantee correctness of the new leaner codebase design.
+- Fixed un-sorted imports in `tests/test_schema.py` using `ruff check --fix`.
+  - Why: Ensure code style consistency and pass pre-commit checks.

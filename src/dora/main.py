@@ -11,6 +11,8 @@ It supports two modes (Assuming you are are in the 'src/dora' directory):
 import cProfile
 import io
 import logging
+
+logger = logging.getLogger(__name__)
 import pstats
 from importlib import metadata
 from pathlib import Path
@@ -20,16 +22,13 @@ import typer
 import yaml
 from rich import print as rprint
 
-from dora.analyzer import Analyzer
+from dora.analyzer import run_analysis
 from dora.config_loader import load_config
 from dora.data_loader import read_data
-from dora.kaggle import KaggleHandler
-from dora.schema import (AnalysisStep, BivariateStep, Config, MultivariateStep,
-                         ProfileStep, UnivariateStep)
+from dora.kaggle import download_dataset, extract_dataset_id, is_kaggle_url
+from dora.schema import Config
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 app = typer.Typer(help="DORA: The Data-Oriented Report Automator")
 
@@ -60,7 +59,7 @@ def handle_kaggle_download(dataset_id: str) -> Path:
     rprint(f"[cyan]Downloading dataset {dataset_id}...[/cyan]")
 
     try:
-        file_path = KaggleHandler.download_dataset(dataset_id)
+        file_path = download_dataset(dataset_id)
         rprint(f"[green]Download complete. Using file {file_path.name}[/green]")
         return file_path
     except ValueError as e:
@@ -69,10 +68,8 @@ def handle_kaggle_download(dataset_id: str) -> Path:
     except RuntimeError as e:
         rprint(f"[bold red]{e}[/bold red]")
         raise typer.Exit(code=1) from e
-    except Exception as e:
-        rprint(
-            f"[bold red]An unexpected error occurred during download: {e}[/bold red]"
-        )
+    except OSError as e:
+        rprint(f"[bold red]An unexpected error occurred during download: {e}[/bold red]")
         raise typer.Exit(code=1) from e
 
 
@@ -87,11 +84,9 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
 
     # We loop until a valid file is provided to prevent the program from crashing later on.
     while True:
-        input_str = typer.prompt(
-            "📁 Enter local file path OR Kaggle URL/ID (Example: 'owner/dataset-name')"
-        )
-        if KaggleHandler.is_kaggle_url(input_str):
-            dataset_id = KaggleHandler.extract_dataset_id(input_str)
+        input_str = typer.prompt("📁 Enter local file path OR Kaggle URL/ID (Example: 'owner/dataset-name')")
+        if is_kaggle_url(input_str):
+            dataset_id = extract_dataset_id(input_str)
             if typer.confirm(f"Download Kaggle dataset '{dataset_id}'?", default=True):
                 input_file = handle_kaggle_download(dataset_id)
             else:
@@ -104,7 +99,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
                 df = read_data(input_file)
                 # If the file is read successfully, we can exit the loop.
                 break
-            except Exception as e:
+            except (ValueError, OSError, RuntimeError) as e:
                 rprint(f"[bold red]Error reading file: {e}[/bold red]")
         else:
             rprint("[bold red]File not found. Please enter a valid path.[/bold red]")
@@ -127,60 +122,30 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
     # We validate the user's input to ensure it's a real column, which prevents errors during the analysis phase.
     if not target_variable or target_variable not in df.columns:
         if target_variable:
-            rprint(
-                f"[yellow]Warning: Column '{target_variable}' not found. Proceeding without a target.[/yellow]"
-            )
+            rprint(f"[yellow]Warning: Column '{target_variable}' not found. Proceeding without a target.[/yellow]")
         target_variable = None
-
-    # This is where we gather all the user's choices into a single, structured "plan" that the Analyzer will execute.
-    pipeline = []
 
     # To give the user full control, we ask them to opt-in to each analysis step.
     # This makes the tool flexible for both quick overviews and deep dives.
     rprint("\n[bold blue]Select the analysis steps to perform:[/bold blue]")
-    if typer.confirm(
-        "📊 Generate Data Profile (overview, missing values, etc.)?", default=True
-    ):
-        pipeline.append(AnalysisStep(profile=ProfileStep(enabled=True)))
+    profile_enabled = typer.confirm("📊 Generate Data Profile (overview, missing values, etc.)?", default=True)
+    univariate_enabled = typer.confirm("📈 Generate Univariate Analysis (plots for single columns)?", default=True)
 
-    if typer.confirm(
-        "📈 Generate Univariate Analysis (plots for single columns)?", default=True
-    ):
-        pipeline.append(
-            AnalysisStep(
-                univariate=UnivariateStep(
-                    enabled=True,
-                    plot_types={
-                        "numerical": ["histogram", "boxplot"],
-                        "categorical": ["barplot"],
-                    },
-                )
-            )
-        )
+    bivariate_enabled = False
+    if target_variable and typer.confirm("🔗 Generate Bivariate Analysis (relationships with target)?", default=True):
+        bivariate_enabled = True
 
-    if target_variable and typer.confirm(
-        f"🔗 Generate Bivariate Analysis (features vs. '{target_variable}')?",
-        default=True,
-    ):
-        pipeline.append(
-            AnalysisStep(bivariate=BivariateStep(enabled=True, target_centric=True))
-        )
-
-    if typer.confirm(
-        "🌐 Generate Multivariate Analysis (correlation matrix)?", default=True
-    ):
-        pipeline.append(
-            AnalysisStep(
-                multivariate=MultivariateStep(enabled=True, correlation_cols=[])
-            )
-        )
+    multivariate_enabled = typer.confirm("🕸 Generate Multivariate Analysis (correlation matrix)?", default=True)
 
     config = Config(
         input_file=input_file,
         output_dir=Path(output_dir),
         report_title=report_title,
         target_variable=target_variable,
-        analysis_pipeline=pipeline,
+        profile_enabled=profile_enabled,
+        univariate_enabled=univariate_enabled,
+        bivariate_enabled=bivariate_enabled,
+        multivariate_enabled=multivariate_enabled,
     )
 
     return df, config
@@ -232,7 +197,7 @@ def run(
             # File Mode
             # This is the "fast lane" for repeat users. If a config file is provided,
             # we can skip the interactive setup and get straight to the analysis.
-            logging.info("Running in File Mode.")
+            logger.info("Running in File Mode.")
             if not config_path.exists():
                 rprint(
                     "[bold red]Error: Config file not found at %s [/bold red]",
@@ -240,13 +205,13 @@ def run(
                 )
                 raise typer.Exit(code=1)
 
-            logging.info("Loading configuration from: %s", config_path)
+            logger.info("Loading configuration from: %s", config_path)
             config = load_config(config_path)
 
             if not config.input_file.exists():
                 raise FileNotFoundError(f"Input file not found: {config.input_file}")
 
-            logging.info("Loading data from: %s", config.input_file)
+            logger.info("Loading data from: %s", config.input_file)
             df = read_data(config.input_file)
         else:
             # Interactive Mode
@@ -255,9 +220,7 @@ def run(
             df, config = create_config_interactively()
 
             # To save the user time on future runs, we offer to save their choices into a reusable config file.
-            if typer.confirm(
-                "\n💾 Save this configuration to 'config.yaml' for future use?"
-            ):
+            if typer.confirm("\n💾 Save this configuration to 'config.yaml' for future use?"):
                 with open("config.yaml", "w", encoding="utf-8") as f:
                     yaml.dump(config.model_dump(mode="json"), f, sort_keys=False)
                 rprint("[green]Configuration saved to 'config.yaml'.[/green]")
@@ -265,19 +228,16 @@ def run(
         # Run Analysis
         # Once the configuration is ready (either from a file or the wizard),
         # we hand it over to the Analyzer to do the heavy lifting.
-        logging.info("Initializing EDA Analyzer...")
-        analyzer = Analyzer(df, config)
+        logger.info("Starting analysis pipeline...")
+        run_analysis(df, config)
 
-        logging.info("Starting analysis pipeline...")
-        analyzer.run()
-
-        logging.info("✅ Analysis complete! Report saved in: %s", config.output_dir)
+        logger.info("✅ Analysis complete! Report saved in: %s", config.output_dir)
 
     except FileNotFoundError as e:
-        logging.error("Error: Input file not found. %s", e)
+        logger.error("Error: Input file not found. %s", e)
         raise typer.Exit(code=1)
-    except Exception as e:
-        logging.error("An unexpected error occurred: %s", e, exc_info=True)
+    except (ValueError, OSError, RuntimeError):
+        logger.exception("An unexpected error occurred")
         raise typer.Exit(code=1)
     finally:
         # This block ensures that the profiler results are printed even if an error occurs.
@@ -293,9 +253,7 @@ def run(
             # Save full stats to a file for more detailed analysis
             profile_output_file = "dora_profile.prof"
             profiler.dump_stats(profile_output_file)
-            rprint(
-                f"[green]Full profiling stats saved to '{profile_output_file}'.[/green]"
-            )
+            rprint(f"[green]Full profiling stats saved to '{profile_output_file}'.[/green]")
             rprint(
                 "Tip: Use a tool like 'snakeviz' to visualize the results (`pip install snakeviz` then `snakeviz dora_profile.prof`)"
             )

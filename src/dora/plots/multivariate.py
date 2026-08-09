@@ -3,8 +3,10 @@ This module is responsible for generating visualisations for multivariate analys
 """
 
 import logging
+
+logger = logging.getLogger(__name__)
+
 from pathlib import Path
-from typing import Union
 
 import matplotlib
 
@@ -18,9 +20,7 @@ import seaborn as sns
 from .styling import apply_custom_styling
 
 
-def generate_plots(
-    df: pd.DataFrame, charts_dir: Union[str, Path], config_params: dict
-) -> list[str]:
+def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict) -> list[str]:
     """
     Generates and saves a correlation heatmap.
 
@@ -42,9 +42,7 @@ def generate_plots(
         df_numeric = df[cols]
 
     if df_numeric.shape[1] < 2:
-        logging.warning(
-            "Not enough numeric columns for a correlation matrix. Skipping."
-        )
+        logger.warning("Not enough numeric columns for a correlation matrix. Skipping.")
         return []
 
     plt.figure(figsize=(12, 10))
@@ -64,6 +62,6 @@ def generate_plots(
     plt.savefig(path)
     plt.close()
     plot_paths.append(str(path.relative_to(charts_dir_path)))
-    logging.info("Generated correlation matrix.")
+    logger.info("Generated correlation matrix.")
 
     return plot_paths

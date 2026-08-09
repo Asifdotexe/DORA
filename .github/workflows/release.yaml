@@ -21,13 +21,11 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install Poetry
-        run: |
-          pip install pipx
-          pipx install poetry
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
 
       - name: Build the package
-        run: poetry build
+        run: uv build
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -39,9 +37,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure Poetry for PyPI
-        run: |
-          poetry config http-basic.pypi __token__ ${{ secrets.PYPI_API_TOKEN }}
-
       - name: Publish to PyPI
-        run: poetry publish
+        run: uv publish --token ${{ secrets.PYPI_API_TOKEN }}

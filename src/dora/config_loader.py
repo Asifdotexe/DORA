@@ -1,4 +1,6 @@
 import logging
+
+logger = logging.getLogger(__name__)
 from pathlib import Path
 
 import yaml
@@ -13,7 +15,7 @@ def load_config(config_path: Path) -> Config:
     :param config_path: Path to the YAML configuration file
     :returns: A Config object containing the configurations
     """
-    logging.info("Reading the configuration file from %s", config_path)
+    logger.info("Reading the configuration file from %s", config_path)
     with open(config_path, "r", encoding="utf-8") as file:
         config_dict = yaml.safe_load(file) or {}
 
@@ -28,8 +30,8 @@ def load_config(config_path: Path) -> Config:
                 config_dict["input_file"] = str(resolved_path)
 
         config = Config(**config_dict)
-        logging.info("Configuration loaded and validated successfully")
+        logger.info("Configuration loaded and validated successfully")
         return config
-    except Exception as e:
-        logging.error(f"Configuration validation failed: {e}")
+    except (ValueError, TypeError, OSError, KeyError) as e:
+        logger.error(f"Configuration validation failed: {e}")
         raise ValueError(f"Invalid configuration: {e}")

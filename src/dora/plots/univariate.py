@@ -2,11 +2,11 @@
 This module is responsible for generating visualisations for univariate analysis
 """
 
-# pylint: disable=wrong-import-position
-
 import logging
+
+logger = logging.getLogger(__name__)
+
 from pathlib import Path
-from typing import Union
 
 import matplotlib
 
@@ -20,9 +20,7 @@ from .styling import PRIMARY_BLUE, apply_custom_styling
 from .utils import handle_high_cardinality
 
 
-def generate_plots(
-    df: pd.DataFrame, charts_dir: Union[str, Path], config_params: dict
-) -> list[str]:
+def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict) -> list[str]:
     """
     Generates and save univariate plots.
 
@@ -69,7 +67,7 @@ def generate_plots(
             plt.savefig(path)
             plt.close()
             plot_paths.append(str(path.relative_to(charts_dir_path)))
-            logging.info("Generated %s for %s", plot_type, column)
+            logger.info("Generated %s for %s", plot_type, column)
 
     # Generates barplot using the categorical data specified by the user in the config.yaml file
     for column in categorical_columns:
@@ -114,6 +112,6 @@ def generate_plots(
             plt.savefig(path)
             plt.close()
             plot_paths.append(str(path.relative_to(charts_dir_path)))
-            logging.info("Generated barplot for %s", column)
+            logger.info("Generated barplot for %s", column)
 
     return plot_paths
