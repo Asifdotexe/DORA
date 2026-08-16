@@ -35,7 +35,7 @@ If you have used tools like [ydata-profiling](https://github.com/ydataai/ydata-p
 Open your terminal and run the following command:
 
 ```bash
-pip install dora-eda
+pip install "dora-eda[all]"
 ```
 
 2. Run DORA
@@ -46,12 +46,12 @@ DORA supports the following file formats: `.csv`, `.xlsx`, `.json`, `.parquet`
 ```bash
 dora
 ```
-An interactive wizard will appear and ask a few simple questions:
-- What is the path to your data file? (You can type a path like `data/raw/insurance` or even a Kaggle dataset URL like `https://www.kaggle.com/datasets/sakshisatre/tips-dataset`)
-- Where should we save the report?
-- What kind of analysis do you want?
+An inline Terminal User Interface (TUI) will appear and let you configure:
+- The path to your data file (e.g. `data/raw/insurance.csv` or Kaggle URL `owner/dataset`)
+- Where to save the report
+- What kind of analysis steps to run
 
-Sit back for a few seconds, and DORA will generate your report.
+Just hit "Run Analysis", sit back for a few seconds, and DORA will generate your report.
 
 **Example:**
 <p align="center">
@@ -60,14 +60,14 @@ Sit back for a few seconds, and DORA will generate your report.
 
 ## Usage Examples
 
-**The Easy Way (Interactive Wizard)**
+**The Easy Way (Interactive TUI)**
 Best for first-time users or quick checks.
 
 ```bash
 dora
 ```
 
-Just follow the prompts on the screen. DORA will handle the rest.
+Just fill out the form using your keyboard and press Enter on "Run Analysis". DORA will handle the rest.
 
 **The Automation Way**
 If you run the same analysis often, you can save your configuration in a YAML file and run DORA with the `--config` flag.
