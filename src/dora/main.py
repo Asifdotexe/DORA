@@ -78,16 +78,16 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
     Launches the full-screen TUI to build the config, then processes it.
     """
     from dora.tui import DoraTUI
-    
+
     app = DoraTUI()
     result = app.run(inline=True)
-    
+
     if not result:
         rprint("\n[bold cyan]Thanks for using DORA! Goodbye.[/bold cyan]")
         raise typer.Exit()
-        
+
     input_str = result["input_file"]
-    
+
     if is_kaggle_url(input_str):
         dataset_id = extract_dataset_id(input_str)
         input_file = handle_kaggle_download(dataset_id)
@@ -97,7 +97,7 @@ def create_config_interactively() -> tuple[pd.DataFrame, Config]:
     if not input_file.exists() or not input_file.is_file():
         rprint("[bold red]File not found. Please provide a valid path.[/bold red]")
         raise typer.Exit(code=1)
-        
+
     try:
         df = read_data(input_file)
     except (ValueError, OSError, RuntimeError) as e:

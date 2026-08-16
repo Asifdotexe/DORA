@@ -7,14 +7,15 @@ from textual.widgets import Button, Checkbox, Input, Label, Static
 Checkbox.BUTTON_INNER = "✓"
 
 DORA_LOGO = r"""
- ____   ___  ____      _    
-|  _ \ / _ \|  _ \    / \   
-| | | | | | | |_) |  / _ \  
-| |_| | |_| |  _ <  / ___ \ 
+ ____   ___  ____      _
+|  _ \ / _ \|  _ \    / \
+| | | | | | | |_) |  / _ \
+| |_| | |_| |  _ <  / ___ \
 |____/ \___/|_| \_\/_/   \_\
 
 Data-Oriented Report Automator
 """
+
 
 class DoraTUI(App):
     """An inline TUI for DORA configuration."""
@@ -107,7 +108,7 @@ class DoraTUI(App):
     def compose(self) -> ComposeResult:
         with Container(id="form-container"):
             yield Static(DORA_LOGO, id="logo")
-            
+
             yield Static("Dataset Settings", classes="section-title")
             with Horizontal(classes="row"):
                 yield Label("Input/URL:")
@@ -147,16 +148,18 @@ class DoraTUI(App):
         bivariate = self.query_one("#step_bivariate", Checkbox).value
         multivariate = self.query_one("#step_multivariate", Checkbox).value
 
-        self.exit({
-            "input_file": input_file,
-            "output_dir": output_dir,
-            "report_title": report_title,
-            "target_variable": target_variable if target_variable else None,
-            "profile_enabled": profile,
-            "univariate_enabled": univariate,
-            "bivariate_enabled": bivariate,
-            "multivariate_enabled": multivariate,
-        })
+        self.exit(
+            {
+                "input_file": input_file,
+                "output_dir": output_dir,
+                "report_title": report_title,
+                "target_variable": target_variable if target_variable else None,
+                "profile_enabled": profile,
+                "univariate_enabled": univariate,
+                "bivariate_enabled": bivariate,
+                "multivariate_enabled": multivariate,
+            }
+        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press to submit the form."""
@@ -171,14 +174,19 @@ class DoraTUI(App):
 
     @work(thread=True)
     def load_columns(self, path: str) -> None:
+        import logging
         import os
+
         import pandas as pd
         from textual.suggester import SuggestFromList
+
         from dora.kaggle import download_files, extract_dataset_id, is_kaggle_url
 
         try:
             if is_kaggle_url(path):
-                self.call_from_thread(self.notify, "Downloading Kaggle dataset for autocomplete...", severity="information")
+                self.call_from_thread(
+                    self.notify, "Downloading Kaggle dataset for autocomplete...", severity="information"
+                )
                 dataset_id = extract_dataset_id(path)
                 files = download_files(dataset_id)
                 if not files:
@@ -205,8 +213,10 @@ class DoraTUI(App):
 
             self.call_from_thread(update_suggester)
 
-        except Exception:
-            pass
+        except (OSError, ValueError, RuntimeError) as e:
+            import logging
+
+            logging.getLogger(__name__).debug("Failed to load columns: %s", e)
 
     def on_input_changed(self, event: Input.Changed) -> None:
         """When input_file changes, load columns for target_variable autocomplete in background."""
