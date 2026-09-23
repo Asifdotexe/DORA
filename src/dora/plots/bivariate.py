@@ -12,6 +12,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 
+from typing import Any
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -24,7 +26,7 @@ def generate_plots(
     df: pd.DataFrame,
     target_column: str,
     charts_dir: str | Path,
-    config_params: dict,
+    config_params: dict[str, Any],
 ) -> list[str]:
     """
     Generates and save the plot for target-centric bi-variate plot
@@ -67,7 +69,7 @@ def generate_plots(
         # Categorical Feature vs. Numeric Target
         elif not feature_is_numeric and target_is_numeric:
             max_cats = config_params.get("max_categories", 20)
-            plot_series, truncated = handle_high_cardinality(df[feature], max_cats)
+            plot_series, truncated = handle_high_cardinality(pd.Series(df[feature]), max_cats)
 
             # For boxplot we can pass vectors directly
             sns.boxplot(x=df[target_column], y=plot_series, color=PRIMARY_BLUE)

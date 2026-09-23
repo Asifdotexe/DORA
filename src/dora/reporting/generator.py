@@ -8,12 +8,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 import os
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 
-def create_report(report_data: dict, output_dir: str) -> None:
+def create_report(report_data: dict[str, Any], output_dir: str | Path) -> None:
     """
     Generates an HTML report from the analysis using the Jinja2 templates
 
@@ -38,8 +40,8 @@ def create_report(report_data: dict, output_dir: str) -> None:
             missing_df = pd.DataFrame.from_dict(
                 report_data["profile"]["missing_values"],
                 orient="index",
-                columns=["missing_count"],
             )
+            missing_df.columns = ["missing_count"]
             missing_df = missing_df[missing_df["missing_count"] > 0]
             report_data["profile"]["missing_values_html"] = missing_df.to_html(classes="table table-striped")
 

@@ -4,6 +4,7 @@ This module will orchestrate the analysis
 
 import logging
 import os
+from typing import Any
 
 import pandas as pd
 
@@ -21,7 +22,7 @@ def run_analysis(df: pd.DataFrame, config: Config):
     """
     output_dir = config.output_dir
     charts_dir = os.path.join(output_dir, "charts")
-    report_data = {"title": config.report_title}
+    report_data: dict[str, Any] = {"title": config.report_title}
 
     os.makedirs(charts_dir, exist_ok=True)
 
@@ -39,7 +40,7 @@ def run_analysis(df: pd.DataFrame, config: Config):
         target = config.target_variable
         if config.bivariate_target_centric and not target:
             logger.warning("Bivariate 'target_centric' is true, but no 'target_variable' is defined. Skipping.")
-        else:
+        elif target:
             params = {
                 "target_centric": config.bivariate_target_centric,
                 "max_categories": config.bivariate_max_categories,

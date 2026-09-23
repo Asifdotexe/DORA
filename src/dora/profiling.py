@@ -20,7 +20,7 @@ def _create_sparkline(series: pd.Series) -> str:
     """
     apply_custom_styling()
     plt.figure(figsize=(4, 0.75))
-    sns.histplot(series, color=PRIMARY_BLUE, legend=False)
+    sns.histplot(x=series, color=PRIMARY_BLUE, legend=False)
     plt.gca().set_axis_off()
     plt.margins(0)
     plt.tight_layout(pad=0)
@@ -44,7 +44,7 @@ def generate_profile(df: pd.DataFrame, max_sparklines: int = 100) -> dict:
     numeric_cols_count = 0
 
     for column in df.columns:
-        col_series = df[column]
+        col_series = pd.Series(df[column])
         profile_data = {"name": column}
 
         if pd.api.types.is_numeric_dtype(col_series):
@@ -81,7 +81,9 @@ def generate_profile(df: pd.DataFrame, max_sparklines: int = 100) -> dict:
     # If there are no missing values, this string will be empty.
     #
     # TODO: Add percentage missing values to the stats dictionary
-    missing_df = pd.DataFrame(df.isnull().sum(), columns=["missing_count"]).query("missing_count > 0")
+    missing_df = pd.DataFrame(df.isnull().sum())
+    missing_df.columns = ["missing_count"]
+    missing_df = missing_df.query("missing_count > 0")
     missing_values_html = missing_df.to_html(classes="table", border=0, index=True) if not missing_df.empty else None
 
     final_profile = {

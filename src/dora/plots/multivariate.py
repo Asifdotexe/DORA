@@ -12,6 +12,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 
+from typing import Any
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -20,7 +22,7 @@ import seaborn as sns
 from .styling import apply_custom_styling
 
 
-def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict) -> list[str]:
+def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict[str, Any]) -> list[str]:
     """
     Generates and saves a correlation heatmap.
 
@@ -35,11 +37,13 @@ def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict
     plot_paths = []
     cols = config_params.get("correlation_cols")
 
+    from typing import cast
+
     if not cols:
         # If no columns specified, use all numeric
-        df_numeric = df.select_dtypes(include=["number"])
+        df_numeric = cast(pd.DataFrame, df.select_dtypes(include=["number"]))
     else:
-        df_numeric = df[cols]
+        df_numeric = cast(pd.DataFrame, df[list(cols)])
 
     if df_numeric.shape[1] < 2:
         logger.warning("Not enough numeric columns for a correlation matrix. Skipping.")

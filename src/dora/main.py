@@ -75,77 +75,50 @@ def handle_kaggle_download(dataset_id: str) -> Path:
 
 def create_config_interactively() -> tuple[pd.DataFrame, Config]:
     """
-    Guides the user through an interactive CLI session to build the config.
-
-    :returns: Tuple containing pandas dataframe and configuration file
+    Launches the full-screen TUI to build the config, then processes it.
     """
-    rprint("[bold blue]DORA Interactive Setup Wizard[/bold blue]")
-    rprint("Let's configure your EDA report step by step.")
+    from dora.tui import DoraTUI
 
-    # We loop until a valid file is provided to prevent the program from crashing later on.
-    while True:
-        input_str = typer.prompt("📁 Enter local file path OR Kaggle URL/ID (Example: 'owner/dataset-name')")
-        if is_kaggle_url(input_str):
-            dataset_id = extract_dataset_id(input_str)
-            if typer.confirm(f"Download Kaggle dataset '{dataset_id}'?", default=True):
-                input_file = handle_kaggle_download(dataset_id)
-            else:
-                continue
-        else:
-            input_file = Path(input_str)
+    app = DoraTUI()
+    result = app.run(inline=True)
 
-        if input_file.exists() and input_file.is_file():
-            try:
-                df = read_data(input_file)
-                # If the file is read successfully, we can exit the loop.
-                break
-            except (ValueError, OSError, RuntimeError) as e:
-                rprint(f"[bold red]Error reading file: {e}[/bold red]")
-        else:
-            rprint("[bold red]File not found. Please enter a valid path.[/bold red]")
+    if not result:
+        rprint("\n[bold cyan]Thanks for using DORA! Goodbye.[/bold cyan]")
+        raise typer.Exit()
 
-    # Personalizing the output makes the final report feel more professional and easier to identify later.
-    output_dir = typer.prompt("📂 Enter the output directory", default="output")
-    default_title = f"EDA Report for {input_file.stem}"
-    report_title = typer.prompt("📝 Enter the report title", default=default_title)
+    input_str = result["input_file"]
+
+    if is_kaggle_url(input_str):
+        dataset_id = extract_dataset_id(input_str)
+        input_file = handle_kaggle_download(dataset_id)
+    else:
+        input_file = Path(input_str)
+
+    if not input_file.exists() or not input_file.is_file():
+        rprint("[bold red]File not found. Please provide a valid path.[/bold red]")
+        raise typer.Exit(code=1)
+
+    try:
+        df = read_data(input_file)
+    except (ValueError, OSError, RuntimeError) as e:
+        rprint(f"[bold red]Error reading file: {e}[/bold red]")
+        raise typer.Exit(code=1)
 
     assert type(df) is pd.DataFrame
-    # Knowing the target variable allows DORA to create more focused and insightful plots (like feature vs. target),
-    # which is often the main goal of EDA.
-    rprint("\n[bold]Available columns:[/bold]")
-    rprint(df.columns.tolist())
-    target_variable = typer.prompt(
-        "🎯 Enter the target variable (or press Enter to skip)",
-        default="",
-        show_default=False,
-    )
-    # We validate the user's input to ensure it's a real column, which prevents errors during the analysis phase.
-    if not target_variable or target_variable not in df.columns:
-        if target_variable:
-            rprint(f"[yellow]Warning: Column '{target_variable}' not found. Proceeding without a target.[/yellow]")
+    target_variable = result["target_variable"]
+    if target_variable and target_variable not in df.columns:
+        rprint(f"[yellow]Warning: Column '{target_variable}' not found. Proceeding without a target.[/yellow]")
         target_variable = None
-
-    # To give the user full control, we ask them to opt-in to each analysis step.
-    # This makes the tool flexible for both quick overviews and deep dives.
-    rprint("\n[bold blue]Select the analysis steps to perform:[/bold blue]")
-    profile_enabled = typer.confirm("📊 Generate Data Profile (overview, missing values, etc.)?", default=True)
-    univariate_enabled = typer.confirm("📈 Generate Univariate Analysis (plots for single columns)?", default=True)
-
-    bivariate_enabled = False
-    if target_variable and typer.confirm("🔗 Generate Bivariate Analysis (relationships with target)?", default=True):
-        bivariate_enabled = True
-
-    multivariate_enabled = typer.confirm("🕸 Generate Multivariate Analysis (correlation matrix)?", default=True)
 
     config = Config(
         input_file=input_file,
-        output_dir=Path(output_dir),
-        report_title=report_title,
+        output_dir=Path(result["output_dir"]),
+        report_title=result["report_title"],
         target_variable=target_variable,
-        profile_enabled=profile_enabled,
-        univariate_enabled=univariate_enabled,
-        bivariate_enabled=bivariate_enabled,
-        multivariate_enabled=multivariate_enabled,
+        profile_enabled=result["profile_enabled"],
+        univariate_enabled=result["univariate_enabled"],
+        bivariate_enabled=result["bivariate_enabled"],
+        multivariate_enabled=result["multivariate_enabled"],
     )
 
     return df, config
@@ -233,6 +206,8 @@ def run(
 
         logger.info("✅ Analysis complete! Report saved in: %s", config.output_dir)
 
+    except typer.Exit:
+        raise
     except FileNotFoundError as e:
         logger.error("Error: Input file not found. %s", e)
         raise typer.Exit(code=1)

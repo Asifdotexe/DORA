@@ -12,6 +12,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 
+from typing import Any
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -20,7 +22,7 @@ from .styling import PRIMARY_BLUE, apply_custom_styling
 from .utils import handle_high_cardinality
 
 
-def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict) -> list[str]:
+def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict[str, Any]) -> list[str]:
     """
     Generates and save univariate plots.
 
@@ -41,7 +43,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict
         for plot_type in config_params.get("plot_types", {}).get("numerical", []):
             plt.figure(figsize=(10, 6))
             if plot_type == "histogram":
-                sns.histplot(df[column], color=PRIMARY_BLUE)
+                sns.histplot(data=df, x=column, color=PRIMARY_BLUE)
                 plt.title(
                     f"Distribution of {column.replace('_', ' ').title()}",
                     loc="left",
@@ -53,7 +55,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict
                 plt.grid()
 
             elif plot_type == "boxplot":
-                sns.boxplot(x=df[column], color=PRIMARY_BLUE)
+                sns.boxplot(data=df, x=column, color=PRIMARY_BLUE)
                 plt.title(
                     f"Box Plot for {column.replace('_', ' ').title()}",
                     loc="left",
@@ -76,7 +78,7 @@ def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict
 
             # Handle high cardinality
             max_cats = config_params.get("max_categories", 20)
-            plot_series, truncated = handle_high_cardinality(df[column], max_cats)
+            plot_series, truncated = handle_high_cardinality(pd.Series(df[column]), max_cats)
 
             ax = sns.countplot(
                 y=plot_series,
@@ -100,8 +102,8 @@ def generate_plots(df: pd.DataFrame, charts_dir: str | Path, config_params: dict
             plt.xlabel("Count")
             for p in ax.patches:
                 ax.annotate(
-                    f"{int(p.get_width())}",
-                    (p.get_width(), p.get_y() + p.get_height() / 2.0),
+                    f"{int(p.get_width())}",  # type: ignore
+                    (p.get_width(), p.get_y() + p.get_height() / 2.0),  # type: ignore
                     ha="left",
                     va="center",
                     xytext=(5, 0),
