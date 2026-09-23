@@ -2,6 +2,7 @@ from typing import ClassVar
 
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal, Vertical
+from textual.timer import Timer
 from textual.widgets import Button, Checkbox, Input, Label, Static
 
 Checkbox.BUTTON_INNER = "✓"
@@ -19,6 +20,9 @@ Data-Oriented Report Automator
 
 class DoraTUI(App):
     """An inline TUI for DORA configuration."""
+
+    _column_load_timer: Timer | None = None
+    _latest_path: str = ""
 
     CSS = """
     Screen {
@@ -97,6 +101,23 @@ class DoraTUI(App):
         width: 30;
         content-align: center middle;
     }
+    .hidden {
+        display: none;
+    }
+    #status-label {
+        margin-left: 21;
+        margin-bottom: 1;
+        text-style: bold;
+    }
+    .status-success {
+        color: #10b981;
+    }
+    .status-error {
+        color: #ef4444;
+    }
+    .status-loading {
+        color: #eab308;
+    }
     """
 
     BINDINGS: ClassVar[list[tuple[str, str, str]]] = [
@@ -113,27 +134,35 @@ class DoraTUI(App):
             with Horizontal(classes="row"):
                 yield Label("Input/URL:")
                 yield Input(placeholder="Path or Kaggle URL (owner/dataset)", id="input_file")
-            with Horizontal(classes="row"):
-                yield Label("Save to path:")
-                yield Input(value="output", id="output_dir")
-            with Horizontal(classes="row"):
-                yield Label("Report Title:")
-                yield Input(value="EDA Report", id="report_title")
-            with Horizontal(classes="row"):
-                yield Label("Target variable:")
-                yield Input(placeholder="Target column name (optional)", id="target_variable")
+            
+            yield Label("", id="status-label")
 
-            yield Static("Analysis Pipeline", classes="section-title")
-            with Vertical(classes="check-row"):
-                yield Checkbox("Profile (Overview, missing values, stats)", value=True, id="step_profile")
-                yield Checkbox("Univariate (Distributions for single columns)", value=True, id="step_univariate")
-                yield Checkbox("Bivariate (Relationships with target variable)", value=True, id="step_bivariate")
-                yield Checkbox("Multivariate (Correlation matrix)", value=True, id="step_multivariate")
+            with Container(id="further-steps", classes="hidden"):
+                with Horizontal(classes="row"):
+                    yield Label("Save to path:")
+                    yield Input(value="output", id="output_dir")
+                with Horizontal(classes="row"):
+                    yield Label("Report Title:")
+                    yield Input(value="EDA Report", id="report_title")
+                with Horizontal(classes="row"):
+                    yield Label("Target variable:")
+                    yield Input(placeholder="Target column name (optional)", id="target_variable")
 
-            yield Button("Run Analysis", variant="primary", id="run_btn")
+                yield Static("Analysis Pipeline", classes="section-title")
+                with Vertical(classes="check-row"):
+                    yield Checkbox("Profile (Overview, missing values, stats)", value=True, id="step_profile")
+                    yield Checkbox("Univariate (Distributions for single columns)", value=True, id="step_univariate")
+                    yield Checkbox("Bivariate (Relationships with target variable)", value=True, id="step_bivariate")
+                    yield Checkbox("Multivariate (Correlation matrix)", value=True, id="step_multivariate")
+
+                yield Button("Run Analysis", variant="primary", id="run_btn")
+            
             yield Static("Press 'Ctrl+Q' to quit", id="quit-label")
 
     def _submit(self) -> None:
+        if self.query_one("#further-steps").has_class("hidden"):
+            return
+
         input_file = self.query_one("#input_file", Input).value.strip()
         if not input_file:
             self.notify("Input/URL is required to run DORA!", severity="error")
@@ -182,18 +211,41 @@ class DoraTUI(App):
 
         from dora.kaggle import download_files, extract_dataset_id, is_kaggle_url
 
+        def set_status(text: str, status_class: str) -> None:
+            if self._latest_path != path:
+                return
+            lbl = self.query_one("#status-label", Label)
+            lbl.update(text)
+            lbl.remove_class("status-success", "status-error", "status-loading")
+            lbl.add_class(status_class)
+
+        def reveal_steps(cols: list[str]) -> None:
+            if self._latest_path != path:
+                return
+            self.query_one("#further-steps").remove_class("hidden")
+            target_input = self.query_one("#target_variable", Input)
+            target_input.suggester = SuggestFromList([str(c) for c in cols], case_sensitive=False)
+            set_status(f"✓ Successfully loaded {len(cols)} columns.", "status-success")
+
+        def hide_steps(error_msg: str) -> None:
+            if self._latest_path != path:
+                return
+            self.query_one("#further-steps").add_class("hidden")
+            set_status(f"✗ {error_msg}", "status-error")
+
         try:
+            self.call_from_thread(set_status, "⧗ Loading...", "status-loading")
+
             if is_kaggle_url(path):
-                self.call_from_thread(
-                    self.notify, "Downloading Kaggle dataset for autocomplete...", severity="information"
-                )
                 dataset_id = extract_dataset_id(path)
                 files = download_files(dataset_id)
                 if not files:
+                    self.call_from_thread(hide_steps, "Failed to download Kaggle dataset.")
                     return
                 file_path = str(files[0])
             else:
                 if not os.path.exists(path) or not os.path.isfile(path):
+                    self.call_from_thread(hide_steps, "File does not exist.")
                     return
                 file_path = path
 
@@ -203,24 +255,34 @@ class DoraTUI(App):
                 cols = pd.read_parquet(file_path).columns.tolist()
             elif file_path.endswith(".xlsx"):
                 cols = pd.read_excel(file_path, nrows=0).columns.tolist()
+            elif file_path.endswith(".json"):
+                cols = pd.read_json(file_path).columns.tolist()
             else:
+                self.call_from_thread(hide_steps, "Unsupported file format.")
                 return
 
-            def update_suggester():
-                target_input = self.query_one("#target_variable", Input)
-                target_input.suggester = SuggestFromList([str(c) for c in cols], case_sensitive=False)
-                self.notify(f"Found {len(cols)} columns for autocomplete", severity="information")
-
-            self.call_from_thread(update_suggester)
+            self.call_from_thread(reveal_steps, cols)
 
         except (OSError, ValueError, RuntimeError) as e:
             import logging
 
             logging.getLogger(__name__).debug("Failed to load columns: %s", e)
+            self.call_from_thread(hide_steps, "Error reading file.")
 
     def on_input_changed(self, event: Input.Changed) -> None:
         """When input_file changes, load columns for target_variable autocomplete in background."""
         if event.input.id == "input_file":
             path = event.value.strip()
+            self._latest_path = path
+
+            if self._column_load_timer is not None:
+                self._column_load_timer.stop()
+
             if path:
-                self.load_columns(path)
+                # Debounce by 1 second so partial typings don't eagerly hit Kaggle/fs
+                self._column_load_timer = self.set_timer(1.0, lambda: self.load_columns(path))
+            else:
+                self.query_one("#further-steps").add_class("hidden")
+                lbl = self.query_one("#status-label", Label)
+                lbl.update("")
+                lbl.remove_class("status-success", "status-error", "status-loading")
